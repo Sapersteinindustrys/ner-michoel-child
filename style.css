@@ -1,0 +1,18 @@
+/*
+Theme Name:   Ner Michoel (Astra Child)
+Theme URI:
+Description:  Custom child theme built on Astra for the Ner Michoel website rebuild.
+Author:       Tomo
+Author URI:
+Template:     astra
+Version:      0.2.0
+Text Domain:  ner-michoel-child
+*/
+
+/*
+ * This file must stay in place (even empty below this point) — WordPress
+ * reads the header above to register the child theme, and enqueues this
+ * stylesheet automatically via `get_stylesheet_uri()`. Put page/component
+ * overrides in assets/css/ instead and enqueue them from functions.php,
+ * so they're easier to split up as the rebuild grows.
+ */

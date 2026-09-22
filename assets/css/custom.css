@@ -1,0 +1,1564 @@
+/**
+ * Ner Michoel - design overrides on top of Astra.
+ *
+ * Prefer Astra's CSS custom properties (--ast-global-color-0,
+ * --ast-global-color-1, etc.) where possible so changes stay in sync
+ * with Customizer color/typography settings.
+ *
+ * Everything below `body.is-nm-app` is the shared Modern/Classic
+ * layout system used by Shiurim (archive-shiur.php, taxonomy-speaker/
+ * series.php, single-shiur.php), Galleries, and the News & Events
+ * page. It's scoped to that body class so it never leaks into the
+ * rest of the (light, Astra-styled) site — only the accent color is
+ * pulled from Astra's palette. `.is-shiurim` (added alongside
+ * `.is-nm-app` on Shiurim pages only) carries the one thing that
+ * doesn't generalize: the persistent bottom player bar.
+ */
+
+body.is-nm-app {
+	--sh-bg: #121212;
+	--sh-surface: #181818;
+	--sh-surface-hover: #282828;
+	--sh-text: #ffffff;
+	--sh-text-muted: rgba(255, 255, 255, 0.6);
+	--sh-border: rgba(255, 255, 255, 0.08);
+	--sh-accent: var(--ast-global-color-0, #2f8f5b);
+	--sh-accent-hover: var(--ast-global-color-1, var(--sh-accent));
+	--sh-player-height: 90px;
+	--sh-radius: 8px;
+
+	background: var(--sh-bg);
+	color: var(--sh-text);
+}
+
+body.is-shiurim {
+	padding-bottom: calc(var(--sh-player-height) + 16px);
+}
+
+body.is-nm-app a {
+	color: inherit;
+}
+
+.shiurim-app,
+.nm-app {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 32px 24px 8px;
+}
+
+.sh-page-header h1 {
+	color: var(--sh-text);
+	margin: 0 0 24px;
+}
+
+.sh-section {
+	margin-bottom: 40px;
+}
+
+.sh-section__title {
+	color: var(--sh-text);
+	font-size: 1.25rem;
+	margin: 0 0 16px;
+}
+
+.sh-empty {
+	color: var(--sh-text-muted);
+}
+
+/* Card grid (speakers, series) */
+
+.sh-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	gap: 20px;
+}
+
+.sh-card {
+	display: block;
+	background: var(--sh-surface);
+	border-radius: var(--sh-radius);
+	padding: 14px;
+	text-decoration: none;
+	transition: background-color 0.15s ease;
+}
+
+.sh-card:hover,
+.sh-card:focus-visible {
+	background: var(--sh-surface-hover);
+}
+
+.sh-card__art {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	border-radius: 4px;
+	overflow: hidden;
+	margin-bottom: 12px;
+	background: #333;
+}
+
+.sh-card--round .sh-card__art {
+	border-radius: 50%;
+}
+
+.sh-card__art img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.sh-card__play {
+	position: absolute;
+	right: 8px;
+	bottom: 8px;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	border: none;
+	background: var(--sh-accent);
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	opacity: 0;
+	transform: translateY(6px);
+	transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.sh-card:hover .sh-card__play,
+.sh-card:focus-within .sh-card__play {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.sh-card__play:hover {
+	background: var(--sh-accent-hover);
+}
+
+.sh-card__title {
+	color: var(--sh-text);
+	font-weight: 600;
+	font-size: 0.95rem;
+	margin-bottom: 4px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.sh-card__subtitle {
+	color: var(--sh-text-muted);
+	font-size: 0.85rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Placeholder art (no image set) */
+
+.sh-placeholder-art {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(135deg, var(--sh-accent), var(--sh-surface-hover));
+	color: #fff;
+	font-size: 2.5rem;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+/* Hero header (speaker / series / single shiur) */
+
+.sh-hero {
+	display: flex;
+	align-items: flex-end;
+	gap: 24px;
+	margin-bottom: 32px;
+	flex-wrap: wrap;
+}
+
+.sh-hero__art {
+	width: 180px;
+	height: 180px;
+	flex-shrink: 0;
+	border-radius: 4px;
+	overflow: hidden;
+	background: #333;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.sh-hero--round .sh-hero__art {
+	border-radius: 50%;
+}
+
+.sh-hero__art img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.sh-hero__kicker {
+	display: block;
+	text-transform: uppercase;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	color: var(--sh-text-muted);
+	margin-bottom: 8px;
+}
+
+.sh-hero__info h1 {
+	color: var(--sh-text);
+	font-size: 2.5rem;
+	margin: 0 0 12px;
+	line-height: 1.1;
+}
+
+.sh-hero__desc,
+.sh-hero__meta {
+	color: var(--sh-text-muted);
+	margin: 0 0 8px;
+}
+
+.sh-play-all {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 8px;
+	padding: 10px 22px;
+	border: none;
+	border-radius: 999px;
+	background: var(--sh-accent);
+	color: #fff;
+	font-weight: 700;
+	cursor: pointer;
+	transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.sh-play-all:hover {
+	background: var(--sh-accent-hover);
+	transform: scale(1.03);
+}
+
+.sh-hero__actions {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.sh-download-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--sh-text-muted);
+	font-weight: 600;
+	text-decoration: none;
+	transition: color 0.15s ease;
+}
+
+.sh-download-link:hover {
+	color: var(--sh-text);
+}
+
+/* Tracklist */
+
+.sh-tracklist {
+	display: flex;
+	flex-direction: column;
+}
+
+.sh-track {
+	display: grid;
+	grid-template-columns: 36px 44px 1fr auto auto;
+	align-items: center;
+	gap: 14px;
+	padding: 8px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.sh-track:hover,
+.sh-track.is-active {
+	background: var(--sh-surface-hover);
+}
+
+.sh-track__num {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	color: var(--sh-text-muted);
+	font-size: 0.9rem;
+}
+
+.sh-track__index {
+	display: block;
+}
+
+.sh-track__play {
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border: none;
+	background: transparent;
+	color: var(--sh-text);
+	cursor: pointer;
+	padding: 0;
+}
+
+.sh-track:hover .sh-track__index {
+	display: none;
+}
+
+.sh-track:hover .sh-track__play {
+	display: block;
+}
+
+.sh-track.is-active .sh-track__index {
+	color: var(--sh-accent);
+	display: block;
+}
+
+.sh-track.is-active:hover .sh-track__index {
+	display: none;
+}
+
+.sh-track__art {
+	width: 44px;
+	height: 44px;
+	border-radius: 4px;
+	overflow: hidden;
+	background: #333;
+}
+
+.sh-track__art img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.sh-track__art .sh-placeholder-art {
+	font-size: 1.1rem;
+}
+
+.sh-track__info {
+	min-width: 0;
+}
+
+.sh-track__title {
+	color: var(--sh-text);
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.sh-track.is-active .sh-track__title {
+	color: var(--sh-accent);
+}
+
+.sh-track__speaker {
+	color: var(--sh-text-muted);
+	font-size: 0.85rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.sh-track__duration {
+	color: var(--sh-text-muted);
+	font-size: 0.85rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.sh-track__download {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--sh-text-muted);
+	opacity: 0;
+	transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.sh-track:hover .sh-track__download,
+.sh-track:focus-within .sh-track__download {
+	opacity: 1;
+}
+
+.sh-track__download:hover {
+	color: var(--sh-text);
+}
+
+.sh-track--video {
+	text-decoration: none;
+}
+
+.sh-track--video .sh-track__num {
+	color: var(--sh-text-muted);
+}
+
+/* Content below a single shiur (description) */
+
+.sh-content {
+	color: var(--sh-text-muted);
+	max-width: 720px;
+	line-height: 1.7;
+}
+
+.sh-dedication {
+	color: var(--sh-text-muted);
+	font-style: italic;
+	max-width: 720px;
+	line-height: 1.6;
+	padding-top: 12px;
+	border-top: 1px solid var(--sh-border);
+}
+
+/* Persistent bottom player bar */
+
+.sh-player {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: var(--sh-player-height);
+	background: #0a0a0a;
+	border-top: 1px solid var(--sh-border);
+	display: grid;
+	grid-template-columns: 1fr 2fr 1fr;
+	align-items: center;
+	gap: 16px;
+	padding: 0 16px;
+	z-index: 9999;
+}
+
+.sh-player[hidden] {
+	display: none;
+}
+
+.sh-player__now {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-width: 0;
+}
+
+.sh-player__cover {
+	width: 56px;
+	height: 56px;
+	flex-shrink: 0;
+	border-radius: 4px;
+	overflow: hidden;
+	background: #333;
+}
+
+.sh-player__cover img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.sh-player__meta {
+	min-width: 0;
+}
+
+.sh-player__title {
+	color: var(--sh-text);
+	font-size: 0.9rem;
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.sh-player__speaker {
+	color: var(--sh-text-muted);
+	font-size: 0.8rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.sh-player__center {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+}
+
+.sh-player__buttons {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+}
+
+.sh-player__buttons button {
+	border: none;
+	background: transparent;
+	color: var(--sh-text-muted);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: color 0.15s ease;
+}
+
+.sh-player__buttons button:hover {
+	color: var(--sh-text);
+}
+
+.sh-player__toggle {
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	background: var(--sh-text) !important;
+	color: #000 !important;
+}
+
+.sh-player__toggle:hover {
+	transform: scale(1.05);
+}
+
+.sh-player__progress {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	max-width: 520px;
+}
+
+.sh-player__time {
+	color: var(--sh-text-muted);
+	font-size: 0.75rem;
+	font-variant-numeric: tabular-nums;
+	min-width: 32px;
+}
+
+.sh-player__seek,
+.sh-player__volume-range {
+	-webkit-appearance: none;
+	appearance: none;
+	flex: 1;
+	height: 4px;
+	border-radius: 2px;
+	background: var(--sh-border);
+	cursor: pointer;
+}
+
+.sh-player__seek::-webkit-slider-thumb,
+.sh-player__volume-range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: var(--sh-text);
+}
+
+.sh-player__seek::-moz-range-thumb,
+.sh-player__volume-range::-moz-range-thumb {
+	width: 12px;
+	height: 12px;
+	border: none;
+	border-radius: 50%;
+	background: var(--sh-text);
+}
+
+.sh-player__volume {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	justify-self: end;
+	color: var(--sh-text-muted);
+	width: 190px;
+}
+
+.sh-player__speed {
+	flex-shrink: 0;
+	border: 1px solid var(--sh-border);
+	border-radius: 999px;
+	background: transparent;
+	color: var(--sh-text-muted);
+	font-size: 0.75rem;
+	font-weight: 600;
+	padding: 3px 8px;
+	cursor: pointer;
+	transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.sh-player__speed:hover {
+	color: var(--sh-text);
+	border-color: var(--sh-text-muted);
+}
+
+.sh-player__speed.is-active {
+	color: var(--sh-accent);
+	border-color: var(--sh-accent);
+}
+
+@media (max-width: 780px) {
+	.sh-player {
+		grid-template-columns: 1fr auto;
+	}
+
+	.sh-player__volume {
+		display: none;
+	}
+
+	.sh-player__center {
+		grid-column: 2 / 3;
+	}
+
+	.sh-hero {
+		align-items: center;
+	}
+
+	.sh-hero__art {
+		width: 140px;
+		height: 140px;
+	}
+
+	.sh-hero__info h1 {
+		font-size: 1.75rem;
+	}
+}
+
+/* Layout toggle (top-right, site-wide across app-context pages) */
+
+.sh-layout-toggle {
+	position: fixed;
+	top: 16px;
+	right: 16px;
+	z-index: 10000;
+	display: flex;
+	background: var(--sh-surface, #eee);
+	border: 1px solid var(--sh-border, rgba(0, 0, 0, 0.1));
+	border-radius: 999px;
+	padding: 3px;
+	gap: 2px;
+}
+
+.sh-layout-toggle__option {
+	border: none;
+	background: transparent;
+	color: var(--sh-text-muted, #666);
+	font-size: 0.8rem;
+	font-weight: 600;
+	padding: 6px 14px;
+	border-radius: 999px;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sh-layout-toggle__option.is-active {
+	background: var(--sh-accent, #2f8f5b);
+	color: #fff;
+}
+
+/* Classic layout — plain library list, not scoped to the dark
+   --sh-* variables since it intentionally reads like the rest of the
+   (light, Astra-styled) site rather than the app UI. Applies to any
+   app-context page (Shiurim, Galleries, News & Events). */
+
+body.sh-layout-classic.is-nm-app {
+	/* Custom properties inherit regardless of which rule set them, so
+	   the dark --sh-text/--sh-text-muted from body.is-nm-app above
+	   would otherwise leak into Classic (near-white text on a light
+	   background) — redefine them here so any shared component that
+	   reads var(--sh-text[-muted]) renders correctly in both layouts. */
+	--sh-text: inherit;
+	--sh-text-muted: #666;
+	background: none;
+	color: inherit;
+}
+
+body.sh-layout-classic.is-shiurim {
+	padding-bottom: 0;
+}
+
+body.sh-layout-classic.is-nm-app a {
+	color: var(--ast-global-color-0, #2f8f5b);
+}
+
+.shiurim-app--classic,
+.nm-app--classic {
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 32px 24px;
+}
+
+.shiurim-app--classic .sh-page-header h1,
+.nm-app--classic .sh-page-header h1 {
+	margin: 0 0 20px;
+}
+
+.sh-classic-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	gap: 16px;
+	margin-bottom: 24px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sh-classic-toolbar__field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 0.8rem;
+	font-weight: 600;
+}
+
+.sh-classic-toolbar__field select,
+.sh-classic-toolbar__field input {
+	font-weight: 400;
+	padding: 6px 8px;
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	border-radius: 4px;
+	font-family: inherit;
+}
+
+.sh-classic-toolbar__field--search {
+	flex: 1;
+	min-width: 160px;
+}
+
+.sh-classic-toolbar__field--search input {
+	width: 100%;
+}
+
+.sh-classic-toolbar__apply {
+	padding: 7px 16px;
+	border: none;
+	border-radius: 4px;
+	background: var(--ast-global-color-0, #2f8f5b);
+	color: #fff;
+	cursor: pointer;
+}
+
+.sh-classic-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 24px;
+}
+
+.sh-classic-table th,
+.sh-classic-table td {
+	text-align: left;
+	padding: 10px 12px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+	font-size: 0.9rem;
+}
+
+.sh-classic-table th {
+	font-weight: 700;
+	color: var(--sh-text-muted, #666);
+	font-size: 0.8rem;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+.sh-classic-meta {
+	color: var(--sh-text-muted, #666);
+	margin: 4px 0 16px;
+}
+
+.sh-classic-related-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sh-classic-related-list li {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 10px 0;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.sh-classic-related-list .sh-classic-meta {
+	margin: 0;
+	flex-shrink: 0;
+}
+
+.sh-classic-pagination ul {
+	display: flex;
+	list-style: none;
+	gap: 6px;
+	padding: 0;
+	margin: 0;
+}
+
+.sh-classic-pagination a,
+.sh-classic-pagination span {
+	display: inline-block;
+	padding: 6px 12px;
+	border-radius: 4px;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sh-classic-pagination .current {
+	background: var(--ast-global-color-0, #2f8f5b);
+	color: #fff;
+	border-color: transparent;
+}
+
+/* Galleries — Classic (light card grid + plain photo grid) */
+
+.sh-classic-gallery-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 24px;
+}
+
+.sh-classic-gallery-card {
+	display: block;
+	color: inherit;
+	text-decoration: none;
+}
+
+.sh-classic-gallery-card__art {
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	border-radius: 6px;
+	overflow: hidden;
+	background: #eee;
+	margin-bottom: 10px;
+}
+
+.sh-classic-gallery-card__art img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.sh-classic-gallery-card__title {
+	font-weight: 600;
+	margin-bottom: 2px;
+}
+
+.sh-classic-gallery-card__meta {
+	font-size: 0.85rem;
+	color: var(--sh-text-muted, #666);
+}
+
+.sh-classic-photo-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	gap: 12px;
+}
+
+.sh-classic-photo-grid a {
+	display: block;
+	aspect-ratio: 1 / 1;
+	border-radius: 4px;
+	overflow: hidden;
+	background: #eee;
+}
+
+.sh-classic-photo-grid img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	transition: transform 0.15s ease;
+}
+
+.sh-classic-photo-grid a:hover img {
+	transform: scale(1.04);
+}
+
+/* Video shiurim — single-shiur.php, both layouts */
+
+.sh-video-player {
+	margin-bottom: 24px;
+}
+
+.sh-video-player video {
+	width: 100%;
+	max-height: 70vh;
+	border-radius: var(--sh-radius, 8px);
+	background: #000;
+	display: block;
+}
+
+/* Galleries — Modern slider (single-gallery.php) */
+
+.sh-gallery-slider__stage {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #000;
+	border-radius: var(--sh-radius, 8px);
+	overflow: hidden;
+	min-height: 320px;
+	max-height: 70vh;
+}
+
+.sh-gallery-slider__image {
+	max-width: 100%;
+	max-height: 70vh;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+	display: block;
+}
+
+.sh-gallery-slider__nav {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 44px;
+	height: 44px;
+	border: none;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.5);
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+}
+
+.sh-gallery-slider__nav:hover {
+	background: rgba(0, 0, 0, 0.75);
+}
+
+.sh-gallery-slider__nav--prev {
+	left: 12px;
+}
+
+.sh-gallery-slider__nav--next {
+	right: 12px;
+}
+
+.sh-gallery-slider__caption {
+	color: var(--sh-text-muted);
+	font-size: 0.9rem;
+	text-align: center;
+	min-height: 1.4em;
+	margin: 12px 0;
+}
+
+.sh-gallery-slider__thumbs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.sh-gallery-slider__thumb {
+	width: 64px;
+	height: 64px;
+	padding: 0;
+	border: 2px solid transparent;
+	border-radius: 4px;
+	overflow: hidden;
+	background: #333;
+	cursor: pointer;
+	opacity: 0.6;
+	transition: opacity 0.15s ease, border-color 0.15s ease;
+}
+
+.sh-gallery-slider__thumb:hover {
+	opacity: 0.9;
+}
+
+.sh-gallery-slider__thumb.is-active {
+	opacity: 1;
+	border-color: var(--sh-accent);
+}
+
+.sh-gallery-slider__thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+/* Galleries — video / shiurim-video (stacked oEmbed players) */
+
+.sh-video-list {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.sh-video-list__item iframe,
+.sh-video-list__item embed,
+.sh-video-list__item object {
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	height: auto;
+	border-radius: var(--sh-radius, 8px);
+	border: none;
+}
+
+/* News & Events page — one shared markup for both layouts, colors
+   adapt via var(--sh-text[-muted]) (see the Classic override above). */
+
+.sh-news-list {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.sh-news-item {
+	display: grid;
+	grid-template-columns: 130px 1fr;
+	gap: 16px;
+}
+
+.sh-news-item__date {
+	color: var(--sh-text-muted);
+	font-size: 0.85rem;
+	padding-top: 3px;
+}
+
+.sh-news-item__title {
+	margin: 0 0 6px;
+	font-size: 1.05rem;
+}
+
+.sh-news-item__title a {
+	color: var(--sh-text);
+	text-decoration: none;
+}
+
+.sh-news-item__title a:hover {
+	text-decoration: underline;
+}
+
+.sh-news-item__excerpt {
+	color: var(--sh-text-muted);
+	line-height: 1.6;
+}
+
+.sh-mazal-tov-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.sh-mazal-tov-item {
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--sh-border, rgba(0, 0, 0, 0.08));
+}
+
+.sh-mazal-tov-item__type {
+	flex-shrink: 0;
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--sh-accent);
+	border: 1px solid var(--sh-accent);
+	border-radius: 999px;
+	padding: 2px 8px;
+}
+
+.sh-mazal-tov-item__name {
+	color: var(--sh-text);
+}
+
+.sh-mazal-tov-item__years {
+	color: var(--sh-text-muted);
+	font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+	.sh-news-item {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Static pages (About, Contribute, Connections, Contact) — plain
+   Astra-consistent styling, no Modern/Classic toggle: a single design
+   is enough for content that isn't browsed/filtered. */
+
+.nm-page {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 40px 24px;
+}
+
+.nm-page__header {
+	margin-bottom: 24px;
+}
+
+.nm-page__intro {
+	color: #666;
+}
+
+.nm-page__figure {
+	margin: 0 0 24px;
+}
+
+.nm-page__figure img {
+	width: 100%;
+	height: auto;
+	border-radius: 8px;
+}
+
+.nm-page__content {
+	line-height: 1.7;
+}
+
+.nm-info-card {
+	margin-top: 32px;
+	padding: 20px 24px;
+	background: #f7f7f7;
+	border-radius: 8px;
+	border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.nm-info-card h2 {
+	margin-top: 0;
+	font-size: 1.1rem;
+}
+
+.nm-security-note {
+	margin-top: 24px;
+	font-size: 0.9rem;
+	color: #666;
+}
+
+.nm-connections-grid img {
+	border-radius: 4px;
+}
+
+.nm-office-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	gap: 24px;
+	margin: 32px 0;
+}
+
+.nm-office-card {
+	padding: 20px 24px;
+	background: #f7f7f7;
+	border-radius: 8px;
+	border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.nm-office-card h2 {
+	margin-top: 0;
+	font-size: 1.1rem;
+}
+
+.nm-office-card p {
+	margin: 0 0 10px;
+}
+
+.nm-contact-form-wrap {
+	margin-top: 40px;
+}
+
+.nm-contact-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	max-width: 480px;
+}
+
+.nm-contact-form__field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+
+.nm-contact-form__field input,
+.nm-contact-form__field textarea {
+	font-weight: 400;
+	padding: 10px 12px;
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	border-radius: 4px;
+	font-family: inherit;
+	font-size: 1rem;
+}
+
+.nm-contact-form__submit {
+	align-self: start;
+	padding: 10px 24px;
+	border: none;
+	border-radius: 4px;
+	background: var(--ast-global-color-0, #2f8f5b);
+	color: #fff;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.nm-form-notice {
+	padding: 12px 16px;
+	border-radius: 6px;
+	margin-bottom: 20px;
+	max-width: 480px;
+}
+
+.nm-form-notice--success {
+	background: #eaf6ee;
+	border: 1px solid #b7e0c3;
+	color: #205c33;
+}
+
+.nm-form-notice--error {
+	background: #fbeaea;
+	border: 1px solid #eebcbc;
+	color: #7a2222;
+}
+
+/* Off-screen honeypot — invisible and untabbable for real visitors,
+   but present in the DOM for simple bots that fill every field. */
+.nm-hp-field {
+	position: absolute;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+/* Homepage — deliberately warm/friendly, distinct from both the dark
+   Modern app and the plain Classic library (per the admin's request
+   that the landing page itself feel welcoming, not a data screen). */
+
+.nm-home-btn {
+	display: inline-flex;
+	align-items: center;
+	padding: 12px 28px;
+	border-radius: 999px;
+	font-weight: 700;
+	text-decoration: none;
+	transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.nm-home-btn:hover {
+	transform: translateY(-1px);
+}
+
+.nm-home-btn--primary {
+	background: var(--ast-global-color-0, #2f8f5b);
+	color: #fff;
+}
+
+.nm-home-btn--secondary {
+	background: rgba(255, 255, 255, 0.15);
+	color: inherit;
+	border: 2px solid currentColor;
+}
+
+.nm-home-hero {
+	background: linear-gradient(135deg, var(--ast-global-color-0, #2f8f5b), #f4a13c);
+	color: #fff;
+	text-align: center;
+	padding: 90px 24px;
+}
+
+.nm-home-hero__inner {
+	max-width: 720px;
+	margin: 0 auto;
+}
+
+.nm-home-hero__kicker {
+	display: block;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	font-size: 0.8rem;
+	font-weight: 700;
+	opacity: 0.85;
+	margin-bottom: 14px;
+}
+
+.nm-home-hero h1 {
+	font-size: 2.75rem;
+	margin: 0 0 16px;
+	color: #fff;
+	line-height: 1.15;
+}
+
+.nm-home-hero p {
+	font-size: 1.15rem;
+	line-height: 1.6;
+	margin: 0 0 28px;
+	opacity: 0.95;
+}
+
+.nm-home-hero__actions {
+	display: flex;
+	gap: 14px;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+/* Hero slider variant — admin-managed slides (image + heading +
+   subtext + button), no external library. */
+
+.nm-home-hero--slider {
+	padding: 0;
+	background: #222;
+}
+
+.nm-hero-slider {
+	position: relative;
+	min-height: 480px;
+}
+
+.nm-hero-slider__slide {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.6s ease;
+}
+
+.nm-hero-slider__slide.is-active {
+	position: relative;
+	opacity: 1;
+	visibility: visible;
+}
+
+.nm-hero-slider__overlay {
+	background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.55));
+	min-height: 480px;
+	display: flex;
+	align-items: center;
+	padding: 60px 24px;
+}
+
+.nm-hero-slider__overlay .nm-home-hero__inner h1,
+.nm-hero-slider__overlay .nm-home-hero__inner p {
+	color: #fff;
+}
+
+.nm-hero-slider__dots {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 18px;
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+}
+
+.nm-hero-slider__dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	border: 2px solid #fff;
+	background: transparent;
+	padding: 0;
+	cursor: pointer;
+	opacity: 0.7;
+	transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.nm-hero-slider__dot.is-active {
+	background: #fff;
+	opacity: 1;
+}
+
+.nm-home-links {
+	max-width: 1100px;
+	margin: -36px auto 0;
+	padding: 0 24px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 16px;
+	position: relative;
+	z-index: 1;
+}
+
+.nm-home-link-card {
+	background: #fff;
+	border-radius: 14px;
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+	padding: 24px 16px;
+	text-align: center;
+	text-decoration: none;
+	color: inherit;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.nm-home-link-card:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+.nm-home-link-card__emoji {
+	display: block;
+	font-size: 2rem;
+	margin-bottom: 10px;
+}
+
+.nm-home-link-card__title {
+	display: block;
+	font-weight: 700;
+	margin-bottom: 4px;
+}
+
+.nm-home-link-card__desc {
+	display: block;
+	font-size: 0.85rem;
+	color: #777;
+}
+
+.nm-home-section {
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 56px 24px 0;
+}
+
+.nm-home-section--split {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 48px;
+}
+
+.nm-home-section__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	margin-bottom: 20px;
+}
+
+.nm-home-section__head h2 {
+	margin: 0;
+	font-size: 1.5rem;
+}
+
+.nm-home-more {
+	font-weight: 600;
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+.nm-home-shiur-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	gap: 20px;
+}
+
+.nm-home-shiur-card {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+}
+
+.nm-home-shiur-card__art {
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	border-radius: 10px;
+	overflow: hidden;
+	background: linear-gradient(135deg, var(--ast-global-color-0, #2f8f5b), #f4a13c);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 2rem;
+	margin-bottom: 10px;
+}
+
+.nm-home-shiur-card__art img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.nm-home-shiur-card__title {
+	font-weight: 600;
+	margin-bottom: 2px;
+}
+
+.nm-home-shiur-card__meta {
+	font-size: 0.85rem;
+	color: #777;
+}
+
+.nm-home-news-list {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.nm-home-news-item {
+	display: flex;
+	gap: 14px;
+	text-decoration: none;
+	color: inherit;
+	padding-bottom: 14px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.nm-home-news-item__date {
+	flex-shrink: 0;
+	width: 90px;
+	color: #777;
+	font-size: 0.85rem;
+}
+
+.nm-home-news-item__title {
+	font-weight: 600;
+}
+
+.nm-home-mazaltov-banner {
+	background: #fff8e8;
+	border: 1px solid #f4dfa6;
+	border-radius: 14px;
+	padding: 20px 24px;
+}
+
+.nm-home-mazaltov-banner p {
+	margin: 0 0 10px;
+}
+
+.nm-home-mazaltov-banner p:last-child {
+	margin-bottom: 0;
+}
+
+.nm-home-closing {
+	max-width: 640px;
+	margin: 56px auto 0;
+	padding: 48px 24px 64px;
+	text-align: center;
+}
+
+.nm-home-closing h2 {
+	margin-bottom: 12px;
+}
+
+.nm-home-closing p {
+	color: #666;
+	margin-bottom: 24px;
+	line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+	.nm-home-hero h1 {
+		font-size: 2rem;
+	}
+
+	.nm-home-section--split {
+		grid-template-columns: 1fr;
+		gap: 36px;
+	}
+}
