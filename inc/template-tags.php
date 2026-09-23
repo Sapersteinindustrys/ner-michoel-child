@@ -179,6 +179,52 @@ function ner_michoel_render_card_collection_end( $is_carousel ) {
 }
 
 /**
+ * "New" is pure date math (published within the last 14 days) — no
+ * backend needed. "Trending" defers to ner_michoel_is_shiur_trending()
+ * if the backend ever ships one (based on real play-count data none
+ * of our accessors expose yet); until then it's silently omitted
+ * rather than guessed at with a fake signal.
+ */
+function ner_michoel_get_shiur_badges( $post_id ) {
+	$badges = array();
+
+	$published = get_post_time( 'U', true, $post_id );
+	if ( $published && ( time() - $published ) <= 14 * DAY_IN_SECONDS ) {
+		$badges[] = array(
+			'key'   => 'new',
+			'label' => __( 'New', 'ner-michoel-child' ),
+		);
+	}
+
+	if ( function_exists( 'ner_michoel_is_shiur_trending' ) && ner_michoel_is_shiur_trending( $post_id ) ) {
+		$badges[] = array(
+			'key'   => 'trending',
+			'label' => __( 'Trending', 'ner-michoel-child' ),
+		);
+	}
+
+	return $badges;
+}
+
+/**
+ * Renders whatever ner_michoel_get_shiur_badges() returns as small
+ * pill labels. Shared by tracklist rows, the classic table, the
+ * single-shiur hero, and the homepage's recent-shiurim cards, so a
+ * new badge type only needs adding in one place.
+ */
+function ner_michoel_render_shiur_badges( $post_id ) {
+	$badges = ner_michoel_get_shiur_badges( $post_id );
+	if ( ! $badges ) {
+		return;
+	}
+	echo '<span class="sh-badges">';
+	foreach ( $badges as $badge ) {
+		echo '<span class="sh-badge sh-badge--' . esc_attr( $badge['key'] ) . '">' . esc_html( $badge['label'] ) . '</span>';
+	}
+	echo '</span>';
+}
+
+/**
  * A clickable card for a speaker or series — cover art, title,
  * subtitle, and (if a track queue is supplied) a hover play button
  * that starts playback without leaving the grid.
@@ -265,7 +311,7 @@ function ner_michoel_render_track_row( $shiur, $index, $show_speaker = true ) {
 				<?php endif; ?>
 			</div>
 			<div class="sh-track__info">
-				<div class="sh-track__title"><?php echo esc_html( get_the_title( $shiur ) ); ?></div>
+				<div class="sh-track__title"><?php echo esc_html( get_the_title( $shiur ) ); ?><?php ner_michoel_render_shiur_badges( $shiur->ID ); ?></div>
 				<?php if ( $show_speaker && $speaker_name ) : ?>
 					<div class="sh-track__speaker"><?php echo esc_html( $speaker_name ); ?></div>
 				<?php endif; ?>
@@ -289,7 +335,7 @@ function ner_michoel_render_track_row( $shiur, $index, $show_speaker = true ) {
 			<?php endif; ?>
 		</div>
 		<div class="sh-track__info">
-			<div class="sh-track__title"><?php echo esc_html( get_the_title( $shiur ) ); ?></div>
+			<div class="sh-track__title"><?php echo esc_html( get_the_title( $shiur ) ); ?><?php ner_michoel_render_shiur_badges( $shiur->ID ); ?></div>
 			<?php if ( $show_speaker && $speaker_name ) : ?>
 				<div class="sh-track__speaker"><?php echo esc_html( $speaker_name ); ?></div>
 			<?php endif; ?>

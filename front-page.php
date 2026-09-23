@@ -199,7 +199,7 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 							<span aria-hidden="true">🎧</span>
 						<?php endif; ?>
 					</div>
-					<div class="nm-home-shiur-card__title"><?php echo esc_html( get_the_title( $shiur ) ); ?></div>
+					<div class="nm-home-shiur-card__title"><?php echo esc_html( get_the_title( $shiur ) ); ?><?php ner_michoel_render_shiur_badges( $shiur->ID ); ?></div>
 					<?php if ( $speaker_name ) : ?>
 						<div class="nm-home-shiur-card__meta"><?php echo esc_html( $speaker_name ); ?></div>
 					<?php endif; ?>

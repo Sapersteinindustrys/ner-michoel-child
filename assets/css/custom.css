@@ -1913,3 +1913,36 @@ body.sh-layout-classic.is-nm-app a {
 		gap: 36px;
 	}
 }
+
+/* Shiur badges ("New" / "Trending") — see ner_michoel_render_shiur_badges()
+   in inc/template-tags.php. Solid-colored pills with their own explicit
+   text color rather than inheriting var(--sh-text)/body text color, since
+   these render in both the dark app UI and the light homepage cards and
+   need to look right in both without two separate rule sets. */
+
+.sh-badges {
+	display: inline-flex;
+	gap: 4px;
+	margin-left: 8px;
+	vertical-align: middle;
+}
+
+.sh-badge {
+	display: inline-block;
+	font-size: 0.65rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	padding: 2px 7px;
+	border-radius: 999px;
+	color: #fff;
+	white-space: nowrap;
+}
+
+.sh-badge--new {
+	background: var(--nm-primary, #2f8f5b);
+}
+
+.sh-badge--trending {
+	background: #e0622f;
+}

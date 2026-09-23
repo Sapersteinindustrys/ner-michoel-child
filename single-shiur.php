@@ -51,7 +51,7 @@ while ( have_posts() ) :
 		?>
 		<div class="shiurim-app shiurim-app--classic">
 			<header class="sh-page-header">
-				<h1><?php the_title(); ?></h1>
+				<h1><?php the_title(); ?><?php ner_michoel_render_shiur_badges( get_the_ID() ); ?></h1>
 				<p class="sh-classic-meta">
 					<?php if ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) : ?>
 						<a href="<?php echo esc_url( get_term_link( $speaker_terms[0] ) ); ?>"><?php echo esc_html( $speaker_terms[0]->name ); ?></a>
@@ -114,7 +114,7 @@ while ( have_posts() ) :
 	<div class="shiurim-app">
 		<?php if ( $is_video ) : ?>
 			<header class="sh-page-header">
-				<h1><?php the_title(); ?></h1>
+				<h1><?php the_title(); ?><?php ner_michoel_render_shiur_badges( get_the_ID() ); ?></h1>
 				<p class="sh-hero__meta">
 					<?php if ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) : ?>
 						<a href="<?php echo esc_url( get_term_link( $speaker_terms[0] ) ); ?>"><?php echo esc_html( $speaker_terms[0]->name ); ?></a>
@@ -149,7 +149,7 @@ while ( have_posts() ) :
 				</div>
 				<div class="sh-hero__info">
 					<span class="sh-hero__kicker"><?php esc_html_e( 'Shiur', 'ner-michoel-child' ); ?></span>
-					<h1><?php the_title(); ?></h1>
+					<h1><?php the_title(); ?><?php ner_michoel_render_shiur_badges( get_the_ID() ); ?></h1>
 					<p class="sh-hero__meta">
 						<?php if ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) : ?>
 							<a href="<?php echo esc_url( get_term_link( $speaker_terms[0] ) ); ?>"><?php echo esc_html( $speaker_terms[0]->name ); ?></a>

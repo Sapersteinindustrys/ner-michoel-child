@@ -156,7 +156,7 @@ function ner_michoel_render_classic_table( WP_Query $query, $show_speaker = true
 				$download_url  = function_exists( 'ner_michoel_get_shiur_download_url' ) ? ner_michoel_get_shiur_download_url( get_the_ID() ) : $audio_url;
 				?>
 				<tr>
-					<td><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></td>
+					<td><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a><?php ner_michoel_render_shiur_badges( get_the_ID() ); ?></td>
 					<?php if ( $show_speaker ) : ?>
 						<td>
 							<?php if ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) : ?>
