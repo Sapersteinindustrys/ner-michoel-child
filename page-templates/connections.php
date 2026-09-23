@@ -20,7 +20,7 @@ get_header();
 		?>
 		<header class="nm-page__header">
 			<h1><?php the_title(); ?></h1>
-			<p class="nm-page__intro"><?php esc_html_e( 'Archived issues of Connections magazine.', 'ner-michoel-child' ); ?></p>
+			<p class="nm-page__intro"><?php esc_html_e( 'Connections magazine, published by the Ner Michoel Alumni Association of Yeshivas Toras Moshe, helps keep alumni connected to each other and the Yeshiva. Twenty issues are archived below — click a cover to download the full issue.', 'ner-michoel-child' ); ?></p>
 		</header>
 
 		<div class="nm-page__content entry-content nm-connections-grid">

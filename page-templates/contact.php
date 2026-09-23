@@ -2,11 +2,9 @@
 /**
  * Template Name: Contact (Ner Michoel)
  *
- * Two office blocks (real address/phone/fax from the original site)
- * plus a contact form. The original site's email addresses are
- * Cloudflare-obfuscated in its markup — the real addresses weren't
- * recoverable, so they're intentionally left out here rather than
- * faked; the form is the primary contact path.
+ * Two office blocks (real address/phone/fax/email from the original
+ * site, the emails decoded from the live site's Cloudflare-obfuscated
+ * markup) plus a contact form.
  *
  * Submission handling: ner-michoel-core/includes/forms.php. The form
  * posts to admin-post.php?action=nm_contact_submit with a
@@ -42,10 +40,15 @@ $notice = isset( $_GET['nm_contact'] ) ? sanitize_key( wp_unslash( $_GET['nm_con
 		<div class="nm-office-grid">
 			<div class="nm-office-card">
 				<h2><?php esc_html_e( 'American Office', 'ner-michoel-child' ); ?></h2>
+				<p><?php esc_html_e( 'American Friends of Yeshivas Toras Moshe', 'ner-michoel-child' ); ?></p>
 				<p>1412 East 7th Street<br />Brooklyn, NY 11230</p>
 				<p>
 					<?php esc_html_e( 'Phone:', 'ner-michoel-child' ); ?> <a href="tel:+17183361770">718-336-1770</a><br />
 					<?php esc_html_e( 'Fax:', 'ner-michoel-child' ); ?> 718-336-1799
+				</p>
+				<p>
+					<?php esc_html_e( 'Toras Moshe:', 'ner-michoel-child' ); ?> <a href="mailto:americanfriends@torasmoshe.org">americanfriends@torasmoshe.org</a><br />
+					<?php esc_html_e( 'Ner Michoel:', 'ner-michoel-child' ); ?> <a href="mailto:nermichoel@torasmoshe.org">nermichoel@torasmoshe.org</a>
 				</p>
 			</div>
 			<div class="nm-office-card">
@@ -55,6 +58,9 @@ $notice = isset( $_GET['nm_contact'] ) ? sanitize_key( wp_unslash( $_GET['nm_con
 				<p>
 					<?php esc_html_e( 'Phone:', 'ner-michoel-child' ); ?> <a href="tel:+97225826541">02-582-6541</a><br />
 					<?php esc_html_e( 'US calling number:', 'ner-michoel-child' ); ?> <a href="tel:+19293231331">929-323-1331</a>
+				</p>
+				<p>
+					<?php esc_html_e( 'Email:', 'ner-michoel-child' ); ?> <a href="mailto:admin@torasmoshe.org">admin@torasmoshe.org</a>
 				</p>
 			</div>
 		</div>
