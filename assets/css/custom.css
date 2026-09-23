@@ -110,6 +110,30 @@ body.is-nm-app a {
 	color: inherit;
 }
 
+/* Astra's "separate container" layout (active site-wide here) wraps
+   every single/archive page in its own light card: a background
+   color on body.ast-separate-container itself, another on
+   .ast-article-inner, plus 2.5em of padding on the article wrapper.
+   That's the right call for ordinary Astra pages, but it directly
+   fights the full-bleed dark app look — without this, the Shiurim/
+   Galleries/News UI renders as a dark box awkwardly framed inside a
+   light card with doubled-up padding, instead of taking over the
+   page the way a real app does. Neutralized only when is-nm-app is
+   present, so ordinary Astra pages (About, Contact, etc.) keep
+   Astra's normal boxed styling untouched. */
+body.is-nm-app.ast-separate-container {
+	background-color: transparent;
+}
+
+body.is-nm-app .ast-article-inner {
+	background-color: transparent;
+}
+
+body.is-nm-app .ast-article-post,
+body.is-nm-app .ast-article-single {
+	padding: 0;
+}
+
 .shiurim-app,
 .nm-app {
 	max-width: 1200px;
