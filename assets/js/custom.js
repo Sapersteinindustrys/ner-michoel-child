@@ -56,6 +56,26 @@ function nerMichoelSendShiurEvent( postId, event ) {
 ( function () {
 	'use strict';
 
+	// 24Six carousel rows (archive-shiur.php, taxonomy-speaker.php) —
+	// prev/next buttons are progressive enhancement on top of native
+	// scroll-snap; touch/trackpad swiping already works without this.
+	document.addEventListener( 'click', function ( e ) {
+		var btn = e.target.closest( '.sh-carousel__nav' );
+		if ( ! btn ) {
+			return;
+		}
+		var track = btn.parentElement.querySelector( '.sh-carousel__track' );
+		if ( ! track ) {
+			return;
+		}
+		var amount = Math.round( track.clientWidth * 0.8 );
+		track.scrollBy( { left: btn.classList.contains( 'sh-carousel__nav--prev' ) ? -amount : amount, behavior: 'smooth' } );
+	} );
+} )();
+
+( function () {
+	'use strict';
+
 	// Site-wide layout toggle (Shiurim, Galleries, News & Events) —
 	// sets a cookie the server reads (see ner_michoel_get_layout() in
 	// inc/template-tags.php) and reloads, since Modern/Classic are

@@ -31,16 +31,29 @@ function ner_michoel_is_app_context() {
 }
 
 /**
- * Which layout to render: 'stream' (the Spotify/app-style visual
- * language) or 'classic' (the plain filterable/sortable library
- * style) — shared site-wide across Shiurim, Galleries, and News &
- * Events so the top-right toggle is one global choice, not a
- * per-section setting. Persisted in a cookie so the server can render
- * the right templates directly instead of shipping both to the client.
+ * Which layout to render:
+ * - 'stream'  — the Spotify/app-style visual language (grid browsing)
+ * - 'classic' — the plain filterable/sortable library style
+ * - '24six'   — carousel/swimlane browsing (horizontal-scrolling rows
+ *   of Series/Speakers instead of a wrapping grid), inspired by
+ *   24six.app's layout specifically, not its color scheme — reuses
+ *   the same dark palette as 'stream'. Shiurim-only: archive-shiur.php
+ *   and taxonomy-speaker.php are the only templates that branch on
+ *   this value; taxonomy-series.php and single-shiur.php show one
+ *   collection's contents rather than browsing multiple collections,
+ *   so there's nothing meaningful to turn into a carousel there —
+ *   they render the same as 'stream' for any non-'classic' value.
+ * Shared site-wide across Shiurim, Galleries, and News & Events so
+ * the top-right toggle is one global choice, not a per-section
+ * setting (Galleries/News & Events don't have a '24six'-specific
+ * layout of their own yet — they just render their 'stream' markup
+ * for that value, same as taxonomy-series.php/single-shiur.php do).
+ * Persisted in a cookie so the server can render the right templates
+ * directly instead of shipping all of them to the client.
  */
 function ner_michoel_get_layout() {
 	$layout = isset( $_COOKIE['nm_layout'] ) ? sanitize_key( wp_unslash( $_COOKIE['nm_layout'] ) ) : 'stream';
-	return 'classic' === $layout ? 'classic' : 'stream';
+	return in_array( $layout, array( 'classic', '24six' ), true ) ? $layout : 'stream';
 }
 
 /**
@@ -62,10 +75,10 @@ function ner_michoel_app_body_class( $classes ) {
 add_filter( 'body_class', 'ner_michoel_app_body_class' );
 
 /**
- * Top-right switch between the two layouts. Flipping it sets the
+ * Top-right switch between the three layouts. Flipping it sets the
  * layout cookie and reloads, since each layout is a genuinely
- * different template (not a client-side CSS skin) — see the `stream`
- * vs. `classic` branch at the top of each app-context template.
+ * different template (not a client-side CSS skin) — see the branches
+ * at the top of each app-context template.
  */
 function ner_michoel_render_layout_toggle() {
 	if ( ! ner_michoel_is_app_context() ) {
@@ -76,6 +89,7 @@ function ner_michoel_render_layout_toggle() {
 	<div class="sh-layout-toggle" role="group" aria-label="<?php esc_attr_e( 'Layout', 'ner-michoel-child' ); ?>">
 		<button type="button" class="sh-layout-toggle__option<?php echo 'stream' === $layout ? ' is-active' : ''; ?>" data-layout="stream"><?php esc_html_e( 'Modern', 'ner-michoel-child' ); ?></button>
 		<button type="button" class="sh-layout-toggle__option<?php echo 'classic' === $layout ? ' is-active' : ''; ?>" data-layout="classic"><?php esc_html_e( 'Classic', 'ner-michoel-child' ); ?></button>
+		<button type="button" class="sh-layout-toggle__option<?php echo '24six' === $layout ? ' is-active' : ''; ?>" data-layout="24six"><?php esc_html_e( '24Six', 'ner-michoel-child' ); ?></button>
 	</div>
 	<?php
 }
@@ -124,6 +138,44 @@ function ner_michoel_gallery_card_subtitle( $post_id ) {
 		);
 	}
 	return get_the_date( '', $post_id );
+}
+
+/**
+ * Opens a collection of media cards as either the wrapping grid
+ * (Modern/'stream') or a horizontal-scrolling carousel row ('24six')
+ * — the cards themselves (ner_michoel_render_media_card()) are
+ * identical either way, only the container differs. Pair with
+ * ner_michoel_render_card_collection_end(). $is_carousel is passed in
+ * rather than read from ner_michoel_get_layout() here, since a page
+ * may want the grid even in carousel mode (not currently the case,
+ * but keeps this a dumb layout primitive rather than baking in
+ * "24six" as a concept it needs to know about).
+ */
+function ner_michoel_render_card_collection_start( $is_carousel ) {
+	if ( $is_carousel ) {
+		?>
+		<div class="sh-carousel">
+			<button type="button" class="sh-carousel__nav sh-carousel__nav--prev" aria-label="<?php esc_attr_e( 'Scroll left', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'prev' ); ?></button>
+			<div class="sh-carousel__track">
+		<?php
+	} else {
+		echo '<div class="sh-grid">';
+	}
+}
+
+/**
+ * Closes what ner_michoel_render_card_collection_start() opened.
+ */
+function ner_michoel_render_card_collection_end( $is_carousel ) {
+	if ( $is_carousel ) {
+		?>
+			</div>
+			<button type="button" class="sh-carousel__nav sh-carousel__nav--next" aria-label="<?php esc_attr_e( 'Scroll right', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'next' ); ?></button>
+		</div>
+		<?php
+	} else {
+		echo '</div>';
+	}
 }
 
 /**
@@ -176,10 +228,17 @@ function ner_michoel_render_media_card( $args ) {
  * was added).
  */
 function ner_michoel_shiur_is_video( $post_id ) {
-	if ( ! function_exists( 'ner_michoel_get_shiur_media_type' ) || ! function_exists( 'ner_michoel_get_shiur_video_url' ) ) {
+	if ( ! function_exists( 'ner_michoel_get_shiur_media_type' ) ) {
 		return false;
 	}
-	return 'video' === ner_michoel_get_shiur_media_type( $post_id ) && (bool) ner_michoel_get_shiur_video_url( $post_id );
+	$type = ner_michoel_get_shiur_media_type( $post_id );
+	if ( 'video' === $type ) {
+		return function_exists( 'ner_michoel_get_shiur_video_url' ) && (bool) ner_michoel_get_shiur_video_url( $post_id );
+	}
+	if ( 'video-embed' === $type ) {
+		return function_exists( 'ner_michoel_get_shiur_vimeo_id' ) && (bool) ner_michoel_get_shiur_vimeo_id( $post_id );
+	}
+	return false;
 }
 
 /**

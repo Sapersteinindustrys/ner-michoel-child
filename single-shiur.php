@@ -14,7 +14,10 @@ while ( have_posts() ) :
 	the_post();
 
 	$is_video      = ner_michoel_shiur_is_video( get_the_ID() );
-	$video_url     = ( $is_video && function_exists( 'ner_michoel_get_shiur_video_url' ) ) ? ner_michoel_get_shiur_video_url( get_the_ID() ) : '';
+	$media_type    = function_exists( 'ner_michoel_get_shiur_media_type' ) ? ner_michoel_get_shiur_media_type( get_the_ID() ) : '';
+	$is_embed      = $is_video && 'video-embed' === $media_type;
+	$video_url     = ( $is_video && ! $is_embed && function_exists( 'ner_michoel_get_shiur_video_url' ) ) ? ner_michoel_get_shiur_video_url( get_the_ID() ) : '';
+	$vimeo_id      = ( $is_embed && function_exists( 'ner_michoel_get_shiur_vimeo_id' ) ) ? ner_michoel_get_shiur_vimeo_id( get_the_ID() ) : '';
 	$audio_url     = ner_michoel_get_shiur_audio_url( get_the_ID() );
 	$speaker_terms = get_the_terms( get_the_ID(), 'speaker' );
 	$series_terms  = get_the_terms( get_the_ID(), 'series' );
@@ -58,7 +61,11 @@ while ( have_posts() ) :
 					<?php endif; ?>
 					&middot; <?php echo esc_html( get_the_date() ); ?>
 				</p>
-				<?php if ( $is_video && $video_url ) : ?>
+				<?php if ( $is_embed && $vimeo_id ) : ?>
+					<div class="sh-video-player sh-video-player--embed">
+						<iframe src="https://player.vimeo.com/video/<?php echo esc_attr( $vimeo_id ); ?>?title=0&amp;byline=0&amp;portrait=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+					</div>
+				<?php elseif ( $is_video && $video_url ) : ?>
 					<div class="sh-video-player" data-post-id="<?php echo esc_attr( get_the_ID() ); ?>">
 						<video controls preload="metadata"<?php echo $poster ? ' poster="' . esc_url( $poster ) . '"' : ''; ?>>
 							<source src="<?php echo esc_url( $video_url ); ?>" />
@@ -105,7 +112,7 @@ while ( have_posts() ) :
 	?>
 
 	<div class="shiurim-app">
-		<?php if ( $is_video && $video_url ) : ?>
+		<?php if ( $is_video ) : ?>
 			<header class="sh-page-header">
 				<h1><?php the_title(); ?></h1>
 				<p class="sh-hero__meta">
@@ -117,13 +124,19 @@ while ( have_posts() ) :
 					<?php endif; ?>
 				</p>
 			</header>
-			<div class="sh-video-player" data-post-id="<?php echo esc_attr( get_the_ID() ); ?>">
-				<video controls preload="metadata"<?php echo $poster ? ' poster="' . esc_url( $poster ) . '"' : ''; ?>>
-					<source src="<?php echo esc_url( $video_url ); ?>" />
-				</video>
-			</div>
-			<?php if ( $download_url ) : ?>
-				<p class="sh-hero__actions"><a class="sh-download-link" href="<?php echo esc_url( $download_url ); ?>"><?php echo ner_michoel_icon( 'download' ); ?> <?php esc_html_e( 'Download', 'ner-michoel-child' ); ?></a></p>
+			<?php if ( $is_embed && $vimeo_id ) : ?>
+				<div class="sh-video-player sh-video-player--embed">
+					<iframe src="https://player.vimeo.com/video/<?php echo esc_attr( $vimeo_id ); ?>?title=0&amp;byline=0&amp;portrait=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+				</div>
+			<?php elseif ( $video_url ) : ?>
+				<div class="sh-video-player" data-post-id="<?php echo esc_attr( get_the_ID() ); ?>">
+					<video controls preload="metadata"<?php echo $poster ? ' poster="' . esc_url( $poster ) . '"' : ''; ?>>
+						<source src="<?php echo esc_url( $video_url ); ?>" />
+					</video>
+				</div>
+				<?php if ( $download_url ) : ?>
+					<p class="sh-hero__actions"><a class="sh-download-link" href="<?php echo esc_url( $download_url ); ?>"><?php echo ner_michoel_icon( 'download' ); ?> <?php esc_html_e( 'Download', 'ner-michoel-child' ); ?></a></p>
+				<?php endif; ?>
 			<?php endif; ?>
 		<?php else : ?>
 			<header class="sh-hero">

@@ -1,13 +1,17 @@
 <?php
 /**
- * Shiurim home. Two layouts, toggled top-right:
+ * Shiurim home. Three layouts, toggled top-right:
  * - Modern (default): Spotify-style grid of Series/Speakers.
  * - Classic: a plain filterable/sortable list of every shiur.
+ * - 24Six: the same Series/Speakers browsing, as horizontal-scrolling
+ *   carousel rows instead of a wrapping grid.
  */
 
 get_header();
 
-if ( 'classic' === ner_michoel_get_layout() ) :
+$layout = ner_michoel_get_layout();
+
+if ( 'classic' === $layout ) :
 	$classic_query = ner_michoel_get_classic_query();
 	?>
 	<div class="shiurim-app shiurim-app--classic">
@@ -27,6 +31,7 @@ $series_terms  = get_terms( array( 'taxonomy' => 'series', 'hide_empty' => true 
 $speaker_terms = get_terms( array( 'taxonomy' => 'speaker', 'hide_empty' => true ) );
 $has_series    = ! is_wp_error( $series_terms ) && $series_terms;
 $has_speakers  = ! is_wp_error( $speaker_terms ) && $speaker_terms;
+$is_carousel   = '24six' === $layout;
 ?>
 
 <div class="shiurim-app">
@@ -37,7 +42,7 @@ $has_speakers  = ! is_wp_error( $speaker_terms ) && $speaker_terms;
 	<?php if ( $has_series ) : ?>
 	<section class="sh-section">
 		<h2 class="sh-section__title"><?php esc_html_e( 'Series', 'ner-michoel-child' ); ?></h2>
-		<div class="sh-grid">
+		<?php ner_michoel_render_card_collection_start( $is_carousel ); ?>
 			<?php foreach ( $series_terms as $term ) :
 				$shiurim = ner_michoel_get_series_shiurim( $term->term_id );
 				ner_michoel_render_media_card(
@@ -54,14 +59,14 @@ $has_speakers  = ! is_wp_error( $speaker_terms ) && $speaker_terms;
 					)
 				);
 			endforeach; ?>
-		</div>
+		<?php ner_michoel_render_card_collection_end( $is_carousel ); ?>
 	</section>
 	<?php endif; ?>
 
 	<?php if ( $has_speakers ) : ?>
 	<section class="sh-section">
 		<h2 class="sh-section__title"><?php esc_html_e( 'Speakers', 'ner-michoel-child' ); ?></h2>
-		<div class="sh-grid">
+		<?php ner_michoel_render_card_collection_start( $is_carousel ); ?>
 			<?php foreach ( $speaker_terms as $term ) :
 				$shiurim = ner_michoel_get_speaker_shiurim( $term->term_id );
 				ner_michoel_render_media_card(
@@ -75,7 +80,7 @@ $has_speakers  = ! is_wp_error( $speaker_terms ) && $speaker_terms;
 					)
 				);
 			endforeach; ?>
-		</div>
+		<?php ner_michoel_render_card_collection_end( $is_carousel ); ?>
 	</section>
 	<?php endif; ?>
 

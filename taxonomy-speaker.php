@@ -1,8 +1,10 @@
 <?php
 /**
- * A speaker's page. Two layouts, toggled top-right:
+ * A speaker's page. Three layouts, toggled top-right:
  * - Modern (default): Spotify "Artist" page equivalent.
  * - Classic: a plain filterable/sortable list of this speaker's shiurim.
+ * - 24Six: same page, the Series section becomes a horizontal-
+ *   scrolling carousel row instead of a wrapping grid.
  */
 
 get_header();
@@ -24,9 +26,10 @@ if ( 'classic' === ner_michoel_get_layout() ) :
 	return;
 endif;
 
-$series     = ner_michoel_get_speaker_series( $term->term_id );
-$standalone = ner_michoel_get_speaker_standalone_shiurim( $term->term_id );
-$image      = ner_michoel_get_speaker_photo_url( $term->term_id );
+$series      = ner_michoel_get_speaker_series( $term->term_id );
+$standalone  = ner_michoel_get_speaker_standalone_shiurim( $term->term_id );
+$image       = ner_michoel_get_speaker_photo_url( $term->term_id );
+$is_carousel = '24six' === ner_michoel_get_layout();
 ?>
 
 <div class="shiurim-app">
@@ -50,7 +53,7 @@ $image      = ner_michoel_get_speaker_photo_url( $term->term_id );
 	<?php if ( $series ) : ?>
 	<section class="sh-section">
 		<h2 class="sh-section__title"><?php esc_html_e( 'Series', 'ner-michoel-child' ); ?></h2>
-		<div class="sh-grid">
+		<?php ner_michoel_render_card_collection_start( $is_carousel ); ?>
 			<?php foreach ( $series as $s ) :
 				$s_shiurim = ner_michoel_get_series_shiurim( $s->term_id );
 				ner_michoel_render_media_card(
@@ -67,7 +70,7 @@ $image      = ner_michoel_get_speaker_photo_url( $term->term_id );
 					)
 				);
 			endforeach; ?>
-		</div>
+		<?php ner_michoel_render_card_collection_end( $is_carousel ); ?>
 	</section>
 	<?php endif; ?>
 

@@ -75,6 +75,77 @@ body.is-nm-app a {
 	gap: 20px;
 }
 
+/* 24Six layout — same cards as .sh-grid above, horizontal-scrolling
+   carousel row instead of a wrapping grid (see
+   ner_michoel_render_card_collection_start() in inc/template-tags.php).
+   Native scroll-snap + touch scrolling; the prev/next buttons (hidden
+   on touch where swipe already works) are progressive enhancement
+   via custom.js, not required for the row to function. */
+
+.sh-carousel {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.sh-carousel__track {
+	display: flex;
+	gap: 20px;
+	overflow-x: auto;
+	scroll-snap-type: x proximity;
+	scroll-behavior: smooth;
+	padding-bottom: 4px;
+	/* Firefox + WebKit scrollbar styling — thin and muted rather than
+	   the platform default, so the row doesn't look like a stray
+	   browser widget bolted onto an app UI. */
+	scrollbar-width: thin;
+	scrollbar-color: var(--sh-surface-hover) transparent;
+}
+
+.sh-carousel__track::-webkit-scrollbar {
+	height: 6px;
+}
+
+.sh-carousel__track::-webkit-scrollbar-thumb {
+	background: var(--sh-surface-hover);
+	border-radius: 3px;
+}
+
+.sh-carousel__track .sh-card {
+	flex: 0 0 160px;
+	scroll-snap-align: start;
+}
+
+.sh-carousel__nav {
+	flex-shrink: 0;
+	width: 32px;
+	height: 32px;
+	border: none;
+	border-radius: 50%;
+	background: var(--sh-surface-hover);
+	color: var(--sh-text);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.sh-carousel__nav:hover {
+	background: var(--sh-accent);
+}
+
+.sh-carousel__nav:active {
+	transform: scale(0.94);
+}
+
+@media (max-width: 600px) {
+	.sh-carousel__nav {
+		display: none;
+	}
+}
+
 .sh-card {
 	display: block;
 	background: var(--sh-surface);
@@ -990,6 +1061,26 @@ body.sh-layout-classic.is-nm-app a {
 	border-radius: var(--sh-radius, 8px);
 	background: #000;
 	display: block;
+}
+
+/* Vimeo-embedded shiurim ('video-embed' media type — no self-hosted
+   file at all, unlike the native <video> case above) — same
+   responsive 16:9 wrapper as the gallery video embeds. */
+.sh-video-player--embed {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	border-radius: var(--sh-radius, 8px);
+	overflow: hidden;
+	background: #000;
+}
+
+.sh-video-player--embed iframe {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: none;
 }
 
 /* Galleries — Modern slider (single-gallery.php) */
