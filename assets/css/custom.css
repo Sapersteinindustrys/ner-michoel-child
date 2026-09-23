@@ -15,6 +15,75 @@
  * doesn't generalize: the persistent bottom player bar.
  */
 
+/*
+ * Site-wide design tokens. Unscoped (unlike --sh-* below) so every page —
+ * including the plain Astra-styled static pages (About, Contribute,
+ * Connections, Contact) that never get body.is-nm-app — picks up the same
+ * brand palette instead of falling back to Astra's own defaults.
+ */
+:root {
+	--nm-primary: var(--ast-global-color-0, #2f8f5b);
+	--nm-primary-hover: var(--ast-global-color-1, #257048);
+	--nm-accent: #f4a13c;
+	--nm-text: #222222;
+	--nm-text-muted: #666666;
+	--nm-border: rgba(0, 0, 0, 0.1);
+	--nm-surface: #f7f7f7;
+	--nm-radius: 8px;
+	--nm-radius-pill: 999px;
+	--nm-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+	--nm-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+/*
+ * Modern button treatment for anything outside the app UI (below) — core
+ * WP block buttons, Astra's `.button`, and plain form submits on the
+ * static pages. Astra's own defaults are square-ish and flat; this brings
+ * them in line with `.nm-home-btn` / `.sh-classic-toolbar__apply` so the
+ * whole site reads as one design instead of "app UI" vs "everything else".
+ */
+.entry-content .button,
+.entry-content a.button,
+.entry-content .wp-block-button__link,
+.nm-page input[type="submit"],
+.nm-page button[type="submit"] {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 11px 26px;
+	border: none;
+	border-radius: var(--nm-radius-pill);
+	background: var(--nm-primary);
+	color: #fff;
+	font-weight: 700;
+	text-decoration: none;
+	cursor: pointer;
+	box-shadow: var(--nm-shadow);
+	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.entry-content .button:hover,
+.entry-content a.button:hover,
+.entry-content .wp-block-button__link:hover,
+.nm-page input[type="submit"]:hover,
+.nm-page button[type="submit"]:hover {
+	background: var(--nm-primary-hover);
+	transform: translateY(-1px);
+	box-shadow: var(--nm-shadow-hover);
+	color: #fff;
+}
+
+.entry-content .button:focus-visible,
+.entry-content a.button:focus-visible,
+.entry-content .wp-block-button__link:focus-visible,
+.nm-page input[type="submit"]:focus-visible,
+.nm-page button[type="submit"]:focus-visible,
+.nm-home-btn:focus-visible,
+.nm-contact-form__submit:focus-visible {
+	outline: 2px solid var(--nm-accent);
+	outline-offset: 2px;
+}
+
 body.is-nm-app {
 	--sh-bg: #121212;
 	--sh-surface: #181818;
@@ -22,8 +91,8 @@ body.is-nm-app {
 	--sh-text: #ffffff;
 	--sh-text-muted: rgba(255, 255, 255, 0.6);
 	--sh-border: rgba(255, 255, 255, 0.08);
-	--sh-accent: var(--ast-global-color-0, #2f8f5b);
-	--sh-accent-hover: var(--ast-global-color-1, var(--sh-accent));
+	--sh-accent: var(--nm-primary);
+	--sh-accent-hover: var(--nm-primary-hover);
 	--sh-player-height: 96px;
 	--sh-radius: 8px;
 	--sh-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -816,6 +885,20 @@ body.is-nm-app a {
 	gap: 2px;
 }
 
+/* WordPress's admin toolbar (visible whenever the person checking the
+   site is logged in — i.e. constantly, for the site's own admin) is
+   fixed to the top at 32px tall on desktop, 46px on mobile. Without
+   this the toggle sits half-hidden underneath it. */
+body.admin-bar .sh-layout-toggle {
+	top: calc(32px + 16px);
+}
+
+@media (max-width: 782px) {
+	body.admin-bar .sh-layout-toggle {
+		top: calc(46px + 16px);
+	}
+}
+
 .sh-layout-toggle__option {
 	border: none;
 	background: transparent;
@@ -855,7 +938,7 @@ body.sh-layout-classic.is-shiurim {
 }
 
 body.sh-layout-classic.is-nm-app a {
-	color: var(--ast-global-color-0, #2f8f5b);
+	color: var(--nm-primary);
 }
 
 .shiurim-app--classic,
@@ -909,10 +992,15 @@ body.sh-layout-classic.is-nm-app a {
 .sh-classic-toolbar__apply {
 	padding: 7px 16px;
 	border: none;
-	border-radius: 4px;
-	background: var(--ast-global-color-0, #2f8f5b);
+	border-radius: var(--nm-radius);
+	background: var(--nm-primary);
 	color: #fff;
 	cursor: pointer;
+	transition: background-color 0.15s ease;
+}
+
+.sh-classic-toolbar__apply:hover {
+	background: var(--nm-primary-hover);
 }
 
 .sh-classic-table {
@@ -978,7 +1066,7 @@ body.sh-layout-classic.is-nm-app a {
 }
 
 .sh-classic-pagination .current {
-	background: var(--ast-global-color-0, #2f8f5b);
+	background: var(--nm-primary);
 	color: #fff;
 	border-color: transparent;
 }
@@ -1292,7 +1380,7 @@ body.sh-layout-classic.is-nm-app a {
 }
 
 .nm-page__intro {
-	color: #666;
+	color: var(--nm-text-muted);
 }
 
 .nm-page__figure {
@@ -1312,9 +1400,14 @@ body.sh-layout-classic.is-nm-app a {
 .nm-info-card {
 	margin-top: 32px;
 	padding: 20px 24px;
-	background: #f7f7f7;
-	border-radius: 8px;
-	border: 1px solid rgba(0, 0, 0, 0.08);
+	background: var(--nm-surface);
+	border-radius: var(--nm-radius);
+	border: 1px solid var(--nm-border);
+	transition: box-shadow 0.15s ease;
+}
+
+.nm-info-card:hover {
+	box-shadow: var(--nm-shadow-hover);
 }
 
 .nm-info-card h2 {
@@ -1325,7 +1418,7 @@ body.sh-layout-classic.is-nm-app a {
 .nm-security-note {
 	margin-top: 24px;
 	font-size: 0.9rem;
-	color: #666;
+	color: var(--nm-text-muted);
 }
 
 .nm-connections-grid img {
@@ -1341,9 +1434,14 @@ body.sh-layout-classic.is-nm-app a {
 
 .nm-office-card {
 	padding: 20px 24px;
-	background: #f7f7f7;
-	border-radius: 8px;
-	border: 1px solid rgba(0, 0, 0, 0.08);
+	background: var(--nm-surface);
+	border-radius: var(--nm-radius);
+	border: 1px solid var(--nm-border);
+	transition: box-shadow 0.15s ease;
+}
+
+.nm-office-card:hover {
+	box-shadow: var(--nm-shadow-hover);
 }
 
 .nm-office-card h2 {
@@ -1378,21 +1476,38 @@ body.sh-layout-classic.is-nm-app a {
 .nm-contact-form__field textarea {
 	font-weight: 400;
 	padding: 10px 12px;
-	border: 1px solid rgba(0, 0, 0, 0.15);
-	border-radius: 4px;
+	border: 1px solid var(--nm-border);
+	border-radius: var(--nm-radius);
 	font-family: inherit;
 	font-size: 1rem;
+	transition: border-color 0.15s ease;
+}
+
+.nm-contact-form__field input:focus,
+.nm-contact-form__field textarea:focus {
+	border-color: var(--nm-primary);
+	outline: none;
 }
 
 .nm-contact-form__submit {
 	align-self: start;
-	padding: 10px 24px;
+	display: inline-flex;
+	align-items: center;
+	padding: 11px 28px;
 	border: none;
-	border-radius: 4px;
-	background: var(--ast-global-color-0, #2f8f5b);
+	border-radius: var(--nm-radius-pill);
+	background: var(--nm-primary);
 	color: #fff;
-	font-weight: 600;
+	font-weight: 700;
 	cursor: pointer;
+	box-shadow: var(--nm-shadow);
+	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.nm-contact-form__submit:hover {
+	background: var(--nm-primary-hover);
+	transform: translateY(-1px);
+	box-shadow: var(--nm-shadow-hover);
 }
 
 .nm-form-notice {
@@ -1443,8 +1558,14 @@ body.sh-layout-classic.is-nm-app a {
 }
 
 .nm-home-btn--primary {
-	background: var(--ast-global-color-0, #2f8f5b);
+	background: var(--nm-primary);
 	color: #fff;
+	box-shadow: var(--nm-shadow);
+}
+
+.nm-home-btn--primary:hover {
+	background: var(--nm-primary-hover);
+	box-shadow: var(--nm-shadow-hover);
 }
 
 .nm-home-btn--secondary {
@@ -1454,7 +1575,7 @@ body.sh-layout-classic.is-nm-app a {
 }
 
 .nm-home-hero {
-	background: linear-gradient(135deg, var(--ast-global-color-0, #2f8f5b), #f4a13c);
+	background: linear-gradient(135deg, var(--nm-primary), var(--nm-accent));
 	color: #fff;
 	text-align: center;
 	padding: 90px 24px;
@@ -1657,7 +1778,7 @@ body.sh-layout-classic.is-nm-app a {
 	aspect-ratio: 1 / 1;
 	border-radius: 10px;
 	overflow: hidden;
-	background: linear-gradient(135deg, var(--ast-global-color-0, #2f8f5b), #f4a13c);
+	background: linear-gradient(135deg, var(--nm-primary), var(--nm-accent));
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1699,7 +1820,7 @@ body.sh-layout-classic.is-nm-app a {
 	aspect-ratio: 4 / 3;
 	border-radius: 10px;
 	overflow: hidden;
-	background: linear-gradient(135deg, var(--ast-global-color-0, #2f8f5b), #f4a13c);
+	background: linear-gradient(135deg, var(--nm-primary), var(--nm-accent));
 	display: flex;
 	align-items: center;
 	justify-content: center;
