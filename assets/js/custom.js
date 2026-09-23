@@ -314,13 +314,17 @@ function nerMichoelSendShiurEvent( postId, event ) {
 	function updateActiveRowHighlight() {
 		var track = currentTrack();
 		document.querySelectorAll( '.sh-track.is-active' ).forEach( function ( row ) {
-			row.classList.remove( 'is-active' );
+			row.classList.remove( 'is-active', 'is-playing' );
 		} );
 		if ( ! track ) {
 			return;
 		}
 		document.querySelectorAll( '.sh-track[data-id="' + track.id + '"]' ).forEach( function ( row ) {
 			row.classList.add( 'is-active' );
+			// The animated equalizer bars (sh-track__eq, see custom.css)
+			// only make sense while actually playing — a paused-but-
+			// selected row shows the plain track number instead.
+			row.classList.toggle( 'is-playing', ! audio.paused );
 		} );
 	}
 
@@ -358,6 +362,13 @@ function nerMichoelSendShiurEvent( postId, event ) {
 	function setToggleIcon( playing ) {
 		elToggle.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
 		elToggle.setAttribute( 'aria-label', playing ? 'Pause' : 'Play' );
+	}
+
+	// Buffering indicator (spinner over the cover art, see
+	// .sh-player.is-loading in custom.css) — 'waiting' fires whenever
+	// playback stalls for more data, 'playing'/'canplay' clear it.
+	function setLoading( isLoading ) {
+		player.classList.toggle( 'is-loading', isLoading );
 	}
 
 	function loadTrack( autoplay ) {
@@ -458,6 +469,8 @@ function nerMichoelSendShiurEvent( postId, event ) {
 	audio.addEventListener( 'play', function () {
 		setToggleIcon( true );
 		persist( true );
+		updateActiveRowHighlight();
+		setLoading( false );
 		var track = currentTrack();
 		if ( track && ! reportedPlay[ track.id ] ) {
 			reportedPlay[ track.id ] = true;
@@ -468,6 +481,19 @@ function nerMichoelSendShiurEvent( postId, event ) {
 	audio.addEventListener( 'pause', function () {
 		setToggleIcon( false );
 		persist( false );
+		updateActiveRowHighlight();
+	} );
+
+	audio.addEventListener( 'waiting', function () {
+		setLoading( true );
+	} );
+
+	audio.addEventListener( 'playing', function () {
+		setLoading( false );
+	} );
+
+	audio.addEventListener( 'canplay', function () {
+		setLoading( false );
 	} );
 
 	audio.addEventListener( 'loadedmetadata', function () {
@@ -505,6 +531,53 @@ function nerMichoelSendShiurEvent( postId, event ) {
 	elVolume.addEventListener( 'input', function () {
 		audio.volume = parseFloat( elVolume.value );
 		setRangeFill( elVolume );
+	} );
+
+	// Keyboard shortcuts (space/arrows), same set every major player
+	// uses — skipped whenever focus is on a form control, so typing
+	// in the contact form or a search box isn't hijacked, and skipped
+	// on any modifier combo so browser/OS shortcuts stay intact.
+	document.addEventListener( 'keydown', function ( e ) {
+		if ( ! currentTrack() ) {
+			return;
+		}
+		if ( e.ctrlKey || e.altKey || e.metaKey ) {
+			return;
+		}
+		var tag = e.target.tagName;
+		if ( 'INPUT' === tag || 'TEXTAREA' === tag || 'SELECT' === tag || e.target.isContentEditable ) {
+			return;
+		}
+		switch ( e.key ) {
+			case ' ':
+				e.preventDefault();
+				if ( audio.paused ) {
+					audio.play();
+				} else {
+					audio.pause();
+				}
+				break;
+			case 'ArrowLeft':
+				e.preventDefault();
+				audio.currentTime = Math.max( 0, audio.currentTime - 10 );
+				break;
+			case 'ArrowRight':
+				e.preventDefault();
+				audio.currentTime = Math.min( audio.duration || audio.currentTime + 10, audio.currentTime + 10 );
+				break;
+			case 'ArrowUp':
+				e.preventDefault();
+				audio.volume = Math.min( 1, audio.volume + 0.1 );
+				elVolume.value = audio.volume;
+				setRangeFill( elVolume );
+				break;
+			case 'ArrowDown':
+				e.preventDefault();
+				audio.volume = Math.max( 0, audio.volume - 0.1 );
+				elVolume.value = audio.volume;
+				setRangeFill( elVolume );
+				break;
+		}
 	} );
 
 	// Volume starts at 1 (100%) per its markup default — fill it in

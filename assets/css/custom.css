@@ -472,6 +472,59 @@ body.is-nm-app a {
 	display: none;
 }
 
+/* Animated "now playing" equalizer bars — shown instead of the track
+   number only while this exact row is both active AND actually
+   playing (not just selected-but-paused). Toggled via .is-playing in
+   custom.js's updateActiveRowHighlight(). */
+
+.sh-track__eq {
+	display: none;
+	align-items: flex-end;
+	justify-content: center;
+	gap: 2px;
+	width: 14px;
+	height: 14px;
+	margin: 0 auto;
+}
+
+.sh-track__eq span {
+	width: 3px;
+	height: 100%;
+	background: var(--sh-accent);
+	border-radius: 1px;
+	transform-origin: bottom;
+	animation: sh-eq-bounce 1s ease-in-out infinite;
+}
+
+.sh-track__eq span:nth-child(1) {
+	animation-delay: -0.8s;
+}
+
+.sh-track__eq span:nth-child(2) {
+	animation-delay: -0.4s;
+}
+
+@keyframes sh-eq-bounce {
+	0%, 100% {
+		transform: scaleY(0.25);
+	}
+	50% {
+		transform: scaleY(1);
+	}
+}
+
+.sh-track.is-active.is-playing .sh-track__index {
+	display: none;
+}
+
+.sh-track.is-active.is-playing .sh-track__eq {
+	display: flex;
+}
+
+.sh-track.is-active.is-playing:hover .sh-track__eq {
+	display: none;
+}
+
 .sh-track__art {
 	width: 44px;
 	height: 44px;
@@ -603,6 +656,7 @@ body.is-nm-app a {
 }
 
 .sh-player__cover {
+	position: relative;
 	width: 56px;
 	height: 56px;
 	flex-shrink: 0;
@@ -610,6 +664,27 @@ body.is-nm-app a {
 	overflow: hidden;
 	background: var(--sh-surface-hover, #333);
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Buffering spinner — see setLoading() in custom.js, driven by the
+   audio element's native 'waiting'/'playing'/'canplay' events. */
+.sh-player.is-loading .sh-player__cover::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: 18px;
+	height: 18px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-top-color: #fff;
+	border-radius: 50%;
+	animation: sh-spin 0.8s linear infinite;
+}
+
+@keyframes sh-spin {
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 .sh-player__cover img {

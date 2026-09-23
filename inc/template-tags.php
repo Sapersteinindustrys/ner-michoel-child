@@ -325,6 +325,7 @@ function ner_michoel_render_track_row( $shiur, $index, $show_speaker = true ) {
 	<div class="sh-track" data-id="<?php echo esc_attr( $shiur->ID ); ?>" data-index="<?php echo esc_attr( $index ); ?>">
 		<div class="sh-track__num">
 			<span class="sh-track__index"><?php echo esc_html( $index + 1 ); ?></span>
+			<span class="sh-track__eq" aria-hidden="true"><span></span><span></span><span></span></span>
 			<button type="button" class="sh-track__play" aria-label="<?php esc_attr_e( 'Play', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'play' ); ?></button>
 		</div>
 		<div class="sh-track__art">
