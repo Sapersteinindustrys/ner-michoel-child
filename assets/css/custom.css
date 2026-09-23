@@ -24,11 +24,13 @@ body.is-nm-app {
 	--sh-border: rgba(255, 255, 255, 0.08);
 	--sh-accent: var(--ast-global-color-0, #2f8f5b);
 	--sh-accent-hover: var(--ast-global-color-1, var(--sh-accent));
-	--sh-player-height: 90px;
+	--sh-player-height: 96px;
 	--sh-radius: 8px;
+	--sh-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
 	background: var(--sh-bg);
 	color: var(--sh-text);
+	font-family: var(--sh-font);
 }
 
 body.is-shiurim {
@@ -422,7 +424,15 @@ body.is-nm-app a {
 	border-top: 1px solid var(--sh-border);
 }
 
-/* Persistent bottom player bar */
+/* Persistent bottom player bar — deliberately styled to the same
+   bar-of-industry-apps grammar (Spotify/Apple Music/YouTube Music):
+   dark elevated surface, a prominent circular play button, thin
+   progress rails that fill with the accent color and grow a thumb on
+   hover, icons that go from muted to bright on hover/focus rather
+   than changing shape. Every color here is a --sh-* custom property
+   (see body.is-nm-app above and the optional admin overrides further
+   up this file) so an admin-set accent/background actually reaches
+   the player, not just the rest of the app chrome. */
 
 .sh-player {
 	position: fixed;
@@ -430,13 +440,14 @@ body.is-nm-app a {
 	right: 0;
 	bottom: 0;
 	height: var(--sh-player-height);
-	background: #0a0a0a;
+	background: linear-gradient(180deg, var(--sh-surface, #181818), var(--sh-bg, #0a0a0a));
 	border-top: 1px solid var(--sh-border);
+	box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
 	display: grid;
-	grid-template-columns: 1fr 2fr 1fr;
+	grid-template-columns: 1fr minmax(0, 2fr) 1fr;
 	align-items: center;
 	gap: 16px;
-	padding: 0 16px;
+	padding: 0 20px;
 	z-index: 9999;
 }
 
@@ -447,7 +458,7 @@ body.is-nm-app a {
 .sh-player__now {
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: 14px;
 	min-width: 0;
 }
 
@@ -455,9 +466,10 @@ body.is-nm-app a {
 	width: 56px;
 	height: 56px;
 	flex-shrink: 0;
-	border-radius: 4px;
+	border-radius: 6px;
 	overflow: hidden;
-	background: #333;
+	background: var(--sh-surface-hover, #333);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 .sh-player__cover img {
@@ -474,7 +486,8 @@ body.is-nm-app a {
 .sh-player__title {
 	color: var(--sh-text);
 	font-size: 0.9rem;
-	font-weight: 500;
+	font-weight: 600;
+	letter-spacing: 0.01em;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -486,20 +499,22 @@ body.is-nm-app a {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	margin-top: 2px;
 }
 
 .sh-player__center {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 6px;
+	gap: 8px;
 	min-width: 0;
+	width: 100%;
 }
 
 .sh-player__buttons {
 	display: flex;
 	align-items: center;
-	gap: 18px;
+	gap: 8px;
 }
 
 .sh-player__buttons button {
@@ -510,49 +525,96 @@ body.is-nm-app a {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	transition: color 0.15s ease;
-}
-
-.sh-player__buttons button:hover {
-	color: var(--sh-text);
-}
-
-.sh-player__toggle {
 	width: 34px;
 	height: 34px;
 	border-radius: 50%;
-	background: var(--sh-text) !important;
-	color: #000 !important;
+	transition: color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
 }
 
-.sh-player__toggle:hover {
-	transform: scale(1.05);
+.sh-player__buttons button:hover:not(:disabled) {
+	color: var(--sh-text);
+	background: rgba(255, 255, 255, 0.08);
+	transform: scale(1.08);
+}
+
+.sh-player__buttons button:active:not(:disabled) {
+	transform: scale(0.96);
+}
+
+.sh-player__buttons button:disabled {
+	opacity: 0.35;
+	cursor: default;
+}
+
+.sh-player__toggle {
+	width: 42px !important;
+	height: 42px !important;
+	background: #fff !important;
+	color: #000 !important;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.sh-player__toggle:hover:not(:disabled) {
+	background: var(--sh-text) !important;
+	transform: scale(1.06) !important;
+}
+
+.sh-player__toggle:active:not(:disabled) {
+	transform: scale(0.94) !important;
 }
 
 .sh-player__progress {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 10px;
 	width: 100%;
-	max-width: 520px;
+	max-width: 560px;
 }
 
 .sh-player__time {
 	color: var(--sh-text-muted);
 	font-size: 0.75rem;
 	font-variant-numeric: tabular-nums;
-	min-width: 32px;
+	min-width: 34px;
+	text-align: center;
 }
+
+/* Filled progress rails — --fill is set by custom.js on every
+   timeupdate/volume change as a percentage, e.g. "42%". Firefox gets
+   the fill for free via ::-moz-range-progress; WebKit/Blink (Chrome,
+   Edge, Safari) have no equivalent pseudo-element, so their track's
+   background is a hard-stop gradient driven by the same --fill value
+   instead — same visual result, two different native mechanisms. */
 
 .sh-player__seek,
 .sh-player__volume-range {
 	-webkit-appearance: none;
 	appearance: none;
 	flex: 1;
+	height: 14px;
+	background: transparent;
+	cursor: pointer;
+}
+
+.sh-player__seek::-webkit-slider-runnable-track,
+.sh-player__volume-range::-webkit-slider-runnable-track {
+	height: 4px;
+	border-radius: 2px;
+	background: linear-gradient(to right, var(--sh-accent) var(--fill, 0%), var(--sh-border) var(--fill, 0%));
+}
+
+.sh-player__seek::-moz-range-track,
+.sh-player__volume-range::-moz-range-track {
 	height: 4px;
 	border-radius: 2px;
 	background: var(--sh-border);
-	cursor: pointer;
+}
+
+.sh-player__seek::-moz-range-progress,
+.sh-player__volume-range::-moz-range-progress {
+	height: 4px;
+	border-radius: 2px;
+	background: var(--sh-accent);
 }
 
 .sh-player__seek::-webkit-slider-thumb,
@@ -561,8 +623,11 @@ body.is-nm-app a {
 	appearance: none;
 	width: 12px;
 	height: 12px;
+	margin-top: -4px;
 	border-radius: 50%;
 	background: var(--sh-text);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+	transition: transform 0.1s ease;
 }
 
 .sh-player__seek::-moz-range-thumb,
@@ -572,15 +637,40 @@ body.is-nm-app a {
 	border: none;
 	border-radius: 50%;
 	background: var(--sh-text);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+	transition: transform 0.1s ease;
+}
+
+.sh-player__seek:hover::-webkit-slider-thumb,
+.sh-player__seek:focus-visible::-webkit-slider-thumb,
+.sh-player__volume-range:hover::-webkit-slider-thumb,
+.sh-player__volume-range:focus-visible::-webkit-slider-thumb {
+	transform: scale(1.25);
+}
+
+.sh-player__seek:hover::-moz-range-thumb,
+.sh-player__seek:focus-visible::-moz-range-thumb,
+.sh-player__volume-range:hover::-moz-range-thumb,
+.sh-player__volume-range:focus-visible::-moz-range-thumb {
+	transform: scale(1.25);
 }
 
 .sh-player__volume {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 12px;
 	justify-self: end;
 	color: var(--sh-text-muted);
-	width: 190px;
+	width: 200px;
+}
+
+.sh-player__volume svg {
+	flex-shrink: 0;
+	transition: color 0.15s ease;
+}
+
+.sh-player__volume:hover svg {
+	color: var(--sh-text);
 }
 
 .sh-player__speed {
@@ -590,15 +680,16 @@ body.is-nm-app a {
 	background: transparent;
 	color: var(--sh-text-muted);
 	font-size: 0.75rem;
-	font-weight: 600;
-	padding: 3px 8px;
+	font-weight: 700;
+	padding: 4px 10px;
 	cursor: pointer;
-	transition: color 0.15s ease, border-color 0.15s ease;
+	transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .sh-player__speed:hover {
 	color: var(--sh-text);
 	border-color: var(--sh-text-muted);
+	background: rgba(255, 255, 255, 0.06);
 }
 
 .sh-player__speed.is-active {
@@ -609,6 +700,7 @@ body.is-nm-app a {
 @media (max-width: 780px) {
 	.sh-player {
 		grid-template-columns: 1fr auto;
+		padding: 0 14px;
 	}
 
 	.sh-player__volume {
@@ -617,6 +709,11 @@ body.is-nm-app a {
 
 	.sh-player__center {
 		grid-column: 2 / 3;
+	}
+
+	.sh-player__cover {
+		width: 44px;
+		height: 44px;
 	}
 
 	.sh-hero {

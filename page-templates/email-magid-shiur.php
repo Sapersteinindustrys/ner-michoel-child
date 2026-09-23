@@ -27,6 +27,18 @@ get_header();
 $speakers = get_terms( array( 'taxonomy' => 'speaker', 'hide_empty' => false ) );
 $has_speakers = ! is_wp_error( $speakers ) && $speakers;
 $notice   = isset( $_GET['nm_magid'] ) ? sanitize_key( wp_unslash( $_GET['nm_magid'] ) ) : '';
+
+// Optional — lets the sender point to a specific shiur (audio or
+// video, no media-type filter) rather than just a general question.
+$all_shiurim = get_posts(
+	array(
+		'post_type'      => 'shiur',
+		'post_status'    => 'publish',
+		'posts_per_page' => -1,
+		'orderby'        => 'title',
+		'order'          => 'ASC',
+	)
+);
 ?>
 
 <div class="nm-page nm-page--email-magid">
@@ -68,6 +80,15 @@ $notice   = isset( $_GET['nm_magid'] ) ? sanitize_key( wp_unslash( $_GET['nm_mag
 						<option value=""><?php esc_html_e( 'Choose a speaker…', 'ner-michoel-child' ); ?></option>
 						<?php foreach ( $speakers as $speaker_term ) : ?>
 							<option value="<?php echo esc_attr( $speaker_term->term_id ); ?>"><?php echo esc_html( $speaker_term->name ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</label>
+				<label class="nm-contact-form__field">
+					<?php esc_html_e( 'Which shiur is this about? (optional)', 'ner-michoel-child' ); ?>
+					<select name="nm_shiur_id">
+						<option value=""><?php esc_html_e( '— Not about a specific shiur —', 'ner-michoel-child' ); ?></option>
+						<?php foreach ( $all_shiurim as $shiur ) : ?>
+							<option value="<?php echo esc_attr( $shiur->ID ); ?>"><?php echo esc_html( $shiur->post_title ); ?></option>
 						<?php endforeach; ?>
 					</select>
 				</label>

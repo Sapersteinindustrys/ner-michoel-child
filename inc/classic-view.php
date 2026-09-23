@@ -177,7 +177,7 @@ function ner_michoel_render_classic_table( WP_Query $query, $show_speaker = true
 						<?php if ( $is_video ) : ?>
 							<a href="<?php the_permalink(); ?>"><?php esc_html_e( 'Watch', 'ner-michoel-child' ); ?></a>
 						<?php elseif ( $audio_url ) : ?>
-							<a href="<?php echo esc_url( $audio_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Play', 'ner-michoel-child' ); ?></a>
+							<a href="<?php echo esc_url( $audio_url ); ?>" target="_blank" rel="noopener" class="sh-classic-play-link" data-shiur-id="<?php echo esc_attr( get_the_ID() ); ?>"><?php esc_html_e( 'Play', 'ner-michoel-child' ); ?></a>
 							&middot;
 							<a href="<?php echo esc_url( $download_url ); ?>"><?php esc_html_e( 'Download', 'ner-michoel-child' ); ?></a>
 						<?php else : ?>

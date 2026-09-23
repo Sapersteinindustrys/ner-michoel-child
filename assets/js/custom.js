@@ -13,6 +13,46 @@
  * just reappears paused at the right spot until the user hits play.
  */
 
+/**
+ * Reports a shiur play/completion event to the backend's stats
+ * endpoint (POST {post_id, event}) — best-effort, fire-and-forget, so
+ * a failed request just means a stat doesn't get counted and never
+ * blocks playback. Used by both the audio queue engine and the
+ * native <video> player below, hence a plain top-level function
+ * rather than scoped inside either one's IIFE.
+ */
+function nerMichoelSendShiurEvent( postId, event ) {
+	if ( ! postId || ! window.nerMichoelSettings || ! window.nerMichoelSettings.shiurEventUrl ) {
+		return;
+	}
+	fetch( window.nerMichoelSettings.shiurEventUrl, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify( { post_id: parseInt( postId, 10 ), event: event } )
+	} ).catch( function () {
+		// Ignore — stats are best-effort, not critical path.
+	} );
+}
+
+( function () {
+	'use strict';
+
+	// Classic layout has no JS-controlled player (its "Play" is a
+	// plain link opening native browser playback), so 'play' is
+	// reported on click rather than on an actual `play` event —
+	// there's no completion signal to fire from a click, so Classic
+	// intentionally never reports 'complete' (an approximated one
+	// would be worse than an honest gap). "Download" links are
+	// deliberately not tracked here — a download isn't a listen.
+	document.addEventListener( 'click', function ( e ) {
+		var link = e.target.closest( '.sh-classic-play-link' );
+		if ( ! link ) {
+			return;
+		}
+		nerMichoelSendShiurEvent( link.getAttribute( 'data-shiur-id' ), 'play' );
+	} );
+} )();
+
 ( function () {
 	'use strict';
 
@@ -190,6 +230,13 @@
 		index: -1
 	};
 
+	// Tracks which track IDs already reported a 'play'/'complete' event
+	// this page load, so resuming from pause or seeking around doesn't
+	// re-report the same milestone.
+	var reportedPlay     = {};
+	var reportedComplete = {};
+	var COMPLETE_THRESHOLD = 0.9;
+
 	var currentSpeed = 1;
 	try {
 		var savedSpeed = parseFloat( window.localStorage.getItem( SPEED_STORAGE_KEY ) );
@@ -219,6 +266,17 @@
 
 	elSpeed.textContent = currentSpeed + 'x';
 	elSpeed.classList.toggle( 'is-active', currentSpeed !== 1 );
+
+	// Drives the seek/volume rails' filled-progress look — see the
+	// --fill custom property consumed in custom.css. Set on both
+	// sliders any time their value changes for real.
+	function setRangeFill( el ) {
+		var min = parseFloat( el.min ) || 0;
+		var max = parseFloat( el.max ) || 1;
+		var val = parseFloat( el.value ) || 0;
+		var pct = max > min ? ( ( val - min ) / ( max - min ) ) * 100 : 0;
+		el.style.setProperty( '--fill', pct + '%' );
+	}
 
 	function formatTime( seconds ) {
 		if ( ! isFinite( seconds ) || seconds < 0 ) {
@@ -293,6 +351,8 @@
 		player.hidden = false;
 		elPrev.disabled = state.index <= 0;
 		elNext.disabled = state.index >= state.queue.length - 1;
+		elSeek.value = 0;
+		setRangeFill( elSeek );
 		if ( autoplay ) {
 			audio.play();
 		}
@@ -378,6 +438,11 @@
 	audio.addEventListener( 'play', function () {
 		setToggleIcon( true );
 		persist( true );
+		var track = currentTrack();
+		if ( track && ! reportedPlay[ track.id ] ) {
+			reportedPlay[ track.id ] = true;
+			nerMichoelSendShiurEvent( track.id, 'play' );
+		}
 	} );
 
 	audio.addEventListener( 'pause', function () {
@@ -394,6 +459,12 @@
 		elCurrent.textContent = formatTime( audio.currentTime );
 		if ( ! elSeek.matches( ':active' ) ) {
 			elSeek.value = Math.floor( audio.currentTime );
+			setRangeFill( elSeek );
+		}
+		var track = currentTrack();
+		if ( track && ! reportedComplete[ track.id ] && audio.duration && ( audio.currentTime / audio.duration ) >= COMPLETE_THRESHOLD ) {
+			reportedComplete[ track.id ] = true;
+			nerMichoelSendShiurEvent( track.id, 'complete' );
 		}
 	} );
 
@@ -408,11 +479,17 @@
 
 	elSeek.addEventListener( 'input', function () {
 		audio.currentTime = parseFloat( elSeek.value );
+		setRangeFill( elSeek );
 	} );
 
 	elVolume.addEventListener( 'input', function () {
 		audio.volume = parseFloat( elVolume.value );
+		setRangeFill( elVolume );
 	} );
+
+	// Volume starts at 1 (100%) per its markup default — fill it in
+	// immediately rather than waiting for the first drag.
+	setRangeFill( elVolume );
 
 	// Restore the last "now playing" snapshot (paused) after navigating
 	// to a different Shiurim page — no autoplay, browsers block it
@@ -434,6 +511,8 @@
 				var resumeAt = snapshot.position || 0;
 				audio.addEventListener( 'loadedmetadata', function onMeta() {
 					audio.currentTime = resumeAt;
+					elSeek.value = Math.floor( resumeAt );
+					setRangeFill( elSeek );
 					audio.removeEventListener( 'loadedmetadata', onMeta );
 				} );
 			}
@@ -441,4 +520,38 @@
 	} catch ( e ) {
 		// Ignore malformed/unavailable storage.
 	}
+} )();
+
+( function () {
+	'use strict';
+
+	// Video shiur play/completion tracking — single-shiur.php's native
+	// <video controls> element isn't part of the audio queue engine
+	// above, so it gets its own (much simpler) play-once/complete-once
+	// listeners rather than sharing that engine's state.
+	var COMPLETE_THRESHOLD = 0.9;
+
+	document.querySelectorAll( '.sh-video-player' ).forEach( function ( wrap ) {
+		var video = wrap.querySelector( 'video' );
+		if ( ! video ) {
+			return;
+		}
+		var postId        = wrap.getAttribute( 'data-post-id' );
+		var reportedPlay     = false;
+		var reportedComplete = false;
+
+		video.addEventListener( 'play', function () {
+			if ( ! reportedPlay ) {
+				reportedPlay = true;
+				nerMichoelSendShiurEvent( postId, 'play' );
+			}
+		} );
+
+		video.addEventListener( 'timeupdate', function () {
+			if ( ! reportedComplete && video.duration && ( video.currentTime / video.duration ) >= COMPLETE_THRESHOLD ) {
+				reportedComplete = true;
+				nerMichoelSendShiurEvent( postId, 'complete' );
+			}
+		} );
+	} );
 } )();

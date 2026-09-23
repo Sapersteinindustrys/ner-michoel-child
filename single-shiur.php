@@ -59,7 +59,7 @@ while ( have_posts() ) :
 					&middot; <?php echo esc_html( get_the_date() ); ?>
 				</p>
 				<?php if ( $is_video && $video_url ) : ?>
-					<div class="sh-video-player">
+					<div class="sh-video-player" data-post-id="<?php echo esc_attr( get_the_ID() ); ?>">
 						<video controls preload="metadata"<?php echo $poster ? ' poster="' . esc_url( $poster ) . '"' : ''; ?>>
 							<source src="<?php echo esc_url( $video_url ); ?>" />
 						</video>
@@ -69,7 +69,7 @@ while ( have_posts() ) :
 					<?php endif; ?>
 				<?php elseif ( $audio_url ) : ?>
 					<p>
-						<a href="<?php echo esc_url( $audio_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Play', 'ner-michoel-child' ); ?></a>
+						<a href="<?php echo esc_url( $audio_url ); ?>" target="_blank" rel="noopener" class="sh-classic-play-link" data-shiur-id="<?php echo esc_attr( get_the_ID() ); ?>"><?php esc_html_e( 'Play', 'ner-michoel-child' ); ?></a>
 						&middot;
 						<a href="<?php echo esc_url( $download_url ); ?>"><?php esc_html_e( 'Download', 'ner-michoel-child' ); ?></a>
 					</p>
@@ -117,7 +117,7 @@ while ( have_posts() ) :
 					<?php endif; ?>
 				</p>
 			</header>
-			<div class="sh-video-player">
+			<div class="sh-video-player" data-post-id="<?php echo esc_attr( get_the_ID() ); ?>">
 				<video controls preload="metadata"<?php echo $poster ? ' poster="' . esc_url( $poster ) . '"' : ''; ?>>
 					<source src="<?php echo esc_url( $video_url ); ?>" />
 				</video>
