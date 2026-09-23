@@ -334,6 +334,7 @@ function nerMichoelSendShiurEvent( postId, event ) {
 			return;
 		}
 		elTitle.textContent   = track.title || '';
+		elTitle.href          = track.url || '#';
 		elSpeaker.textContent = track.speaker || '';
 		if ( track.cover ) {
 			elCover.innerHTML = '<img src="' + track.cover + '" alt="" />';

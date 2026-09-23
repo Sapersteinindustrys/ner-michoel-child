@@ -410,7 +410,7 @@ function ner_michoel_render_player_bar() {
 		<div class="sh-player__now">
 			<div class="sh-player__cover" id="sh-player-cover"></div>
 			<div class="sh-player__meta">
-				<div class="sh-player__title" id="sh-player-title"></div>
+				<a class="sh-player__title" id="sh-player-title" href="#"></a>
 				<div class="sh-player__speaker" id="sh-player-speaker"></div>
 			</div>
 		</div>
