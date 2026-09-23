@@ -1682,6 +1682,48 @@ body.sh-layout-classic.is-nm-app a {
 	color: #777;
 }
 
+.nm-home-gallery-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 20px;
+}
+
+.nm-home-gallery-card {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+}
+
+.nm-home-gallery-card__art {
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	border-radius: 10px;
+	overflow: hidden;
+	background: linear-gradient(135deg, var(--ast-global-color-0, #2f8f5b), #f4a13c);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 2rem;
+	margin-bottom: 10px;
+}
+
+.nm-home-gallery-card__art img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.nm-home-gallery-card__title {
+	font-weight: 600;
+	margin-bottom: 2px;
+}
+
+.nm-home-gallery-card__meta {
+	font-size: 0.85rem;
+	color: #777;
+}
+
 .nm-home-news-list {
 	display: flex;
 	flex-direction: column;

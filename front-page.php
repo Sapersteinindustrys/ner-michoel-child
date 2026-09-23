@@ -45,6 +45,15 @@ $recent_mazal_tovs = post_type_exists( 'mazal_tov' ) ? get_posts(
 	)
 ) : array();
 
+$recent_galleries = post_type_exists( 'gallery' ) ? get_posts(
+	array(
+		'post_type'      => 'gallery',
+		'posts_per_page' => 4,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	)
+) : array();
+
 $shiurim_url = get_post_type_archive_link( 'shiur' );
 $gallery_url = get_post_type_archive_link( 'gallery' );
 
@@ -104,6 +113,34 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 				<?php endif; ?>
 				<a class="nm-home-btn nm-home-btn--secondary" href="<?php echo esc_url( home_url( '/about/' ) ); ?>"><?php esc_html_e( 'About Ner Michoel', 'ner-michoel-child' ); ?></a>
 			</div>
+		</div>
+	</section>
+	<?php endif; ?>
+
+	<?php if ( $recent_galleries ) : ?>
+	<section class="nm-home-section nm-home-gallery-section">
+		<div class="nm-home-section__head">
+			<h2><?php esc_html_e( 'From Our Galleries', 'ner-michoel-child' ); ?></h2>
+			<?php if ( $gallery_url ) : ?><a class="nm-home-more" href="<?php echo esc_url( $gallery_url ); ?>"><?php esc_html_e( 'See all', 'ner-michoel-child' ); ?> &rarr;</a><?php endif; ?>
+		</div>
+		<div class="nm-home-gallery-grid">
+			<?php foreach ( $recent_galleries as $gallery ) : ?>
+				<?php
+				$cover   = function_exists( 'ner_michoel_get_gallery_cover_url' ) ? ner_michoel_get_gallery_cover_url( $gallery->ID ) : '';
+				$caption = function_exists( 'ner_michoel_gallery_card_subtitle' ) ? ner_michoel_gallery_card_subtitle( $gallery->ID ) : get_the_date( '', $gallery );
+				?>
+				<a class="nm-home-gallery-card" href="<?php echo esc_url( get_permalink( $gallery ) ); ?>">
+					<div class="nm-home-gallery-card__art">
+						<?php if ( $cover ) : ?>
+							<img src="<?php echo esc_url( $cover ); ?>" alt="" loading="lazy" />
+						<?php else : ?>
+							<span aria-hidden="true">📸</span>
+						<?php endif; ?>
+					</div>
+					<div class="nm-home-gallery-card__title"><?php echo esc_html( get_the_title( $gallery ) ); ?></div>
+					<div class="nm-home-gallery-card__meta"><?php echo esc_html( $caption ); ?></div>
+				</a>
+			<?php endforeach; ?>
 		</div>
 	</section>
 	<?php endif; ?>
