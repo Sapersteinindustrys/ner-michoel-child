@@ -111,6 +111,7 @@ function ner_michoel_icon( $name ) {
 		'volume'   => '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>',
 		'download' => '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 3v10.17l3.59-3.58L17 11l-5 5-5-5 1.41-1.41L11 13.17V3h1zM5 19h14v2H5z"/></svg>',
 		'video'    => '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>',
+		'search'   => '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>',
 	);
 	return isset( $icons[ $name ] ) ? $icons[ $name ] : '';
 }
@@ -266,6 +267,59 @@ function ner_michoel_render_media_card( $args ) {
 			<div class="sh-card__subtitle"><?php echo esc_html( $args['subtitle'] ); ?></div>
 		<?php endif; ?>
 	</a>
+	<?php
+}
+
+/**
+ * Persistent left-hand nav for the Shiurim archive (Modern layout
+ * only — Classic already has its own flat toolbar, and 24Six's
+ * horizontal-carousel rows don't leave room for a sidebar without
+ * redesigning the carousel itself). Search + a "Recent" view (the one
+ * thing here without its own existing page) + every Series/Speaker,
+ * which already have real archive pages (taxonomy-series.php /
+ * taxonomy-speaker.php) to link straight to.
+ */
+function ner_michoel_render_shiurim_sidebar() {
+	$series_terms  = get_terms( array( 'taxonomy' => 'series', 'hide_empty' => true ) );
+	$speaker_terms = get_terms( array( 'taxonomy' => 'speaker', 'hide_empty' => true ) );
+	$shiurim_url   = get_post_type_archive_link( 'shiur' );
+	$is_recent     = isset( $_GET['sh_view'] ) && 'recent' === $_GET['sh_view']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$is_all        = is_post_type_archive( 'shiur' ) && ! $is_recent;
+	?>
+	<aside class="sh-sidebar">
+		<form class="sh-sidebar__search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+			<?php echo ner_michoel_icon( 'search' ); ?>
+			<input type="hidden" name="post_type" value="shiur" />
+			<input type="search" name="s" placeholder="<?php esc_attr_e( 'Search shiurim…', 'ner-michoel-child' ); ?>" value="<?php echo esc_attr( get_search_query() ); ?>" />
+		</form>
+
+		<nav class="sh-sidebar__nav">
+			<a href="<?php echo esc_url( $shiurim_url ); ?>" class="sh-sidebar__link<?php echo $is_all ? ' is-active' : ''; ?>"><?php esc_html_e( 'All Shiurim', 'ner-michoel-child' ); ?></a>
+			<a href="<?php echo esc_url( add_query_arg( 'sh_view', 'recent', $shiurim_url ) ); ?>" class="sh-sidebar__link<?php echo $is_recent ? ' is-active' : ''; ?>"><?php esc_html_e( 'Recent', 'ner-michoel-child' ); ?></a>
+		</nav>
+
+		<?php if ( $series_terms && ! is_wp_error( $series_terms ) ) : ?>
+			<div class="sh-sidebar__group">
+				<h3 class="sh-sidebar__group-title"><?php esc_html_e( 'Series', 'ner-michoel-child' ); ?></h3>
+				<nav class="sh-sidebar__nav sh-sidebar__nav--scroll">
+					<?php foreach ( $series_terms as $term ) : ?>
+						<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="sh-sidebar__link<?php echo is_tax( 'series', $term->term_id ) ? ' is-active' : ''; ?>"><?php echo esc_html( $term->name ); ?></a>
+					<?php endforeach; ?>
+				</nav>
+			</div>
+		<?php endif; ?>
+
+		<?php if ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) : ?>
+			<div class="sh-sidebar__group">
+				<h3 class="sh-sidebar__group-title"><?php esc_html_e( 'Speakers', 'ner-michoel-child' ); ?></h3>
+				<nav class="sh-sidebar__nav sh-sidebar__nav--scroll">
+					<?php foreach ( $speaker_terms as $term ) : ?>
+						<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="sh-sidebar__link<?php echo is_tax( 'speaker', $term->term_id ) ? ' is-active' : ''; ?>"><?php echo esc_html( $term->name ); ?></a>
+					<?php endforeach; ?>
+				</nav>
+			</div>
+		<?php endif; ?>
+	</aside>
 	<?php
 }
 
