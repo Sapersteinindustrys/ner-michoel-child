@@ -84,9 +84,11 @@ function ner_michoel_render_layout_toggle() {
 	if ( ! ner_michoel_is_app_context() ) {
 		return;
 	}
-	$layout = ner_michoel_get_layout();
+	$layout   = ner_michoel_get_layout();
+	$position = function_exists( 'ner_michoel_get_layout_toggle_position' ) ? ner_michoel_get_layout_toggle_position() : 'top-right';
+	$opacity  = function_exists( 'ner_michoel_get_layout_toggle_opacity' ) ? ner_michoel_get_layout_toggle_opacity() : 100;
 	?>
-	<div class="sh-layout-toggle" role="group" aria-label="<?php esc_attr_e( 'Layout', 'ner-michoel-child' ); ?>">
+	<div class="sh-layout-toggle sh-layout-toggle--<?php echo esc_attr( $position ); ?>" style="--nm-toggle-bg-alpha: <?php echo esc_attr( $opacity / 100 ); ?>;" role="group" aria-label="<?php esc_attr_e( 'Layout', 'ner-michoel-child' ); ?>">
 		<button type="button" class="sh-layout-toggle__option<?php echo 'stream' === $layout ? ' is-active' : ''; ?>" data-layout="stream"><?php esc_html_e( 'Modern', 'ner-michoel-child' ); ?></button>
 		<button type="button" class="sh-layout-toggle__option<?php echo 'classic' === $layout ? ' is-active' : ''; ?>" data-layout="classic"><?php esc_html_e( 'Classic', 'ner-michoel-child' ); ?></button>
 		<button type="button" class="sh-layout-toggle__option<?php echo '24six' === $layout ? ' is-active' : ''; ?>" data-layout="24six"><?php esc_html_e( '24Six', 'ner-michoel-child' ); ?></button>

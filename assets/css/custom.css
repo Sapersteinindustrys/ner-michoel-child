@@ -1007,34 +1007,99 @@ body.is-nm-app .ast-article-single {
 	}
 }
 
-/* Layout toggle (top-right, site-wide across app-context pages) */
+/* Layout toggle (placement + darkness admin-configurable — Site
+   Control Panel > Layout Toggle — site-wide across app-context
+   pages). --nm-toggle-bg-alpha comes from that setting via an inline
+   style on the element itself (see ner_michoel_render_layout_toggle()
+   in inc/template-tags.php); --nm-toggle-offset is purely a layout
+   convenience so every position variant and the mobile breakpoint
+   below share one distance-from-edge value instead of each needing
+   their own override. Background is a fixed dark tone (not the
+   --sh-surface app variable) since this toggle also appears in
+   Classic mode, which is intentionally light/un-themed — a dark pill
+   reads consistently against either. */
 
 .sh-layout-toggle {
+	--nm-toggle-offset: 16px;
 	position: fixed;
-	top: 16px;
-	right: 16px;
 	z-index: 10000;
 	display: flex;
 	max-width: calc(100vw - 24px);
-	background: var(--sh-surface, #eee);
-	border: 1px solid var(--sh-border, rgba(0, 0, 0, 0.1));
+	background: rgba(20, 20, 20, var(--nm-toggle-bg-alpha, 1));
+	border: 1px solid rgba(255, 255, 255, 0.15);
 	border-radius: 999px;
 	padding: 3px;
 	gap: 2px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.sh-layout-toggle--top-left {
+	top: var(--nm-toggle-offset);
+	left: var(--nm-toggle-offset);
+}
+
+.sh-layout-toggle--top-center {
+	top: var(--nm-toggle-offset);
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.sh-layout-toggle--top-right {
+	top: var(--nm-toggle-offset);
+	right: var(--nm-toggle-offset);
+}
+
+.sh-layout-toggle--center-left {
+	top: 50%;
+	left: var(--nm-toggle-offset);
+	transform: translateY(-50%);
+}
+
+.sh-layout-toggle--center-center {
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.sh-layout-toggle--center-right {
+	top: 50%;
+	right: var(--nm-toggle-offset);
+	transform: translateY(-50%);
+}
+
+.sh-layout-toggle--bottom-left {
+	bottom: var(--nm-toggle-offset);
+	left: var(--nm-toggle-offset);
+}
+
+.sh-layout-toggle--bottom-center {
+	bottom: var(--nm-toggle-offset);
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.sh-layout-toggle--bottom-right {
+	bottom: var(--nm-toggle-offset);
+	right: var(--nm-toggle-offset);
 }
 
 /* WordPress's admin toolbar (visible whenever the person checking the
    site is logged in — i.e. constantly, for the site's own admin) is
    fixed to the top at 32px tall on desktop, 46px on mobile. Without
-   this the toggle sits half-hidden underneath it. */
-body.admin-bar .sh-layout-toggle {
-	top: calc(32px + 16px);
+   this a top-anchored toggle sits half-hidden underneath it — doesn't
+   apply to center/bottom placements, which the admin bar never
+   overlaps. */
+body.admin-bar .sh-layout-toggle--top-left,
+body.admin-bar .sh-layout-toggle--top-center,
+body.admin-bar .sh-layout-toggle--top-right {
+	top: calc(32px + var(--nm-toggle-offset));
 }
 
 @media (max-width: 782px) {
-	body.admin-bar .sh-layout-toggle {
-		top: calc(46px + 16px);
+	body.admin-bar .sh-layout-toggle--top-left,
+	body.admin-bar .sh-layout-toggle--top-center,
+	body.admin-bar .sh-layout-toggle--top-right {
+		top: calc(46px + var(--nm-toggle-offset));
 	}
 }
 
@@ -1045,7 +1110,13 @@ body.admin-bar .sh-layout-toggle {
 .sh-layout-toggle__option {
 	border: none !important;
 	background: transparent !important;
-	color: var(--sh-text-muted, #666);
+	/* Fixed light color rather than the --sh-text-muted app variable —
+	   this toggle's own background is now always a dark tone
+	   regardless of layout/mode (see .sh-layout-toggle above), so it
+	   needs its own independent, always-legible text color instead of
+	   inheriting whatever that variable resolves to in Classic mode's
+	   light theming. */
+	color: rgba(255, 255, 255, 0.75);
 	font-size: 0.8rem;
 	font-weight: 600;
 	padding: 6px 14px !important;
@@ -1070,13 +1141,8 @@ body.admin-bar .sh-layout-toggle {
    width, which reads as broken rather than responsive). */
 @media (max-width: 480px) {
 	.sh-layout-toggle {
-		top: 8px;
-		right: 8px;
+		--nm-toggle-offset: 8px;
 		gap: 1px;
-	}
-
-	body.admin-bar .sh-layout-toggle {
-		top: calc(46px + 8px);
 	}
 
 	.sh-layout-toggle__option {
