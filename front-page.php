@@ -67,7 +67,12 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 
 	<?php if ( $hero_slides ) : ?>
 	<section class="nm-home-hero nm-home-hero--slider">
-		<div class="nm-hero-slider" data-interval="6000">
+		<?php
+		$hero_interval_ms = function_exists( 'ner_michoel_get_homepage_slider_interval_seconds' )
+			? ner_michoel_get_homepage_slider_interval_seconds() * 1000
+			: 6000;
+		?>
+		<div class="nm-hero-slider" data-interval="<?php echo esc_attr( $hero_interval_ms ); ?>">
 			<?php foreach ( $hero_slides as $index => $slide ) : ?>
 				<div class="nm-hero-slider__slide<?php echo 0 === $index ? ' is-active' : ''; ?>" style="background-image:url('<?php echo esc_url( $slide['url'] ); ?>');">
 					<div class="nm-hero-slider__overlay">
