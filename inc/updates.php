@@ -98,3 +98,79 @@ function ner_michoel_child_handle_update_debug_rest( WP_REST_Request $request ) 
 		200
 	);
 }
+
+/**
+ * REST route (manage_options-gated) that actually performs the
+ * upgrade — see the equivalent route in ner-michoel-core's
+ * includes/updates.php for the full rationale (same WP_Upgrader
+ * machinery "Update Now" uses, same reason Application Passwords
+ * can't drive that button directly, same headless skin). POST only.
+ */
+function ner_michoel_child_register_update_now_route() {
+	register_rest_route(
+		'ner-michoel/v1',
+		'/theme-update-now',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'ner_michoel_child_handle_update_now_rest',
+			'permission_callback' => function () {
+				return current_user_can( 'manage_options' );
+			},
+		)
+	);
+}
+add_action( 'rest_api_init', 'ner_michoel_child_register_update_now_route' );
+
+function ner_michoel_child_handle_update_now_rest( WP_REST_Request $request ) {
+	$checker = isset( $GLOBALS['ner_michoel_child_update_checker'] ) ? $GLOBALS['ner_michoel_child_update_checker'] : null;
+	if ( ! $checker ) {
+		return new WP_REST_Response( array( 'success' => false, 'message' => 'Update checker not initialized.' ), 500 );
+	}
+
+	$checker->checkForUpdates();
+	if ( ! $checker->getUpdate() ) {
+		return new WP_REST_Response( array( 'success' => false, 'message' => 'No update available.' ), 200 );
+	}
+
+	if ( ! defined( 'FS_METHOD' ) ) {
+		define( 'FS_METHOD', 'direct' );
+	}
+
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+	require_once ABSPATH . 'wp-admin/includes/class-automatic-upgrader-skin.php';
+
+	$theme_slug = basename( NER_MICHOEL_PATH );
+
+	$upgrader = new Theme_Upgrader( new Automatic_Upgrader_Skin() );
+	$result   = $upgrader->upgrade( $theme_slug );
+
+	if ( is_wp_error( $result ) ) {
+		return new WP_REST_Response( array( 'success' => false, 'message' => $result->get_error_message() ), 500 );
+	}
+
+	if ( false === $result ) {
+		$errors = $upgrader->skin->get_errors();
+		return new WP_REST_Response(
+			array(
+				'success' => false,
+				'message' => $errors ? implode( ' ', $errors ) : 'Upgrade failed for an unknown reason.',
+			),
+			500
+		);
+	}
+
+	// Re-reads the version from disk post-upgrade — style.css is a
+	// static file wp_get_theme() re-parses fresh each call, unlike
+	// the NER_MICHOEL_VERSION constant already loaded into memory
+	// from before the upgrade ran.
+	$theme = wp_get_theme( $theme_slug );
+
+	return new WP_REST_Response(
+		array(
+			'success'           => true,
+			'installed_version' => $theme->exists() ? $theme->get( 'Version' ) : null,
+		),
+		200
+	);
+}
