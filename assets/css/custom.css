@@ -1899,6 +1899,71 @@ body.sh-layout-classic.is-nm-app a {
 	color: #fff;
 }
 
+/* Slide button placement (Site Control Panel > Home Page > Hero
+   Slider) — a direct child of .nm-hero-slider__slide (not nested in
+   .nm-hero-slider__overlay/.nm-home-hero__inner above), positioned
+   independently of wherever the heading/subtext land. Every slide
+   element already has its own position value (absolute when
+   inactive, relative when .is-active — see .nm-hero-slider__slide
+   below), so it's always a valid anchor for this regardless of which
+   slide is currently showing. Same 9-slot naming as the Layout
+   Toggle's placement setting, but offset from the slide's own edges
+   rather than the viewport's. */
+.nm-slide-btn {
+	position: absolute;
+	z-index: 4;
+}
+
+.nm-slide-btn--top-left {
+	top: 40px;
+	left: 24px;
+}
+
+.nm-slide-btn--top-center {
+	top: 40px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.nm-slide-btn--top-right {
+	top: 40px;
+	right: 24px;
+}
+
+.nm-slide-btn--center-left {
+	top: 50%;
+	left: 24px;
+	transform: translateY(-50%);
+}
+
+.nm-slide-btn--center-center {
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.nm-slide-btn--center-right {
+	top: 50%;
+	right: 24px;
+	transform: translateY(-50%);
+}
+
+.nm-slide-btn--bottom-left {
+	bottom: 40px;
+	left: 24px;
+}
+
+.nm-slide-btn--bottom-center {
+	bottom: 40px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.nm-slide-btn--bottom-right {
+	bottom: 40px;
+	right: 24px;
+}
+
 /* !important on shape/layout properties for the same reason as the
    player buttons elsewhere in this file — plain <button> elements
    sitewide are subject to Astra's own global Customizer button

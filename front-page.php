@@ -83,18 +83,24 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 							<?php if ( ! empty( $slide['subtext'] ) ) : ?>
 								<p><?php echo esc_html( $slide['subtext'] ); ?></p>
 							<?php endif; ?>
-							<?php if ( ! empty( $slide['link_url'] ) ) : ?>
-								<?php
-								$btn_bg     = function_exists( 'ner_michoel_get_homepage_slider_button_background' ) ? ner_michoel_get_homepage_slider_button_background() : '';
-								$btn_radius = function_exists( 'ner_michoel_get_homepage_slider_button_radius' ) ? ner_michoel_get_homepage_slider_button_radius() : '';
-								$btn_style  = $btn_bg ? sprintf( 'background:%s;border-radius:%s;box-shadow:none;', esc_attr( $btn_bg ), esc_attr( $btn_radius ) ) : '';
-								?>
-								<a class="nm-home-btn nm-home-btn--primary" style="<?php echo esc_attr( $btn_style ); ?>" href="<?php echo esc_url( $slide['link_url'] ); ?>">
-									<?php echo esc_html( ! empty( $slide['link_text'] ) ? $slide['link_text'] : __( 'Learn More', 'ner-michoel-child' ) ); ?>
-								</a>
-							<?php endif; ?>
 						</div>
 					</div>
+					<?php if ( ! empty( $slide['link_url'] ) ) : ?>
+						<?php
+						// Its own absolutely-positioned element within the slide
+						// (not inside .nm-home-hero__inner above) so its placement
+						// setting is independent of where the heading/subtext sit.
+						$btn_bg       = function_exists( 'ner_michoel_get_homepage_slider_button_background' ) ? ner_michoel_get_homepage_slider_button_background() : '';
+						$btn_radius   = function_exists( 'ner_michoel_get_homepage_slider_button_radius' ) ? ner_michoel_get_homepage_slider_button_radius() : '';
+						$btn_position = function_exists( 'ner_michoel_get_homepage_slider_button_position' ) ? ner_michoel_get_homepage_slider_button_position() : 'bottom-center';
+						$btn_style    = $btn_bg ? sprintf( 'background:%s;border-radius:%s;box-shadow:none;', esc_attr( $btn_bg ), esc_attr( $btn_radius ) ) : '';
+						?>
+						<div class="nm-slide-btn nm-slide-btn--<?php echo esc_attr( $btn_position ); ?>">
+							<a class="nm-home-btn nm-home-btn--primary" style="<?php echo esc_attr( $btn_style ); ?>" href="<?php echo esc_url( $slide['link_url'] ); ?>">
+								<?php echo esc_html( ! empty( $slide['link_text'] ) ? $slide['link_text'] : __( 'Learn More', 'ner-michoel-child' ) ); ?>
+							</a>
+						</div>
+					<?php endif; ?>
 				</div>
 			<?php endforeach; ?>
 		</div>
