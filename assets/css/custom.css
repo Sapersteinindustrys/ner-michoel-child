@@ -1882,8 +1882,12 @@ body.sh-layout-classic.is-nm-app a {
 	visibility: visible;
 }
 
+/* A uniform 35-55% dark wash over the whole slide made every photo
+   look faded/washed out, not just the area behind the text. Nearly
+   clear at the top, only darkening enough for legibility where the
+   heading/subtext/button actually sit. */
 .nm-hero-slider__overlay {
-	background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.55));
+	background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.15) 55%, rgba(0, 0, 0, 0.5) 100%);
 	min-height: 480px;
 	display: flex;
 	align-items: center;
