@@ -153,14 +153,14 @@ body.is-nm-app .ast-article-single {
 	display: flex;
 	align-items: flex-start;
 	gap: 0;
-	max-width: 1400px;
+	max-width: 1600px;
 	margin: 0 auto;
 }
 
 .sh-layout-with-sidebar .sh-main {
 	flex: 1;
 	min-width: 0;
-	max-width: 1200px;
+	max-width: none;
 	margin: 0;
 }
 
@@ -288,8 +288,8 @@ body.is-nm-app .ast-article-single {
 
 .sh-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-	gap: 20px;
+	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	gap: 18px;
 }
 
 /* 24Six layout — same cards as .sh-grid above, horizontal-scrolling
