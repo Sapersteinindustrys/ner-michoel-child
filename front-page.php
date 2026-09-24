@@ -89,6 +89,8 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 			<?php endforeach; ?>
 		</div>
 		<?php if ( count( $hero_slides ) > 1 ) : ?>
+			<button type="button" class="nm-hero-slider__nav nm-hero-slider__nav--prev" aria-label="<?php esc_attr_e( 'Previous slide', 'ner-michoel-child' ); ?>"><?php echo function_exists( 'ner_michoel_icon' ) ? ner_michoel_icon( 'prev' ) : ''; ?></button>
+			<button type="button" class="nm-hero-slider__nav nm-hero-slider__nav--next" aria-label="<?php esc_attr_e( 'Next slide', 'ner-michoel-child' ); ?>"><?php echo function_exists( 'ner_michoel_icon' ) ? ner_michoel_icon( 'next' ) : ''; ?></button>
 			<div class="nm-hero-slider__dots">
 				<?php foreach ( $hero_slides as $index => $slide ) : ?>
 					<button

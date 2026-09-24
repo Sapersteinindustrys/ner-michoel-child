@@ -1790,6 +1790,7 @@ body.sh-layout-classic.is-nm-app a {
    subtext + button), no external library. */
 
 .nm-home-hero--slider {
+	position: relative;
 	padding: 0;
 	background: #222;
 }
@@ -1826,6 +1827,74 @@ body.sh-layout-classic.is-nm-app a {
 .nm-hero-slider__overlay .nm-home-hero__inner h1,
 .nm-hero-slider__overlay .nm-home-hero__inner p {
 	color: #fff;
+}
+
+/* !important on shape/layout properties for the same reason as the
+   player buttons elsewhere in this file — plain <button> elements
+   sitewide are subject to Astra's own global Customizer button
+   style, which otherwise wins over a plain class selector here. */
+.nm-hero-slider__nav {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 5;
+	width: 44px !important;
+	height: 44px !important;
+	border: none !important;
+	border-radius: 50% !important;
+	padding: 0 !important;
+	margin: 0;
+	box-sizing: border-box !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	background: rgba(0, 0, 0, 0.35) !important;
+	color: #fff;
+	cursor: pointer;
+	opacity: 0.85;
+	transition: background-color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+.nm-hero-slider__nav svg {
+	width: 20px;
+	height: 20px;
+}
+
+.nm-hero-slider__nav:hover {
+	background: rgba(0, 0, 0, 0.55) !important;
+	opacity: 1;
+}
+
+.nm-hero-slider__nav:active {
+	transform: translateY(-50%) scale(0.94);
+}
+
+.nm-hero-slider__nav--prev {
+	left: 16px;
+}
+
+.nm-hero-slider__nav--next {
+	right: 16px;
+}
+
+@media (max-width: 600px) {
+	.nm-hero-slider__nav {
+		width: 36px !important;
+		height: 36px !important;
+	}
+
+	.nm-hero-slider__nav svg {
+		width: 16px;
+		height: 16px;
+	}
+
+	.nm-hero-slider__nav--prev {
+		left: 8px;
+	}
+
+	.nm-hero-slider__nav--next {
+		right: 8px;
+	}
 }
 
 .nm-hero-slider__dots {

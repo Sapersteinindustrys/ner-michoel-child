@@ -170,8 +170,10 @@ function nerMichoelSendShiurEvent( postId, event ) {
 		return;
 	}
 
-	var slides = slider.querySelectorAll( '.nm-hero-slider__slide' );
-	var dots   = document.querySelectorAll( '.nm-hero-slider__dot' );
+	var slides   = slider.querySelectorAll( '.nm-hero-slider__slide' );
+	var dots     = document.querySelectorAll( '.nm-hero-slider__dot' );
+	var navPrev  = document.querySelector( '.nm-hero-slider__nav--prev' );
+	var navNext  = document.querySelector( '.nm-hero-slider__nav--next' );
 	if ( slides.length < 2 ) {
 		return;
 	}
@@ -210,6 +212,20 @@ function nerMichoelSendShiurEvent( postId, event ) {
 			start();
 		} );
 	} );
+
+	if ( navPrev ) {
+		navPrev.addEventListener( 'click', function () {
+			show( index - 1 );
+			start();
+		} );
+	}
+
+	if ( navNext ) {
+		navNext.addEventListener( 'click', function () {
+			show( index + 1 );
+			start();
+		} );
+	}
 
 	slider.addEventListener( 'mouseenter', stop );
 	slider.addEventListener( 'mouseleave', start );
