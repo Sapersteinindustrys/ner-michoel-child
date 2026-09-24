@@ -111,19 +111,24 @@ body.is-nm-app a {
 }
 
 /* Astra's "separate container" layout (active site-wide here) wraps
-   every single/archive page in its own light card: a background
-   color on body.ast-separate-container itself, another on
-   .ast-article-inner, plus 2.5em of padding on the article wrapper.
-   That's the right call for ordinary Astra pages, but it directly
-   fights the full-bleed dark app look — without this, the Shiurim/
-   Galleries/News UI renders as a dark box awkwardly framed inside a
-   light card with doubled-up padding, instead of taking over the
-   page the way a real app does. Neutralized only when is-nm-app is
-   present, so ordinary Astra pages (About, Contact, etc.) keep
-   Astra's normal boxed styling untouched. */
-body.is-nm-app.ast-separate-container {
-	background-color: transparent;
-}
+   every single/archive page's content in its own light card: a
+   background on .ast-article-inner, plus 2.5em of padding on the
+   article wrapper. That's the right call for ordinary Astra pages,
+   but it directly fights the full-bleed dark app look. Neutralized
+   only when is-nm-app is present, so ordinary Astra pages (About,
+   Contact, etc.) keep Astra's normal boxed styling untouched.
+   NOTE: deliberately NOT touching body's own background-color here
+   (a previous version of this rule did, via
+   `body.is-nm-app.ast-separate-container`) — .ast-separate-container
+   is a class on <body> itself, not a separate wrapper, so a body-
+   level selector for it has higher specificity than the plain
+   `body.is-nm-app` rule above that sets the real dark background,
+   and silently overrode it to transparent — the actual page
+   background stayed default white while --sh-text stayed white too,
+   making every row's text invisible except on hover (where the row's
+   own :hover background happened to provide contrast). Body's
+   background never needed touching; only the nested .ast-article-*
+   elements below are genuinely separate from it. */
 
 body.is-nm-app .ast-article-inner {
 	background-color: transparent;
