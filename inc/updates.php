@@ -42,10 +42,59 @@ function ner_michoel_child_init_update_checker() {
 		return;
 	}
 
-	\YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+	$checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
 		'https://github.com/Sapersteinindustrys/ner-michoel-child/',
 		NER_MICHOEL_PATH,
 		'ner-michoel-child'
 	);
+
+	$GLOBALS['ner_michoel_child_update_checker'] = $checker;
 }
 ner_michoel_child_init_update_checker();
+
+/**
+ * REST route (manage_options-gated) for diagnosing the theme's update
+ * check remotely — same purpose as the equivalent route in
+ * ner-michoel-core: forces a fresh check bypassing PUC's own cache,
+ * then reports the current version and whatever update (if any) PUC
+ * now sees. A failed/empty check otherwise looks identical to
+ * "already up to date" with no way to tell the two apart remotely.
+ */
+function ner_michoel_child_register_update_debug_route() {
+	register_rest_route(
+		'ner-michoel/v1',
+		'/theme-update-check-debug',
+		array(
+			'methods'             => 'GET',
+			'callback'            => 'ner_michoel_child_handle_update_debug_rest',
+			'permission_callback' => function () {
+				return current_user_can( 'manage_options' );
+			},
+		)
+	);
+}
+add_action( 'rest_api_init', 'ner_michoel_child_register_update_debug_route' );
+
+function ner_michoel_child_handle_update_debug_rest( WP_REST_Request $request ) {
+	$checker = isset( $GLOBALS['ner_michoel_child_update_checker'] ) ? $GLOBALS['ner_michoel_child_update_checker'] : null;
+	$update  = null;
+
+	if ( $checker ) {
+		$checker->checkForUpdates();
+		$found = $checker->getUpdate();
+		if ( $found ) {
+			$update = array(
+				'new_version'  => isset( $found->version ) ? $found->version : null,
+				'download_url' => isset( $found->download_url ) ? $found->download_url : null,
+			);
+		}
+	}
+
+	return new WP_REST_Response(
+		array(
+			'installed_version' => defined( 'NER_MICHOEL_VERSION' ) ? NER_MICHOEL_VERSION : null,
+			'update_found'      => $update,
+		),
+		200
+	);
+}
