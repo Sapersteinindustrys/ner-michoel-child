@@ -849,14 +849,14 @@ body.is-nm-app .ast-article-single {
 		to right,
 		var(--sh-text) 0%,
 		var(--sh-text) var(--fill, 0%),
-		rgba(255, 255, 255, 0.16) var(--fill, 0%),
-		rgba(255, 255, 255, 0.16) 100%
+		rgba(255, 255, 255, 0.09) var(--fill, 0%),
+		rgba(255, 255, 255, 0.09) 100%
 	);
 }
 
 .sh-player__seek::-moz-range-track {
 	height: 4px;
-	background: rgba(255, 255, 255, 0.16);
+	background: rgba(255, 255, 255, 0.09);
 }
 
 .sh-player__seek::-moz-range-progress {
@@ -869,8 +869,8 @@ body.is-nm-app .ast-article-single {
 		to right,
 		var(--sh-accent) 0%,
 		var(--sh-accent) var(--fill, 0%),
-		rgba(255, 255, 255, 0.16) var(--fill, 0%),
-		rgba(255, 255, 255, 0.16) 100%
+		rgba(255, 255, 255, 0.09) var(--fill, 0%),
+		rgba(255, 255, 255, 0.09) 100%
 	);
 }
 
@@ -882,22 +882,24 @@ body.is-nm-app .ast-article-single {
 .sh-player__seek::-webkit-slider-thumb {
 	-webkit-appearance: none;
 	appearance: none;
-	width: 12px;
-	height: 12px;
-	margin-top: -4px;
+	width: 11px;
+	height: 11px;
+	margin-top: -3.5px;
 	border: none;
 	border-radius: 50%;
-	background: var(--sh-text);
+	background: #fff;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
 	opacity: 0;
 	transition: opacity 0.15s ease;
 }
 
 .sh-player__seek::-moz-range-thumb {
-	width: 12px;
-	height: 12px;
+	width: 11px;
+	height: 11px;
 	border: none;
 	border-radius: 50%;
-	background: var(--sh-text);
+	background: #fff;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
 	opacity: 0;
 	transition: opacity 0.15s ease;
 }
@@ -921,6 +923,9 @@ body.is-nm-app .ast-article-single {
 	min-width: 0;
 }
 
+/* Darker than --sh-surface-hover: most shiurim have no artwork, so
+   this box is usually empty, and at #282828 a row of them read as
+   light grey slabs sitting in a near-black bar. */
 .sh-player__cover {
 	position: relative;
 	width: 58px;
@@ -928,7 +933,7 @@ body.is-nm-app .ast-article-single {
 	flex-shrink: 0;
 	border-radius: 6px;
 	overflow: hidden;
-	background: var(--sh-surface-hover, #282828);
+	background: #17181a;
 }
 
 .sh-player__cover img {
@@ -1064,14 +1069,20 @@ body.is-nm-app .ast-article-single {
 }
 
 /* The one dominant element in the bar. */
-.sh-player__toggle {
+/* Qualified with the parent + element on purpose. The base rule above
+   is `.sh-player__buttons button` (0,1,1); a bare `.sh-player__toggle`
+   is only (0,1,0), so with both marked !important the BASE wins and
+   the disc silently renders as a plain 34px transparent icon like its
+   siblings. Matching the base's specificity and adding the class puts
+   this at (0,2,1) so it actually takes effect. */
+.sh-player__buttons button.sh-player__toggle {
 	width: 54px !important;
 	height: 54px !important;
 	background: var(--sh-text, #fff) !important;
 	color: #000 !important;
 }
 
-.sh-player__toggle svg {
+.sh-player__buttons button.sh-player__toggle svg {
 	width: 26px !important;
 	height: 26px !important;
 	/* A play triangle's visual mass sits left of its bounding box, so
@@ -1079,16 +1090,16 @@ body.is-nm-app .ast-article-single {
 	margin-left: 3px;
 }
 
-.sh-player.is-playing .sh-player__toggle svg {
+.sh-player.is-playing .sh-player__buttons button.sh-player__toggle svg {
 	margin-left: 0;
 }
 
-.sh-player__toggle:hover:not(:disabled) {
+.sh-player__buttons button.sh-player__toggle:hover:not(:disabled) {
 	opacity: 1;
 	transform: scale(1.05);
 }
 
-.sh-player__toggle:active:not(:disabled) {
+.sh-player__buttons button.sh-player__toggle:active:not(:disabled) {
 	transform: scale(0.97);
 }
 
@@ -1169,10 +1180,13 @@ body.is-nm-app .ast-article-single {
 	color: var(--sh-text);
 }
 
+/* Volume sits at 100% most of the time, so a long rail in full
+   --sh-text read as a bright white slab competing with the play
+   disc. Shorter, and filled in muted grey rather than white. */
 .sh-player__volume-range {
 	-webkit-appearance: none;
 	appearance: none;
-	width: 84px;
+	width: 70px;
 	height: 12px;
 	margin: 0;
 	padding: 0;
@@ -1185,44 +1199,46 @@ body.is-nm-app .ast-article-single {
 	border-radius: 2px;
 	background: linear-gradient(
 		to right,
-		var(--sh-text) 0%,
-		var(--sh-text) var(--fill, 0%),
-		rgba(255, 255, 255, 0.16) var(--fill, 0%),
-		rgba(255, 255, 255, 0.16) 100%
+		rgba(255, 255, 255, 0.55) 0%,
+		rgba(255, 255, 255, 0.55) var(--fill, 0%),
+		rgba(255, 255, 255, 0.09) var(--fill, 0%),
+		rgba(255, 255, 255, 0.09) 100%
 	);
 }
 
 .sh-player__volume-range::-moz-range-track {
 	height: 4px;
 	border-radius: 2px;
-	background: rgba(255, 255, 255, 0.16);
+	background: rgba(255, 255, 255, 0.09);
 }
 
 .sh-player__volume-range::-moz-range-progress {
 	height: 4px;
 	border-radius: 2px;
-	background: var(--sh-text);
+	background: rgba(255, 255, 255, 0.55);
 }
 
 .sh-player__volume-range::-webkit-slider-thumb {
 	-webkit-appearance: none;
 	appearance: none;
-	width: 12px;
-	height: 12px;
-	margin-top: -4px;
+	width: 11px;
+	height: 11px;
+	margin-top: -3.5px;
 	border: none;
 	border-radius: 50%;
-	background: var(--sh-text);
+	background: #fff;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
 	opacity: 0;
 	transition: opacity 0.15s ease;
 }
 
 .sh-player__volume-range::-moz-range-thumb {
-	width: 12px;
-	height: 12px;
+	width: 11px;
+	height: 11px;
 	border: none;
 	border-radius: 50%;
-	background: var(--sh-text);
+	background: #fff;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
 	opacity: 0;
 	transition: opacity 0.15s ease;
 }
