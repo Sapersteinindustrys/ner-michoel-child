@@ -404,19 +404,32 @@ body.is-nm-app .ast-article-single {
 	display: block;
 }
 
+/* !important for the same reason as .sh-player__buttons/.sh-player__toggle
+   elsewhere in this file — this is a plain <button> too, so Astra's
+   own global button style (a default blue, not our accent color, and
+   its own radius/padding) otherwise wins over background/shape here,
+   which is exactly why this rendered as a blue oval instead of a
+   small accent-colored circle. Missed when that same fix was applied
+   to the player bar's buttons, since this one's a separate class. */
 .sh-card__play {
-	position: absolute;
-	right: 8px;
-	bottom: 8px;
-	width: 40px;
-	height: 40px;
-	border-radius: 50%;
-	border: none;
-	background: var(--sh-accent);
+	position: absolute !important;
+	right: 8px !important;
+	bottom: 8px !important;
+	top: auto !important;
+	left: auto !important;
+	width: 40px !important;
+	height: 40px !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	box-sizing: border-box !important;
+	line-height: 1 !important;
+	border-radius: 50% !important;
+	border: none !important;
+	background: var(--sh-accent) !important;
 	color: #fff;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
 	cursor: pointer;
 	opacity: 0;
 	transform: translateY(6px);
@@ -431,7 +444,7 @@ body.is-nm-app .ast-article-single {
 }
 
 .sh-card__play:hover {
-	background: var(--sh-accent-hover);
+	background: var(--sh-accent-hover) !important;
 }
 
 .sh-card__title {
