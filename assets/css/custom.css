@@ -824,94 +824,135 @@ body.is-nm-app .ast-article-single {
 	padding: 0 18px;
 }
 
-/* --- Scrubber: full-width hairline on the top edge ------------- */
+/* --- Rails: scrubber (top edge) + volume ---------------------- */
 
-/* Sits slightly above the bar's own top edge so the visible 4px rail
-   lands exactly on it while the input keeps a usable grab height.
-   --fill is set by custom.js on every timeupdate. */
-.sh-player__seek {
+/* Why these selectors are so long: Astra ships its own global styling
+   for EVERY range input on the site — an 8.6px grey track with a
+   `#ccc`/`#d9d9d9` drop shadow, and a 20px thumb with a 7.9px blue
+   border — via `input[type=range]::-webkit-slider-*`, specificity
+   (0,1,2). A plain `.sh-player__seek::-webkit-slider-*` is only
+   (0,1,1), so Astra silently won: that's the grey shadowed bars and
+   the blue ball, and why the white progress fill never appeared at
+   all. Scoping through `.sh-player input[type="range"]` lands at
+   (0,3,2), and every property Astra sets is explicitly reset below —
+   including ones we don't otherwise care about (its shadow, border,
+   margin), since anything left unset still falls through to Astra.
+
+   --fill is set by custom.js on every timeupdate / volume change. */
+
+.sh-player input[type="range"].sh-player__seek,
+.sh-player input[type="range"].sh-player__volume-range {
+	--rail-fill: #fff;
+	--rail-empty: rgba(255, 255, 255, 0.12);
 	-webkit-appearance: none;
 	appearance: none;
-	position: absolute;
-	top: -4px;
-	left: 0;
-	width: 100%;
-	height: 12px;
+	height: 14px;
 	margin: 0;
 	padding: 0;
+	border: 0;
 	background: transparent;
+	box-shadow: none;
 	cursor: pointer;
 }
 
-.sh-player__seek::-webkit-slider-runnable-track {
+/* Full-width hairline pinned to the bar's top edge: the input is
+   14px tall with its 4px track centered, so -5px puts the track
+   exactly on the edge while keeping a comfortable grab height. */
+.sh-player input[type="range"].sh-player__seek {
+	position: absolute;
+	top: -5px;
+	left: 0;
+	width: 100%;
+}
+
+.sh-player input[type="range"].sh-player__volume-range {
+	width: 76px;
+}
+
+/* Track — WebKit/Blink paints the filled part via the gradient, since
+   it has no native "progress" pseudo-element. */
+.sh-player input[type="range"].sh-player__seek::-webkit-slider-runnable-track,
+.sh-player input[type="range"].sh-player__volume-range::-webkit-slider-runnable-track {
 	height: 4px;
+	border: 0;
+	border-radius: 999px;
+	box-shadow: none;
 	background: linear-gradient(
 		to right,
-		var(--sh-text) 0%,
-		var(--sh-text) var(--fill, 0%),
-		rgba(255, 255, 255, 0.09) var(--fill, 0%),
-		rgba(255, 255, 255, 0.09) 100%
+		var(--rail-fill) 0%,
+		var(--rail-fill) var(--fill, 0%),
+		var(--rail-empty) var(--fill, 0%),
+		var(--rail-empty) 100%
 	);
 }
 
-.sh-player__seek::-moz-range-track {
+.sh-player input[type="range"].sh-player__seek::-moz-range-track,
+.sh-player input[type="range"].sh-player__volume-range::-moz-range-track {
 	height: 4px;
-	background: rgba(255, 255, 255, 0.09);
+	border: 0;
+	border-radius: 999px;
+	box-shadow: none;
+	background: var(--rail-empty);
 }
 
-.sh-player__seek::-moz-range-progress {
+.sh-player input[type="range"].sh-player__seek::-moz-range-progress,
+.sh-player input[type="range"].sh-player__volume-range::-moz-range-progress {
 	height: 4px;
-	background: var(--sh-text);
+	border-radius: 999px;
+	background: var(--rail-fill);
 }
 
-.sh-player__seek:hover::-webkit-slider-runnable-track {
-	background: linear-gradient(
-		to right,
-		var(--sh-accent) 0%,
-		var(--sh-accent) var(--fill, 0%),
-		rgba(255, 255, 255, 0.09) var(--fill, 0%),
-		rgba(255, 255, 255, 0.09) 100%
-	);
-}
-
-.sh-player__seek:hover::-moz-range-progress {
-	background: var(--sh-accent);
-}
-
-/* Thumb hidden at rest so the rail reads as a progress line. */
-.sh-player__seek::-webkit-slider-thumb {
+/* Handle — a small white oval lying along the rail. */
+.sh-player input[type="range"].sh-player__seek::-webkit-slider-thumb,
+.sh-player input[type="range"].sh-player__volume-range::-webkit-slider-thumb {
 	-webkit-appearance: none;
 	appearance: none;
-	width: 11px;
-	height: 11px;
-	margin-top: -3.5px;
-	border: none;
-	border-radius: 50%;
+	width: 16px;
+	height: 10px;
+	margin-top: -3px; /* (4px track - 10px thumb) / 2 */
+	border: 0;
+	border-radius: 999px;
 	background: #fff;
-	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
-	opacity: 0;
-	transition: opacity 0.15s ease;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+	transition: transform 0.12s ease;
 }
 
-.sh-player__seek::-moz-range-thumb {
-	width: 11px;
-	height: 11px;
-	border: none;
-	border-radius: 50%;
+.sh-player input[type="range"].sh-player__seek::-moz-range-thumb,
+.sh-player input[type="range"].sh-player__volume-range::-moz-range-thumb {
+	width: 16px;
+	height: 10px;
+	border: 0;
+	border-radius: 999px;
 	background: #fff;
-	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
-	opacity: 0;
-	transition: opacity 0.15s ease;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+	transition: transform 0.12s ease;
 }
 
-.sh-player__seek:hover::-webkit-slider-thumb,
-.sh-player__seek:focus-visible::-webkit-slider-thumb {
-	opacity: 1;
+.sh-player input[type="range"].sh-player__seek:hover::-webkit-slider-thumb,
+.sh-player input[type="range"].sh-player__volume-range:hover::-webkit-slider-thumb {
+	transform: scale(1.15);
 }
 
-.sh-player__seek:hover::-moz-range-thumb,
-.sh-player__seek:focus-visible::-moz-range-thumb {
-	opacity: 1;
+.sh-player input[type="range"].sh-player__seek:hover::-moz-range-thumb,
+.sh-player input[type="range"].sh-player__volume-range:hover::-moz-range-thumb {
+	transform: scale(1.15);
+}
+
+/* Keyboard focus: a soft ring on the handle rather than an outline
+   around the whole (full-width, invisible) input box. */
+.sh-player input[type="range"].sh-player__seek:focus,
+.sh-player input[type="range"].sh-player__volume-range:focus {
+	outline: none;
+}
+
+.sh-player input[type="range"].sh-player__seek:focus-visible::-webkit-slider-thumb,
+.sh-player input[type="range"].sh-player__volume-range:focus-visible::-webkit-slider-thumb {
+	box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35);
+}
+
+.sh-player input[type="range"].sh-player__seek:focus-visible::-moz-range-thumb,
+.sh-player input[type="range"].sh-player__volume-range:focus-visible::-moz-range-thumb {
+	box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35);
 }
 
 /* --- Left: what's playing ------------------------------------- */
@@ -1178,79 +1219,6 @@ body.is-nm-app .ast-article-single {
 
 .sh-player__volume:hover svg {
 	color: var(--sh-text);
-}
-
-/* Volume sits at 100% most of the time, so a long rail in full
-   --sh-text read as a bright white slab competing with the play
-   disc. Shorter, and filled in muted grey rather than white. */
-.sh-player__volume-range {
-	-webkit-appearance: none;
-	appearance: none;
-	width: 70px;
-	height: 12px;
-	margin: 0;
-	padding: 0;
-	background: transparent;
-	cursor: pointer;
-}
-
-.sh-player__volume-range::-webkit-slider-runnable-track {
-	height: 4px;
-	border-radius: 2px;
-	background: linear-gradient(
-		to right,
-		rgba(255, 255, 255, 0.55) 0%,
-		rgba(255, 255, 255, 0.55) var(--fill, 0%),
-		rgba(255, 255, 255, 0.09) var(--fill, 0%),
-		rgba(255, 255, 255, 0.09) 100%
-	);
-}
-
-.sh-player__volume-range::-moz-range-track {
-	height: 4px;
-	border-radius: 2px;
-	background: rgba(255, 255, 255, 0.09);
-}
-
-.sh-player__volume-range::-moz-range-progress {
-	height: 4px;
-	border-radius: 2px;
-	background: rgba(255, 255, 255, 0.55);
-}
-
-.sh-player__volume-range::-webkit-slider-thumb {
-	-webkit-appearance: none;
-	appearance: none;
-	width: 11px;
-	height: 11px;
-	margin-top: -3.5px;
-	border: none;
-	border-radius: 50%;
-	background: #fff;
-	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
-	opacity: 0;
-	transition: opacity 0.15s ease;
-}
-
-.sh-player__volume-range::-moz-range-thumb {
-	width: 11px;
-	height: 11px;
-	border: none;
-	border-radius: 50%;
-	background: #fff;
-	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
-	opacity: 0;
-	transition: opacity 0.15s ease;
-}
-
-.sh-player__volume-range:hover::-webkit-slider-thumb,
-.sh-player__volume-range:focus-visible::-webkit-slider-thumb {
-	opacity: 1;
-}
-
-.sh-player__volume-range:hover::-moz-range-thumb,
-.sh-player__volume-range:focus-visible::-moz-range-thumb {
-	opacity: 1;
 }
 
 /* --- Narrow screens ------------------------------------------- */
