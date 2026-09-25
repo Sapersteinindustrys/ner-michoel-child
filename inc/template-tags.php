@@ -463,29 +463,37 @@ function ner_michoel_render_player_bar() {
 	?>
 	<div class="sh-player" id="sh-player" hidden>
 		<audio id="sh-audio" preload="metadata"></audio>
-		<div class="sh-player__now">
-			<div class="sh-player__cover" id="sh-player-cover"></div>
-			<div class="sh-player__meta">
-				<a class="sh-player__title" id="sh-player-title" href="#"></a>
-				<div class="sh-player__speaker" id="sh-player-speaker"></div>
+
+		<?php // Full-width hairline scrubber pinned to the bar's top edge. ?>
+		<input type="range" class="sh-player__seek" id="sh-player-seek" min="0" max="1000" value="0" aria-label="<?php esc_attr_e( 'Seek', 'ner-michoel-child' ); ?>" />
+
+		<div class="sh-player__body">
+			<div class="sh-player__now">
+				<div class="sh-player__cover" id="sh-player-cover"></div>
+				<div class="sh-player__meta">
+					<a class="sh-player__title" id="sh-player-title" href="#"></a>
+					<div class="sh-player__speaker" id="sh-player-speaker"></div>
+				</div>
 			</div>
-		</div>
-		<div class="sh-player__center">
+
 			<div class="sh-player__buttons">
 				<button type="button" class="sh-player__prev" id="sh-player-prev" aria-label="<?php esc_attr_e( 'Previous', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'prev' ); ?></button>
 				<button type="button" class="sh-player__toggle" id="sh-player-toggle" aria-label="<?php esc_attr_e( 'Play', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'play' ); ?></button>
 				<button type="button" class="sh-player__next" id="sh-player-next" aria-label="<?php esc_attr_e( 'Next', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'next' ); ?></button>
 			</div>
-			<div class="sh-player__progress">
-				<span class="sh-player__time" id="sh-player-current">0:00</span>
-				<input type="range" class="sh-player__seek" id="sh-player-seek" min="0" max="1000" value="0" aria-label="<?php esc_attr_e( 'Seek', 'ner-michoel-child' ); ?>" />
-				<span class="sh-player__time" id="sh-player-duration">0:00</span>
+
+			<div class="sh-player__end">
+				<span class="sh-player__times">
+					<span class="sh-player__time" id="sh-player-current">0:00</span>
+					<span class="sh-player__time-sep">/</span>
+					<span class="sh-player__time sh-player__time--total" id="sh-player-duration">0:00</span>
+				</span>
+				<button type="button" class="sh-player__speed" id="sh-player-speed" aria-label="<?php esc_attr_e( 'Playback speed', 'ner-michoel-child' ); ?>">1x</button>
+				<span class="sh-player__volume">
+					<?php echo ner_michoel_icon( 'volume' ); ?>
+					<input type="range" class="sh-player__volume-range" id="sh-player-volume" min="0" max="1" step="0.01" value="1" aria-label="<?php esc_attr_e( 'Volume', 'ner-michoel-child' ); ?>" />
+				</span>
 			</div>
-		</div>
-		<div class="sh-player__volume">
-			<button type="button" class="sh-player__speed" id="sh-player-speed" aria-label="<?php esc_attr_e( 'Playback speed', 'ner-michoel-child' ); ?>">1x</button>
-			<?php echo ner_michoel_icon( 'volume' ); ?>
-			<input type="range" class="sh-player__volume-range" id="sh-player-volume" min="0" max="1" step="0.01" value="1" aria-label="<?php esc_attr_e( 'Volume', 'ner-michoel-child' ); ?>" />
 		</div>
 	</div>
 	<?php
