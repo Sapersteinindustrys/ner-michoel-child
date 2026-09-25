@@ -488,7 +488,14 @@ function ner_michoel_render_player_bar() {
 					<span class="sh-player__time-sep">/</span>
 					<span class="sh-player__time sh-player__time--total" id="sh-player-duration">0:00</span>
 				</span>
-				<button type="button" class="sh-player__speed" id="sh-player-speed" aria-label="<?php esc_attr_e( 'Playback speed', 'ner-michoel-child' ); ?>">1x</button>
+				<div class="sh-player__speed-wrap">
+					<button type="button" class="sh-player__speed" id="sh-player-speed" aria-haspopup="menu" aria-expanded="false" aria-controls="sh-player-speed-menu" aria-label="<?php esc_attr_e( 'Playback speed', 'ner-michoel-child' ); ?>">
+						<span class="sh-player__speed-label" id="sh-player-speed-label">1&times;</span>
+						<svg class="sh-player__speed-caret" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+					</button>
+					<?php // Options are built by custom.js from its SPEEDS list, so the list lives in one place. ?>
+					<div class="sh-speed-menu" id="sh-player-speed-menu" role="menu" aria-label="<?php esc_attr_e( 'Playback speed', 'ner-michoel-child' ); ?>" hidden></div>
+				</div>
 				<span class="sh-player__volume">
 					<?php echo ner_michoel_icon( 'volume' ); ?>
 					<input type="range" class="sh-player__volume-range" id="sh-player-volume" min="0" max="1" step="0.01" value="1" aria-label="<?php esc_attr_e( 'Volume', 'ner-michoel-child' ); ?>" />

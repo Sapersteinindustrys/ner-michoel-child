@@ -223,19 +223,51 @@ body.is-nm-app .ast-article-single {
 .sh-sidebar__nav--scroll {
 	max-height: 220px;
 	overflow-y: auto;
+	/* Thin, dark scrollbar — the platform default on Windows is a
+	   bright white track that reads as a broken widget on this dark
+	   sidebar. */
+	scrollbar-width: thin;
+	scrollbar-color: var(--sh-surface-hover) transparent;
+}
+
+.sh-sidebar__nav--scroll::-webkit-scrollbar {
+	width: 6px;
+}
+
+.sh-sidebar__nav--scroll::-webkit-scrollbar-thumb {
+	background: var(--sh-surface-hover);
+	border-radius: 3px;
+}
+
+.sh-sidebar__nav--scroll::-webkit-scrollbar-track {
+	background: transparent;
 }
 
 .sh-sidebar__link {
-	display: block;
+	/* Must not shrink. The nav is a height-capped flex column, and the
+	   overflow:hidden below (for the ellipsis) drops a flex item's
+	   minimum height to zero — so instead of the list scrolling, every
+	   row got squashed to fit: padding intact, text crushed to nothing.
+	   With 94 series in 220px that rendered as a blank block (earlier,
+	   with fewer series, as fragments of glyphs). */
+	flex-shrink: 0;
 	color: var(--sh-text-muted);
 	text-decoration: none;
 	font-size: 0.9rem;
 	font-weight: 500;
+	line-height: 1.3;
 	padding: 7px 10px;
 	border-radius: 6px;
+	/* Up to two lines, then ellipsis. Series names put the part that
+	   tells them apart at the END ("Gemara / Bava Kamma / Perek 3"), so
+	   a one-line truncation made every perek of a masechta read
+	   identically as "Gemara / Bava Kamma / P...". */
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
 	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	overflow-wrap: anywhere;
 	transition: background-color 0.15s ease, color 0.15s ease;
 }
 
@@ -450,14 +482,21 @@ body.is-nm-app .ast-article-single {
 	background: var(--sh-accent-hover) !important;
 }
 
+/* Two lines then ellipsis, for the same reason as the sidebar links:
+   series titles differ only at the end ("... / Perek 3"), so a
+   single-line cut made sibling cards read identically. */
 .sh-card__title {
 	color: var(--sh-text);
 	font-weight: 600;
 	font-size: 0.95rem;
+	line-height: 1.3;
 	margin-bottom: 4px;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
 	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	overflow-wrap: anywhere;
 }
 
 .sh-card__subtitle {
@@ -1173,33 +1212,200 @@ body.is-nm-app .ast-article-single {
 	color: var(--sh-text-muted);
 }
 
-.sh-player__speed {
+/* --- Speed control: trigger + menu ---------------------------- */
+
+/* Was a button that cycled 0.75 -> 1 -> ... -> 2 one step per click,
+   so reaching a slower speed meant clicking through every faster one
+   first, and you couldn't see the options until you landed on them.
+   Now a trigger that opens a menu listing every speed: any of them is
+   one click away (arrow keys work inside it; < and > step it too). */
+
+.sh-player__speed-wrap {
+	position: relative;
 	flex-shrink: 0;
-	min-width: 34px;
-	padding: 4px 8px !important;
-	margin: 0 !important;
-	box-sizing: border-box !important;
-	line-height: 1.3 !important;
-	border: none !important;
-	border-radius: 4px !important;
-	background: transparent !important;
-	color: var(--sh-text-muted);
-	font-size: 0.75rem;
-	font-weight: 700;
-	font-variant-numeric: tabular-nums;
-	cursor: pointer;
-	transition: color 0.15s ease, background-color 0.15s ease;
 }
 
-.sh-player__speed:hover {
-	color: var(--sh-text);
-	background: rgba(255, 255, 255, 0.08) !important;
+/* Scoped through .sh-player to clear Astra's global `button:hover` /
+   `button:focus` (0,1,1), which would otherwise repaint this in the
+   site's blue with 15px/30px padding and 16px type. Every property
+   Astra sets on a plain <button> is pinned here, not just the ones
+   we'd style anyway. */
+.sh-player .sh-player__speed {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center;
+	gap: 5px;
+	height: 30px !important;
+	min-width: 60px;
+	padding: 0 10px 0 12px !important;
+	margin: 0 !important;
+	box-sizing: border-box !important;
+	border: 1px solid rgba(255, 255, 255, 0.18) !important;
+	border-radius: 999px !important;
+	background: rgba(255, 255, 255, 0.05) !important;
+	box-shadow: none !important;
+	color: var(--sh-text) !important;
+	font-family: inherit !important;
+	font-size: 0.8125rem !important;
+	font-weight: 700 !important;
+	line-height: 1 !important;
+	font-variant-numeric: tabular-nums;
+	cursor: pointer;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.sh-player .sh-player__speed:hover,
+.sh-player .sh-player__speed[aria-expanded="true"] {
+	background: rgba(255, 255, 255, 0.11) !important;
+	border-color: rgba(255, 255, 255, 0.32) !important;
+	color: var(--sh-text) !important;
+}
+
+.sh-player .sh-player__speed:focus {
+	outline: none;
+}
+
+.sh-player .sh-player__speed:focus-visible {
+	outline: 2px solid var(--sh-text);
+	outline-offset: 2px;
 }
 
 /* Any speed other than 1x is easy to forget is on, then wonder why
-   everything sounds odd — worth seeing at a glance. */
-.sh-player__speed.is-active {
+   everything sounds odd — accent-tinted so it shows at a glance.
+   Declared after :hover on purpose (same specificity) so it keeps the
+   accent while hovered. */
+.sh-player .sh-player__speed.is-active {
+	color: var(--sh-accent) !important;
+	border-color: var(--sh-accent) !important;
+}
+
+.sh-player__speed-caret {
+	flex-shrink: 0;
+	width: 12px;
+	height: 12px;
+	opacity: 0.75;
+	transition: transform 0.15s ease;
+}
+
+/* Points toward where the menu appears (up); flips once it's open. */
+.sh-player .sh-player__speed[aria-expanded="true"] .sh-player__speed-caret {
+	transform: rotate(180deg);
+}
+
+.sh-speed-menu {
+	position: absolute;
+	/* Float just clear of the whole bar, not just the trigger —
+	   otherwise the menu's lower edge would sit over the scrubber line
+	   running along the bar's top edge. The trigger is a fixed 30px,
+	   vertically centered in a bar of --sh-player-height. */
+	bottom: calc(100% + (var(--sh-player-height, 92px) - 30px) / 2 + 12px);
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 2;
+	min-width: 180px;
+	padding: 6px;
+	box-sizing: border-box;
+	background: #1d1d20;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.35);
+	animation: sh-speed-menu-in 0.14s ease-out;
+}
+
+.sh-speed-menu[hidden] {
+	display: none !important;
+}
+
+@keyframes sh-speed-menu-in {
+	from {
+		opacity: 0;
+		transform: translate(-50%, 6px);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sh-speed-menu {
+		animation: none;
+	}
+}
+
+.sh-speed-menu__title {
+	padding: 8px 12px 6px;
+	color: var(--sh-text-muted);
+	font-size: 0.6875rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/* Same Astra reason as the trigger, one level deeper. */
+.sh-player .sh-speed-menu .sh-speed-menu__option {
+	display: flex !important;
+	align-items: center !important;
+	gap: 10px;
+	width: 100%;
+	padding: 9px 12px 9px 10px !important;
+	margin: 0 !important;
+	box-sizing: border-box !important;
+	border: 0 !important;
+	border-radius: 8px !important;
+	background: transparent !important;
+	box-shadow: none !important;
+	color: var(--sh-text) !important;
+	font-family: inherit !important;
+	font-size: 0.875rem !important;
+	font-weight: 500 !important;
+	line-height: 1.2 !important;
+	font-variant-numeric: tabular-nums;
+	text-align: left;
+	cursor: pointer;
+}
+
+/* Hover moves focus in custom.js, so :focus doubles as "the row
+   you're on" for mouse and keyboard alike. */
+.sh-player .sh-speed-menu .sh-speed-menu__option:hover,
+.sh-player .sh-speed-menu .sh-speed-menu__option:focus {
+	background: rgba(255, 255, 255, 0.09) !important;
+	color: var(--sh-text) !important;
+	outline: none;
+}
+
+.sh-player .sh-speed-menu .sh-speed-menu__option:focus-visible {
+	box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4) !important;
+}
+
+.sh-player .sh-speed-menu .sh-speed-menu__option[aria-checked="true"] {
+	font-weight: 700 !important;
+}
+
+.sh-speed-menu__check {
+	display: flex;
+	flex-shrink: 0;
+	width: 16px;
+	height: 16px;
 	color: var(--sh-accent);
+	visibility: hidden;
+}
+
+.sh-speed-menu__check svg {
+	width: 16px;
+	height: 16px;
+}
+
+.sh-speed-menu__option[aria-checked="true"] .sh-speed-menu__check {
+	visibility: visible;
+}
+
+.sh-speed-menu__hint {
+	margin-left: auto;
+	padding-left: 12px;
+	color: var(--sh-text-muted);
+	font-size: 0.75rem;
+	font-weight: 500;
 }
 
 .sh-player__volume {
@@ -1233,7 +1439,7 @@ body.is-nm-app .ast-article-single {
 	}
 
 	.sh-player__volume,
-	.sh-player__speed {
+	.sh-player__speed-wrap {
 		display: none;
 	}
 

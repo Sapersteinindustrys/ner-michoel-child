@@ -283,11 +283,44 @@ function nerMichoelSendShiurEvent( postId, event ) {
 		// Storage unavailable — default speed.
 	}
 
+	// Playback speed: a trigger that opens a menu listing every speed.
+	// Replaces a button that cycled one step per click, which meant
+	// reaching a slower speed took clicking through every faster one,
+	// and the options weren't visible until you landed on them.
+	var elSpeedLabel = document.getElementById( 'sh-player-speed-label' );
+	var elSpeedMenu  = document.getElementById( 'sh-player-speed-menu' );
+	var elSpeedWrap  = elSpeed.closest( '.sh-player__speed-wrap' );
+	var speedOptions = [];
+
+	var ICON_CHECK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+	function formatSpeed( speed ) {
+		return speed + '\u00d7'; // multiplication sign, escaped so it survives any served charset
+	}
+
+	function renderSpeed() {
+		elSpeedLabel.textContent = formatSpeed( currentSpeed );
+		elSpeed.classList.toggle( 'is-active', currentSpeed !== 1 );
+		elSpeed.setAttribute( 'aria-label', 'Playback speed: ' + formatSpeed( currentSpeed ) );
+		speedOptions.forEach( function ( option ) {
+			var isCurrent = parseFloat( option.getAttribute( 'data-speed' ) ) === currentSpeed;
+			option.setAttribute( 'aria-checked', isCurrent ? 'true' : 'false' );
+		} );
+	}
+
+	// Browsers reset playbackRate to defaultPlaybackRate every time a new
+	// src loads, so setting both means the chosen speed carries across
+	// track changes on its own instead of relying on each load path to
+	// remember to re-apply it.
+	function syncAudioRate() {
+		audio.defaultPlaybackRate = currentSpeed;
+		audio.playbackRate        = currentSpeed;
+	}
+
 	function applySpeed( speed ) {
 		currentSpeed = speed;
-		audio.playbackRate = speed;
-		elSpeed.textContent = speed + 'x';
-		elSpeed.classList.toggle( 'is-active', speed !== 1 );
+		syncAudioRate();
+		renderSpeed();
 		try {
 			window.localStorage.setItem( SPEED_STORAGE_KEY, speed );
 		} catch ( e ) {
@@ -295,13 +328,129 @@ function nerMichoelSendShiurEvent( postId, event ) {
 		}
 	}
 
-	elSpeed.addEventListener( 'click', function () {
-		var next = SPEEDS[ ( SPEEDS.indexOf( currentSpeed ) + 1 ) % SPEEDS.length ];
-		applySpeed( next );
+	// One step up/down the list, stopping at either end (no wrap — a
+	// wrap from 2× straight to 0.75× on a keyboard shortcut would be
+	// jarring mid-listen). Used by the < and > shortcuts below.
+	function stepSpeed( direction ) {
+		var i    = SPEEDS.indexOf( currentSpeed );
+		var next = SPEEDS[ Math.min( SPEEDS.length - 1, Math.max( 0, i + direction ) ) ];
+		if ( next !== currentSpeed ) {
+			applySpeed( next );
+		}
+	}
+
+	function isSpeedMenuOpen() {
+		return ! elSpeedMenu.hidden;
+	}
+
+	function openSpeedMenu() {
+		elSpeedMenu.hidden = false;
+		elSpeed.setAttribute( 'aria-expanded', 'true' );
+		var current = speedOptions.filter( function ( option ) {
+			return 'true' === option.getAttribute( 'aria-checked' );
+		} )[ 0 ];
+		( current || speedOptions[ 0 ] ).focus();
+	}
+
+	function closeSpeedMenu( returnFocus ) {
+		if ( ! isSpeedMenuOpen() ) {
+			return;
+		}
+		elSpeedMenu.hidden = true;
+		elSpeed.setAttribute( 'aria-expanded', 'false' );
+		if ( returnFocus ) {
+			elSpeed.focus();
+		}
+	}
+
+	var speedTitle = document.createElement( 'div' );
+	speedTitle.className = 'sh-speed-menu__title';
+	speedTitle.setAttribute( 'aria-hidden', 'true' ); // the menu itself already carries the label
+	speedTitle.textContent = 'Playback speed';
+	elSpeedMenu.appendChild( speedTitle );
+
+	SPEEDS.forEach( function ( speed ) {
+		var option = document.createElement( 'button' );
+		option.type = 'button';
+		option.className = 'sh-speed-menu__option';
+		option.setAttribute( 'role', 'menuitemradio' );
+		option.setAttribute( 'tabindex', '-1' );
+		option.setAttribute( 'data-speed', String( speed ) );
+		option.innerHTML =
+			'<span class="sh-speed-menu__check">' + ICON_CHECK + '</span>' +
+			'<span class="sh-speed-menu__value">' + formatSpeed( speed ) + '</span>' +
+			( 1 === speed ? '<span class="sh-speed-menu__hint">Normal</span>' : '' );
+
+		option.addEventListener( 'click', function () {
+			applySpeed( speed );
+			closeSpeedMenu( true );
+		} );
+
+		// Hover moves focus, so there's only ever one highlighted row —
+		// otherwise the keyboard-focused row and the hovered row would
+		// both light up at once.
+		option.addEventListener( 'mouseenter', function () {
+			option.focus();
+		} );
+
+		elSpeedMenu.appendChild( option );
+		speedOptions.push( option );
 	} );
 
-	elSpeed.textContent = currentSpeed + 'x';
-	elSpeed.classList.toggle( 'is-active', currentSpeed !== 1 );
+	elSpeed.addEventListener( 'click', function () {
+		if ( isSpeedMenuOpen() ) {
+			closeSpeedMenu( true );
+		} else {
+			openSpeedMenu();
+		}
+	} );
+
+	elSpeed.addEventListener( 'keydown', function ( e ) {
+		if ( 'ArrowUp' === e.key || 'ArrowDown' === e.key ) {
+			e.preventDefault();
+			openSpeedMenu();
+		}
+	} );
+
+	elSpeedMenu.addEventListener( 'keydown', function ( e ) {
+		var count = speedOptions.length;
+		var i     = speedOptions.indexOf( document.activeElement );
+		switch ( e.key ) {
+			case 'ArrowDown':
+				e.preventDefault();
+				speedOptions[ i < 0 ? 0 : ( i + 1 ) % count ].focus();
+				break;
+			case 'ArrowUp':
+				e.preventDefault();
+				speedOptions[ i < 0 ? count - 1 : ( i - 1 + count ) % count ].focus();
+				break;
+			case 'Home':
+				e.preventDefault();
+				speedOptions[ 0 ].focus();
+				break;
+			case 'End':
+				e.preventDefault();
+				speedOptions[ count - 1 ].focus();
+				break;
+			case 'Escape':
+				e.preventDefault();
+				closeSpeedMenu( true );
+				break;
+			case 'Tab':
+				closeSpeedMenu( false );
+				break;
+		}
+	} );
+
+	// Click/tap anywhere outside the control closes the menu.
+	document.addEventListener( 'pointerdown', function ( e ) {
+		if ( isSpeedMenuOpen() && ! elSpeedWrap.contains( e.target ) ) {
+			closeSpeedMenu( false );
+		}
+	} );
+
+	syncAudioRate();
+	renderSpeed();
 
 	// Drives the seek/volume rails' filled-progress look — see the
 	// --fill custom property consumed in custom.css. Set on both
@@ -569,7 +718,23 @@ function nerMichoelSendShiurEvent( postId, event ) {
 		if ( 'INPUT' === tag || 'TEXTAREA' === tag || 'SELECT' === tag || e.target.isContentEditable ) {
 			return;
 		}
+		// The speed control handles its own keys. Without this, Space on
+		// a focused menu option would toggle playback here AND its
+		// preventDefault would cancel the option's own click, and the
+		// arrows would change volume instead of moving through the list.
+		if ( elSpeedWrap.contains( e.target ) ) {
+			return;
+		}
 		switch ( e.key ) {
+			// < and > step the speed — same keys YouTube uses (Shift+,/.).
+			case '<':
+				e.preventDefault();
+				stepSpeed( -1 );
+				break;
+			case '>':
+				e.preventDefault();
+				stepSpeed( 1 );
+				break;
 			case ' ':
 				e.preventDefault();
 				if ( audio.paused ) {
