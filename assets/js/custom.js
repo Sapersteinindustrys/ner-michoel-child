@@ -379,6 +379,10 @@ function nerMichoelSendShiurEvent( postId, event ) {
 	function setToggleIcon( playing ) {
 		elToggle.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
 		elToggle.setAttribute( 'aria-label', playing ? 'Pause' : 'Play' );
+		// Mirrors the state onto the bar itself so CSS can tell the two
+		// glyphs apart — the play triangle needs an optical nudge right
+		// of center, the pause bars don't (see .sh-player__toggle svg).
+		player.classList.toggle( 'is-playing', playing );
 	}
 
 	// Buffering indicator (spinner over the cover art, see
