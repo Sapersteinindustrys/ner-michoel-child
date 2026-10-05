@@ -152,7 +152,7 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 						<?php if ( $cover ) : ?>
 							<img src="<?php echo esc_url( $cover ); ?>" alt="" loading="lazy" />
 						<?php else : ?>
-							<span aria-hidden="true">📸</span>
+							<?php echo ner_michoel_art_placeholder( 'image' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?>
 						<?php endif; ?>
 					</div>
 					<div class="nm-home-gallery-card__title"><?php echo esc_html( get_the_title( $gallery ) ); ?></div>
@@ -163,38 +163,31 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 	</section>
 	<?php endif; ?>
 
-	<section class="nm-home-links">
-		<a class="nm-home-link-card" href="<?php echo esc_url( $shiurim_url ? $shiurim_url : '#' ); ?>">
-			<span class="nm-home-link-card__emoji" aria-hidden="true">🎧</span>
-			<span class="nm-home-link-card__title"><?php esc_html_e( 'Shiurim', 'ner-michoel-child' ); ?></span>
-			<span class="nm-home-link-card__desc"><?php esc_html_e( 'Audio & video lectures', 'ner-michoel-child' ); ?></span>
-		</a>
-		<a class="nm-home-link-card" href="<?php echo esc_url( $gallery_url ? $gallery_url : '#' ); ?>">
-			<span class="nm-home-link-card__emoji" aria-hidden="true">📸</span>
-			<span class="nm-home-link-card__title"><?php esc_html_e( 'Galleries', 'ner-michoel-child' ); ?></span>
-			<span class="nm-home-link-card__desc"><?php esc_html_e( 'Photos & videos from events', 'ner-michoel-child' ); ?></span>
-		</a>
-		<a class="nm-home-link-card" href="<?php echo esc_url( home_url( '/news-events/' ) ); ?>">
-			<span class="nm-home-link-card__emoji" aria-hidden="true">📰</span>
-			<span class="nm-home-link-card__title"><?php esc_html_e( 'News & Events', 'ner-michoel-child' ); ?></span>
-			<span class="nm-home-link-card__desc"><?php esc_html_e( 'Updates & Mazal Tovs', 'ner-michoel-child' ); ?></span>
-		</a>
-		<a class="nm-home-link-card" href="<?php echo esc_url( home_url( '/connections/' ) ); ?>">
-			<span class="nm-home-link-card__emoji" aria-hidden="true">📖</span>
-			<span class="nm-home-link-card__title"><?php esc_html_e( 'Connections', 'ner-michoel-child' ); ?></span>
-			<span class="nm-home-link-card__desc"><?php esc_html_e( 'Magazine archive', 'ner-michoel-child' ); ?></span>
-		</a>
-		<a class="nm-home-link-card" href="<?php echo esc_url( home_url( '/contribute/' ) ); ?>">
-			<span class="nm-home-link-card__emoji" aria-hidden="true">💛</span>
-			<span class="nm-home-link-card__title"><?php esc_html_e( 'Contribute', 'ner-michoel-child' ); ?></span>
-			<span class="nm-home-link-card__desc"><?php esc_html_e( 'Support the Yeshiva', 'ner-michoel-child' ); ?></span>
-		</a>
-		<a class="nm-home-link-card" href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">
-			<span class="nm-home-link-card__emoji" aria-hidden="true">✉️</span>
-			<span class="nm-home-link-card__title"><?php esc_html_e( 'Contact Us', 'ner-michoel-child' ); ?></span>
-			<span class="nm-home-link-card__desc"><?php esc_html_e( 'We\'d love to hear from you', 'ner-michoel-child' ); ?></span>
-		</a>
-	</section>
+	<?php
+	// Section index: one bordered panel divided into cells, rather than
+	// six floating shadowed cards with emoji — the latter being the
+	// stock generated-template look this replaced.
+	$index_links = array(
+		array( 'headphones', __( 'Shiurim', 'ner-michoel-child' ), __( 'Audio & video lectures', 'ner-michoel-child' ), $shiurim_url ? $shiurim_url : '#' ),
+		array( 'image', __( 'Galleries', 'ner-michoel-child' ), __( 'Photos & videos from events', 'ner-michoel-child' ), $gallery_url ? $gallery_url : '#' ),
+		array( 'newspaper', __( 'News & Events', 'ner-michoel-child' ), __( 'Updates & Mazal Tovs', 'ner-michoel-child' ), home_url( '/news-events/' ) ),
+		array( 'book-open', __( 'Connections', 'ner-michoel-child' ), __( 'Magazine archive', 'ner-michoel-child' ), home_url( '/connections/' ) ),
+		array( 'heart', __( 'Contribute', 'ner-michoel-child' ), __( 'Support the Yeshiva', 'ner-michoel-child' ), home_url( '/contribute/' ) ),
+		array( 'mail', __( 'Contact', 'ner-michoel-child' ), __( 'We\'d love to hear from you', 'ner-michoel-child' ), home_url( '/contact/' ) ),
+	);
+	?>
+	<nav class="nm-home-index" aria-label="<?php esc_attr_e( 'Explore the site', 'ner-michoel-child' ); ?>">
+		<?php foreach ( $index_links as $link ) : ?>
+			<a class="nm-home-index__item" href="<?php echo esc_url( $link[3] ); ?>">
+				<span class="nm-home-index__icon"><?php echo ner_michoel_line_icon( $link[0] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
+				<span class="nm-home-index__text">
+					<span class="nm-home-index__title"><?php echo esc_html( $link[1] ); ?></span>
+					<span class="nm-home-index__desc"><?php echo esc_html( $link[2] ); ?></span>
+				</span>
+				<span class="nm-home-index__arrow"><?php echo ner_michoel_line_icon( 'arrow-right' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
+			</a>
+		<?php endforeach; ?>
+	</nav>
 
 	<?php if ( $recent_shiurim ) : ?>
 	<section class="nm-home-section">
@@ -206,15 +199,22 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 			<?php foreach ( $recent_shiurim as $shiur ) : ?>
 				<?php
 				$speaker_terms = get_the_terms( $shiur->ID, 'speaker' );
-				$speaker_name  = ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) ? $speaker_terms[0]->name : '';
-				$cover         = get_the_post_thumbnail_url( $shiur, 'medium' );
+				$speaker       = ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) ? $speaker_terms[0] : null;
+				$speaker_name  = $speaker ? $speaker->name : '';
+				// Shiur's own artwork first; most have none, so fall back to
+				// the speaker's photo (a real face beats any placeholder),
+				// then to the drawn placeholder.
+				$cover = get_the_post_thumbnail_url( $shiur, 'medium' );
+				if ( ! $cover && $speaker && function_exists( 'ner_michoel_get_speaker_photo_url' ) ) {
+					$cover = ner_michoel_get_speaker_photo_url( $speaker->term_id );
+				}
 				?>
 				<a class="nm-home-shiur-card" href="<?php echo esc_url( get_permalink( $shiur ) ); ?>">
 					<div class="nm-home-shiur-card__art">
 						<?php if ( $cover ) : ?>
 							<img src="<?php echo esc_url( $cover ); ?>" alt="" loading="lazy" />
 						<?php else : ?>
-							<span aria-hidden="true">🎧</span>
+							<?php echo ner_michoel_art_placeholder( 'audio' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?>
 						<?php endif; ?>
 					</div>
 					<div class="nm-home-shiur-card__title"><?php echo esc_html( get_the_title( $shiur ) ); ?><?php ner_michoel_render_shiur_badges( $shiur->ID ); ?></div>
@@ -249,7 +249,7 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 		<?php if ( $recent_mazal_tovs ) : ?>
 		<div>
 			<div class="nm-home-section__head">
-				<h2><?php esc_html_e( 'Mazal Tov! 🎉', 'ner-michoel-child' ); ?></h2>
+				<h2><?php esc_html_e( 'Mazal Tov', 'ner-michoel-child' ); ?></h2>
 			</div>
 			<div class="nm-home-mazaltov-banner">
 				<?php foreach ( $recent_mazal_tovs as $mt ) : ?>

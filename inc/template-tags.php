@@ -117,6 +117,53 @@ function ner_michoel_icon( $name ) {
 }
 
 /**
+ * Outline icons for the light, content-facing pages (homepage section
+ * index, placeholders) — one consistent 24px, 1.75-stroke set in place
+ * of emoji, which render differently on every OS and read as a
+ * generated-template look. Inherit color via currentColor.
+ *
+ * Paths are from Lucide (https://lucide.dev) — ISC License,
+ * Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022
+ * as part of Feather (MIT); all other copyright (c) Lucide Contributors.
+ */
+function ner_michoel_line_icon( $name ) {
+	$paths = array(
+		'headphones' => '<path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>',
+		'image'      => '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+		'newspaper'  => '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
+		'book-open'  => '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+		'heart'      => '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+		'mail'       => '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+		'arrow-right' => '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+	);
+	if ( ! isset( $paths[ $name ] ) ) {
+		return '';
+	}
+	return '<svg class="nm-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $paths[ $name ] . '</svg>';
+}
+
+/**
+ * Placeholder artwork for a homepage card with no image: a dark tile
+ * with a line motif — an audio waveform for shiurim, a picture frame
+ * for galleries — instead of a stock gradient plus an emoji.
+ */
+function ner_michoel_art_placeholder( $kind = 'audio' ) {
+	if ( 'audio' === $kind ) {
+		// Bar heights tuned by eye to read as a waveform, not a bar chart.
+		$heights = array( 6, 12, 20, 11, 24, 15, 8, 18, 22, 10, 14, 6 );
+		$bars    = '';
+		foreach ( $heights as $i => $h ) {
+			$x     = 4 + $i * 6;
+			$bars .= sprintf( '<line x1="%1$d" y1="%2$s" x2="%1$d" y2="%3$s"/>', $x, 16 - $h / 2, 16 + $h / 2 );
+		}
+		$art = '<svg class="nm-art-placeholder__wave" viewBox="0 0 74 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" focusable="false">' . $bars . '</svg>';
+	} else {
+		$art = ner_michoel_line_icon( 'image' );
+	}
+	return '<span class="nm-art-placeholder nm-art-placeholder--' . esc_attr( $kind ) . '" aria-hidden="true">' . $art . '</span>';
+}
+
+/**
  * Fallback "cover art" for a speaker/series/shiur with no image set —
  * a tile showing its first letter, styled entirely in CSS.
  */

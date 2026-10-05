@@ -84,6 +84,189 @@
 	outline-offset: 2px;
 }
 
+/* ---------------------------------------------------------------
+   Site header — sitewide, over Astra's header-builder markup.
+
+   Before: a 240x90 logo at native size beside a 26px site title, and
+   a menu that wrapped onto a second row — which, because Astra sets
+   every top-level menu item to line-height:80px, doubled the header
+   to ~160px. The menu itself was Astra's fallback (every page, A-Z);
+   the real "Main Menu" now drives it.
+
+   --nm-header-h is the one source for the bar's height; the fixed
+   Modern/Classic/24Six toggle on app pages uses it to clear the bar.
+   --------------------------------------------------------------- */
+
+:root {
+	--nm-header-h: 72px;
+	--nm-brand-navy: #1b2f52;
+}
+
+.site-header .ast-primary-header-bar .site-primary-header-wrap {
+	min-height: var(--nm-header-h);
+}
+
+/* Logo + name as one lockup: logo at a fixed height, name sized to
+   sit beside it rather than competing with it. */
+.site-header .site-logo-img .custom-logo-link img {
+	display: block;
+	width: auto;
+	height: 44px;
+	max-width: none;
+}
+
+.site-header.ast-logo-title-inline .site-logo-img {
+	padding-right: 14px;
+}
+
+.site-header .ast-site-identity .site-title {
+	margin: 0;
+	font-size: 1.125rem;
+	line-height: 1.2;
+	letter-spacing: -0.01em;
+}
+
+.site-header .ast-site-identity .site-title a {
+	color: #0f172a;
+	font-weight: 700;
+}
+
+/* Menu: Astra's own line-height:80px rule is (0,5,0) — this matches its
+   selector plus one class, so it wins regardless of load order. */
+.ast-desktop .site-header .ast-primary-header-bar .ast-builder-menu-1 .main-header-menu > .menu-item {
+	line-height: normal;
+}
+
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item > .menu-link {
+	position: relative;
+	padding: 8px 14px;
+	color: #334155;
+	font-size: 0.9375rem;
+	font-weight: 500;
+	transition: color 0.15s ease;
+}
+
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item > .menu-link:hover,
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item:hover > .menu-link,
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item.current-menu-item > .menu-link,
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item.current-menu-ancestor > .menu-link {
+	color: #0f172a;
+}
+
+/* Understated active/hover mark: a short underline that grows in,
+   rather than a color change to the theme's link blue. */
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item > .menu-link::after {
+	content: '';
+	position: absolute;
+	left: 14px;
+	right: 14px;
+	bottom: 2px;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--nm-brand-navy);
+	transform: scaleX(0);
+	transform-origin: left center;
+	transition: transform 0.2s ease;
+}
+
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item > .menu-link:hover::after,
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item.current-menu-item > .menu-link::after,
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item.current-menu-ancestor > .menu-link::after {
+	transform: scaleX(1);
+}
+
+/* Contribute: the one call to action, as a navy pill matching the
+   logo's navy. Class comes from the menu item itself (nm-menu-cta). */
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item.nm-menu-cta {
+	margin-left: 10px;
+}
+
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item.nm-menu-cta > .menu-link {
+	padding: 9px 18px;
+	border-radius: 999px;
+	background: var(--nm-brand-navy);
+	color: #fff;
+	font-weight: 600;
+	transition: background-color 0.15s ease;
+}
+
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item.nm-menu-cta > .menu-link:hover,
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item.nm-menu-cta.current-menu-item > .menu-link {
+	background: #24406d;
+	color: #fff;
+}
+
+.site-header .ast-builder-menu-1 .main-header-menu > .menu-item.nm-menu-cta > .menu-link::after {
+	display: none;
+}
+
+/* Dropdown (Shiurim > Email a Magid Shiur): a quiet card instead of
+   Astra's box with a 2px colored top border. */
+.site-header .ast-builder-menu-1 .main-header-menu .sub-menu {
+	padding: 6px;
+	background: #fff;
+	border: 1px solid rgba(15, 23, 42, 0.08);
+	border-radius: 10px;
+	box-shadow: 0 14px 34px rgba(15, 23, 42, 0.12);
+}
+
+.site-header .ast-builder-menu-1 .main-header-menu .sub-menu .menu-link {
+	padding: 9px 12px;
+	border-radius: 6px;
+	color: #334155;
+	font-size: 0.9rem;
+}
+
+.site-header .ast-builder-menu-1 .main-header-menu .sub-menu .menu-link:hover {
+	background: #f1f5f9;
+	color: #0f172a;
+}
+
+/* Between Astra's mobile breakpoint and a comfortable desktop width,
+   tighten the menu so seven items + the button stay on one row. */
+@media (min-width: 922px) and (max-width: 1120px) {
+	.site-header .ast-builder-menu-1 .main-header-menu > .menu-item > .menu-link {
+		padding: 8px 10px;
+		font-size: 0.875rem;
+	}
+
+	.site-header .ast-builder-menu-1 .main-header-menu > .menu-item > .menu-link::after {
+		left: 10px;
+		right: 10px;
+	}
+}
+
+/* Mobile header (Astra renders a separate #ast-mobile-header). */
+@media (max-width: 921px) {
+	:root {
+		--nm-header-h: 64px;
+	}
+}
+
+#ast-mobile-header .ast-primary-header-bar {
+	min-height: var(--nm-header-h);
+}
+
+#ast-mobile-header .site-logo-img .custom-logo-link img {
+	height: 36px;
+}
+
+#ast-mobile-header .ast-site-identity .site-title {
+	font-size: 1rem;
+}
+
+/* Astra's mobile menu drops down over the page with no edge, so it
+   bled into the hero beneath it. */
+#ast-mobile-header .ast-mobile-header-content {
+	border-bottom: 1px solid #e2e8f0;
+	box-shadow: 0 16px 28px rgba(15, 23, 42, 0.12);
+}
+
+.site-header .ast-builder-menu-mobile .main-navigation .main-header-menu .menu-item.nm-menu-cta > .menu-link {
+	color: var(--nm-brand-navy);
+	font-weight: 700;
+}
+
 body.is-nm-app {
 	--sh-bg: #121212;
 	--sh-surface: #181818;
@@ -147,6 +330,19 @@ body.is-nm-app .ast-article-single {
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 32px 24px 8px;
+}
+
+/* Astra's content container is a flex row; these wrappers sit in it as
+   flex items, and without an explicit width they sized to their
+   content. That made the whole app's width depend on how long its
+   text happened to be — letting card titles wrap to two lines shrank
+   the Shiurim grid from four columns to two. Fill the container
+   instead (max-width above still caps the single-column pages). */
+#content > .ast-container > .shiurim-app,
+#content > .ast-container > .nm-app,
+#content > .ast-container > .sh-layout-with-sidebar {
+	width: 100%;
+	min-width: 0;
 }
 
 /* Shiurim archive: persistent sidebar + main content, side by side.
@@ -1584,18 +1780,18 @@ body.sh-layout-24six .sh-section {
 }
 
 .sh-layout-toggle--top-left {
-	top: var(--nm-toggle-offset);
+	top: calc(var(--nm-header-h) + var(--nm-toggle-offset));
 	left: var(--nm-toggle-offset);
 }
 
 .sh-layout-toggle--top-center {
-	top: var(--nm-toggle-offset);
+	top: calc(var(--nm-header-h) + var(--nm-toggle-offset));
 	left: 50%;
 	transform: translateX(-50%);
 }
 
 .sh-layout-toggle--top-right {
-	top: var(--nm-toggle-offset);
+	top: calc(var(--nm-header-h) + var(--nm-toggle-offset));
 	right: var(--nm-toggle-offset);
 }
 
@@ -1633,6 +1829,14 @@ body.sh-layout-24six .sh-section {
 	right: var(--nm-toggle-offset);
 }
 
+/* Modern Shiurim pages have the fixed player bar along the bottom;
+   bottom placements go above it rather than on top of it. */
+body.is-shiurim.sh-layout-stream .sh-layout-toggle--bottom-left,
+body.is-shiurim.sh-layout-stream .sh-layout-toggle--bottom-center,
+body.is-shiurim.sh-layout-stream .sh-layout-toggle--bottom-right {
+	bottom: calc(var(--sh-player-height) + var(--nm-toggle-offset));
+}
+
 /* WordPress's admin toolbar (visible whenever the person checking the
    site is logged in — i.e. constantly, for the site's own admin) is
    fixed to the top at 32px tall on desktop, 46px on mobile. Without
@@ -1642,14 +1846,14 @@ body.sh-layout-24six .sh-section {
 body.admin-bar .sh-layout-toggle--top-left,
 body.admin-bar .sh-layout-toggle--top-center,
 body.admin-bar .sh-layout-toggle--top-right {
-	top: calc(32px + var(--nm-toggle-offset));
+	top: calc(32px + var(--nm-header-h) + var(--nm-toggle-offset));
 }
 
 @media (max-width: 782px) {
 	body.admin-bar .sh-layout-toggle--top-left,
 	body.admin-bar .sh-layout-toggle--top-center,
 	body.admin-bar .sh-layout-toggle--top-right {
-		top: calc(46px + var(--nm-toggle-offset));
+		top: calc(46px + var(--nm-header-h) + var(--nm-toggle-offset));
 	}
 }
 
@@ -2359,8 +2563,18 @@ body.sh-layout-classic.is-nm-app a {
 	border: 2px solid currentColor;
 }
 
+/* Astra's content container is a flex row, and this wrapper sits in it
+   as a flex item — without an explicit width its width was set by its
+   widest content. The old six-card grid happened to be ~1100px wide
+   intrinsically, which is the only reason the homepage filled the page;
+   anything narrower shrank the whole column off-center. */
+.nm-home {
+	width: 100%;
+	min-width: 0;
+}
+
 .nm-home-hero {
-	background: linear-gradient(135deg, var(--nm-primary), var(--nm-accent));
+	background: #1b2f52;
 	color: #fff;
 	text-align: center;
 	padding: 90px 24px;
@@ -2609,49 +2823,108 @@ body.sh-layout-classic.is-nm-app a {
 	opacity: 1;
 }
 
-.nm-home-links {
-	max-width: 1100px;
-	margin: -36px auto 0;
-	padding: 0 24px;
+/* Section index: one bordered panel divided into cells (the 1px grid
+   gap lets the panel's background show through as hairline dividers).
+   Replaces six floating, shadowed cards with centered emoji — the stock
+   generated-template look. Left-aligned, line icons, no lift on hover. */
+.nm-home-index {
+	--nm-ink: #0f172a;
+	width: min(1052px, calc(100% - 48px));
+	margin: 44px auto 0;
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-	gap: 16px;
-	position: relative;
-	z-index: 1;
-}
-
-.nm-home-link-card {
-	background: #fff;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 1px;
+	background: #e2e8f0;
+	border: 1px solid #e2e8f0;
 	border-radius: 14px;
-	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-	padding: 24px 16px;
-	text-align: center;
-	text-decoration: none;
+	overflow: hidden;
+}
+
+.nm-home-index__item {
+	display: flex;
+	align-items: flex-start;
+	gap: 14px;
+	padding: 22px 20px;
+	background: #fff;
 	color: inherit;
-	transition: transform 0.15s ease, box-shadow 0.15s ease;
+	text-decoration: none;
+	transition: background-color 0.15s ease;
 }
 
-.nm-home-link-card:hover {
-	transform: translateY(-3px);
-	box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+.nm-home-index__item:hover {
+	background: #f8fafc;
 }
 
-.nm-home-link-card__emoji {
-	display: block;
-	font-size: 2rem;
-	margin-bottom: 10px;
+/* Inset ring, not an outline: the panel's overflow:hidden (for its
+   rounded corners) would clip an outline on the edge cells. */
+.nm-home-index__item:focus-visible {
+	outline: none;
+	background: #f8fafc;
+	box-shadow: inset 0 0 0 2px var(--nm-brand-navy);
 }
 
-.nm-home-link-card__title {
-	display: block;
+.nm-home-index__icon {
+	flex-shrink: 0;
+	display: flex;
+	margin-top: 1px;
+	color: var(--nm-brand-navy);
+}
+
+.nm-home-index__icon .nm-icon {
+	width: 24px;
+	height: 24px;
+}
+
+.nm-home-index__text {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.nm-home-index__title {
+	color: var(--nm-ink);
+	font-size: 1rem;
 	font-weight: 700;
-	margin-bottom: 4px;
+	line-height: 1.3;
 }
 
-.nm-home-link-card__desc {
-	display: block;
-	font-size: 0.85rem;
-	color: #777;
+.nm-home-index__desc {
+	color: #64748b;
+	font-size: 0.875rem;
+	line-height: 1.4;
+}
+
+.nm-home-index__arrow {
+	flex-shrink: 0;
+	display: flex;
+	align-self: center;
+	color: #94a3b8;
+	transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.nm-home-index__arrow .nm-icon {
+	width: 18px;
+	height: 18px;
+}
+
+.nm-home-index__item:hover .nm-home-index__arrow {
+	color: var(--nm-brand-navy);
+	transform: translateX(3px);
+}
+
+@media (max-width: 900px) {
+	.nm-home-index {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 560px) {
+	.nm-home-index {
+		grid-template-columns: 1fr;
+		margin-top: 28px;
+	}
 }
 
 .nm-home-section {
@@ -2686,7 +2959,7 @@ body.sh-layout-classic.is-nm-app a {
 
 .nm-home-shiur-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 	gap: 20px;
 }
 
@@ -2701,7 +2974,7 @@ body.sh-layout-classic.is-nm-app a {
 	aspect-ratio: 1 / 1;
 	border-radius: 10px;
 	overflow: hidden;
-	background: linear-gradient(135deg, var(--nm-primary), var(--nm-accent));
+	background: #1e293b;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -2723,13 +2996,26 @@ body.sh-layout-classic.is-nm-app a {
 
 .nm-home-shiur-card__meta {
 	font-size: 0.85rem;
-	color: #777;
+	color: #64748b;
 }
 
 .nm-home-gallery-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 	gap: 20px;
+}
+
+/* Must come after the unconditional rules above — equal specificity,
+   so whichever is later in the source wins regardless of viewport.
+   This used to sit earlier in the file (before those base rules) and
+   so never actually applied; auto-fit's own 1-up-at-360px result
+   silently stood in for it at phone widths. */
+@media (max-width: 560px) {
+	.nm-home-shiur-grid,
+	.nm-home-gallery-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 14px;
+	}
 }
 
 .nm-home-gallery-card {
@@ -2743,7 +3029,7 @@ body.sh-layout-classic.is-nm-app a {
 	aspect-ratio: 4 / 3;
 	border-radius: 10px;
 	overflow: hidden;
-	background: linear-gradient(135deg, var(--nm-primary), var(--nm-accent));
+	background: #1e293b;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -2758,6 +3044,29 @@ body.sh-layout-classic.is-nm-app a {
 	display: block;
 }
 
+/* Drawn placeholder for cards with no artwork — see
+   ner_michoel_art_placeholder(): a waveform for shiurim, a picture
+   frame for galleries, on a quiet slate tile. */
+.nm-art-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	color: rgba(226, 232, 240, 0.4);
+	background: radial-gradient(120% 90% at 30% 15%, #334155 0%, #1e293b 55%, #172033 100%);
+}
+
+.nm-art-placeholder__wave {
+	width: 52%;
+	height: auto;
+}
+
+.nm-art-placeholder--image .nm-icon {
+	width: 30%;
+	height: auto;
+}
+
 .nm-home-gallery-card__title {
 	font-weight: 600;
 	margin-bottom: 2px;
@@ -2765,7 +3074,7 @@ body.sh-layout-classic.is-nm-app a {
 
 .nm-home-gallery-card__meta {
 	font-size: 0.85rem;
-	color: #777;
+	color: #64748b;
 }
 
 .nm-home-news-list {
