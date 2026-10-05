@@ -73,14 +73,33 @@
 	border: 0;
 }
 
+/* "Read here": starts the viewer on demand (custom.js). */
+.sh-pdf-load {
+	margin: 0 0 20px;
+	padding: 9px 20px;
+	border: 0;
+	border-radius: var(--nm-radius-pill, 999px);
+	background: var(--sh-accent);
+	color: #fff;
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.sh-pdf-load:hover,
+.sh-pdf-load:focus-visible {
+	background: var(--sh-accent-hover);
+}
+
 @media (max-width: 560px) {
 	.sh-written-row {
 		grid-template-columns: minmax(0, 1fr);
 		gap: 6px;
 	}
 
-	/* Phones often can't embed a PDF; the open and download links above
-	   the viewer are the reliable path there. */
+	/* Phones often can't embed a PDF, so the open and download links are
+	   the path there. The viewer button and viewer stay hidden. */
+	.sh-pdf-load,
 	.sh-pdf-viewer {
 		display: none;
 	}

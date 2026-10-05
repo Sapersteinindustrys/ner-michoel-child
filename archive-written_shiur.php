@@ -12,7 +12,7 @@ $layout = ner_michoel_get_layout();
 ?>
 
 <div class="nm-app<?php echo 'classic' === $layout ? ' nm-app--classic' : ''; ?>">
-	<?php ner_michoel_render_back_button( home_url( '/' ) ); ?>
+	<?php ner_michoel_render_back_button(); ?>
 	<header class="sh-page-header">
 		<h1><?php post_type_archive_title(); ?></h1>
 	</header>

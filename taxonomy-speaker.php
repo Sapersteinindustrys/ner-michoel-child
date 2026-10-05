@@ -15,7 +15,7 @@ if ( 'classic' === ner_michoel_get_layout() ) :
 	$classic_query = ner_michoel_get_classic_query( array( 'speaker_term' => $term->term_id ) );
 	?>
 	<div class="shiurim-app shiurim-app--classic">
-			<?php ner_michoel_render_back_button( get_post_type_archive_link( 'shiur' ) ); ?>
+			<?php ner_michoel_render_back_button(); ?>
 		<header class="sh-page-header">
 			<h1><?php echo esc_html( $term->name ); ?></h1>
 		</header>
@@ -34,7 +34,7 @@ $is_carousel = '24six' === ner_michoel_get_layout();
 ?>
 
 <div class="shiurim-app">
-	<?php ner_michoel_render_back_button( get_post_type_archive_link( 'shiur' ) ); ?>
+	<?php ner_michoel_render_back_button(); ?>
 	<header class="sh-hero sh-hero--round">
 		<div class="sh-hero__art">
 			<?php if ( $image ) : ?>

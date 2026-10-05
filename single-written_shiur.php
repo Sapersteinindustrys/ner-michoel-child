@@ -18,7 +18,7 @@ while ( have_posts() ) :
 	$download_url  = function_exists( 'ner_michoel_get_written_shiur_download_url' ) ? ner_michoel_get_written_shiur_download_url( $post_id ) : '';
 	?>
 	<div class="nm-app<?php echo 'classic' === ner_michoel_get_layout() ? ' nm-app--classic' : ''; ?>">
-		<?php ner_michoel_render_back_button( get_post_type_archive_link( 'written_shiur' ) ); ?>
+		<?php ner_michoel_render_back_button(); ?>
 		<header class="sh-page-header">
 			<h1><?php the_title(); ?></h1>
 			<p class="sh-classic-meta">
@@ -39,9 +39,14 @@ while ( have_posts() ) :
 					<a class="sh-download-link" href="<?php echo esc_url( $download_url ); ?>"><?php esc_html_e( 'Download PDF', 'ner-michoel-child' ); ?></a>
 				<?php endif; ?>
 			</p>
-			<div class="sh-pdf-viewer">
-				<iframe src="<?php echo esc_url( $pdf_url ); ?>#view=FitH" title="<?php echo esc_attr( get_the_title() ); ?>"></iframe>
-			</div>
+			<?php
+			// The viewer is added on click (assets/js/custom.js), not rendered
+			// here. An iframe starts downloading its PDF as soon as it's in the
+			// page, even hidden, so until the visitor asks for it there's only
+			// a button. The PDF URL lives on the button, not on an iframe.
+			?>
+			<button type="button" class="sh-pdf-load" data-pdf-src="<?php echo esc_url( $pdf_url ); ?>" data-pdf-title="<?php echo esc_attr( get_the_title() ); ?>"><?php esc_html_e( 'Read here', 'ner-michoel-child' ); ?></button>
+			<div class="sh-pdf-viewer" data-pdf-viewer hidden></div>
 		<?php else : ?>
 			<p class="sh-empty"><?php esc_html_e( 'The PDF for this shiur hasn\'t been uploaded yet.', 'ner-michoel-child' ); ?></p>
 		<?php endif; ?>

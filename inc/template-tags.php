@@ -15,7 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * only Shiurim pages get the audio player bar chrome.
  */
 function ner_michoel_is_shiurim_context() {
-	return is_post_type_archive( 'shiur' ) || is_tax( array( 'speaker', 'series' ) ) || is_singular( 'shiur' );
+	return is_post_type_archive( 'shiur' ) || is_tax( array( 'speaker', 'series' ) ) || is_singular( 'shiur' )
+		|| ( function_exists( 'ner_michoel_is_shiur_search' ) && ner_michoel_is_shiur_search() );
 }
 
 /**
@@ -226,24 +227,22 @@ function ner_michoel_gallery_card_subtitle( $post_id ) {
 }
 
 /**
- * "Back" link at the top of a Shiurim-section page, in every layout.
- * custom.js sends the visitor to the previous page in their own history
- * when they came from this site. Otherwise (a shared link, a new tab) the
- * link goes to $fallback_url, so there's always a way out.
+ * "Back" button at the top of a Shiurim-section page, in every layout.
+ * It never leaves the page. It steps back through the layouts already
+ * tried on this page, and stops at the layout the page opened with. The
+ * trail is kept by custom.js. The button starts disabled, and the script
+ * enables it once there's a layout to go back to.
  */
-function ner_michoel_render_back_button( $fallback_url, $label = '' ) {
-	if ( ! $fallback_url ) {
-		return;
-	}
+function ner_michoel_render_back_button( $label = '' ) {
 	if ( '' === $label ) {
 		$label = __( 'Back', 'ner-michoel-child' );
 	}
 	?>
 	<nav class="sh-back-row" aria-label="<?php esc_attr_e( 'Page navigation', 'ner-michoel-child' ); ?>">
-		<a class="sh-back" href="<?php echo esc_url( $fallback_url ); ?>" data-nm-back>
+		<button type="button" class="sh-back" data-nm-back disabled>
 			<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
 			<span><?php echo esc_html( $label ); ?></span>
-		</a>
+		</button>
 	</nav>
 	<?php
 }

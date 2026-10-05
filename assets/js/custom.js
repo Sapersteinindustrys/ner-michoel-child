@@ -76,14 +76,105 @@ function nerMichoelSendShiurEvent( postId, event ) {
 ( function () {
 	'use strict';
 
-	// Back buttons on Shiurim-section pages (ner_michoel_render_back_button()
-	// in inc/template-tags.php). If the visitor came from this site, go back
-	// one step in their own history, which keeps their scroll position and
-	// filters. Otherwise (a new tab, a shared link) follow the link's
-	// fallback href, so the button still gets them somewhere sensible.
+	// Layout toggle and Back button (Shiurim-section pages, plus the other
+	// pages with the toggle).
+	//
+	// The layout is a cookie the server reads, and each change reloads the
+	// page, so every layout is a "version" of the same page. Those versions
+	// are kept as a trail in sessionStorage, keyed to the page's path and
+	// query. Opening the page fresh clears the trail, so Back only steps
+	// through layouts tried on this page, and stops at the layout the page
+	// opened with. It never leaves the page. The browser's own back button
+	// is unaffected.
+	var TRAIL_KEY  = 'nm_layout_trail';
+	var SWITCH_KEY = 'nm_layout_switching';
+	var pageKey    = window.location.pathname + window.location.search;
+
+	function readTrail() {
+		try {
+			var saved = JSON.parse( sessionStorage.getItem( TRAIL_KEY ) || '{}' );
+			return saved.page === pageKey && Array.isArray( saved.layouts ) ? saved.layouts : [];
+		} catch ( err ) {
+			return [];
+		}
+	}
+
+	function writeTrail( layouts ) {
+		try {
+			sessionStorage.setItem( TRAIL_KEY, JSON.stringify( { page: pageKey, layouts: layouts } ) );
+		} catch ( err ) {
+			// Storage can be blocked (private windows). Back then just stays disabled.
+		}
+	}
+
+	function switchLayout( layout ) {
+		try {
+			sessionStorage.setItem( SWITCH_KEY, pageKey );
+		} catch ( err ) {
+			// Without this flag the trail resets on reload. Still works, just no history.
+		}
+		document.cookie = 'nm_layout=' + layout + ';path=/;max-age=31536000';
+		window.location.reload();
+	}
+
+	// Arriving fresh resets the trail. A reload caused by switchLayout() keeps it.
+	var switching = false;
+	try {
+		switching = sessionStorage.getItem( SWITCH_KEY ) === pageKey;
+		sessionStorage.removeItem( SWITCH_KEY );
+	} catch ( err ) {
+		switching = false;
+	}
+	if ( ! switching ) {
+		writeTrail( [] );
+	}
+
+	// Back is only live once there's a layout to go back to.
+	var hasHistory = readTrail().length > 0;
+	document.querySelectorAll( '[data-nm-back]' ).forEach( function ( back ) {
+		back.disabled = ! hasHistory;
+	} );
+
+	document.addEventListener( 'click', function ( e ) {
+		var btn = e.target.closest( '.sh-layout-toggle__option' );
+		if ( ! btn || btn.classList.contains( 'is-active' ) ) {
+			return;
+		}
+		var current = document.querySelector( '.sh-layout-toggle__option.is-active' );
+		var layouts = readTrail();
+		if ( current ) {
+			layouts.push( current.getAttribute( 'data-layout' ) );
+		}
+		writeTrail( layouts );
+		switchLayout( btn.getAttribute( 'data-layout' ) );
+	} );
+
 	document.addEventListener( 'click', function ( e ) {
 		var back = e.target.closest( '[data-nm-back]' );
-		if ( ! back ) {
+		if ( ! back || back.disabled ) {
+			return;
+		}
+		var layouts  = readTrail();
+		var previous = layouts.pop();
+		if ( ! previous ) {
+			return;
+		}
+		writeTrail( layouts );
+		switchLayout( previous );
+	} );
+} )();
+
+( function () {
+	'use strict';
+
+	// "Back" on the Shiurim search results (ner_michoel_render_return_link()
+	// in inc/search.php). This one does leave the page: it returns to the
+	// page the search came from, the same as the browser's back. If the
+	// visitor didn't come from this site (a new tab, a shared link), the
+	// link's href (the Shiurim archive) is followed instead.
+	document.addEventListener( 'click', function ( e ) {
+		var link = e.target.closest( '[data-nm-return]' );
+		if ( ! link ) {
 			return;
 		}
 		var fromSite = document.referrer.indexOf( window.location.origin + '/' ) === 0;
@@ -97,17 +188,24 @@ function nerMichoelSendShiurEvent( postId, event ) {
 ( function () {
 	'use strict';
 
-	// Site-wide layout toggle (Shiurim, Galleries, News & Events) —
-	// sets a cookie the server reads (see ner_michoel_get_layout() in
-	// inc/template-tags.php) and reloads, since Modern/Classic are
-	// separate PHP templates, not a CSS-only skin swap.
+	// Written shiur PDFs (single-written_shiur.php). The viewer is only
+	// created when the visitor clicks "Read here". Nothing loads on page
+	// open, and a PDF is a large download, so this keeps the page fast.
 	document.addEventListener( 'click', function ( e ) {
-		var btn = e.target.closest( '.sh-layout-toggle__option' );
-		if ( ! btn || btn.classList.contains( 'is-active' ) ) {
+		var btn = e.target.closest( '.sh-pdf-load' );
+		if ( ! btn ) {
 			return;
 		}
-		document.cookie = 'nm_layout=' + btn.getAttribute( 'data-layout' ) + ';path=/;max-age=31536000';
-		window.location.reload();
+		var viewer = document.querySelector( '[data-pdf-viewer]' );
+		if ( ! viewer || viewer.querySelector( 'iframe' ) ) {
+			return;
+		}
+		var frame = document.createElement( 'iframe' );
+		frame.src   = btn.getAttribute( 'data-pdf-src' ) + '#view=FitH';
+		frame.title = btn.getAttribute( 'data-pdf-title' ) || '';
+		viewer.appendChild( frame );
+		viewer.hidden = false;
+		btn.hidden = true;
 	} );
 } )();
 
@@ -597,9 +695,9 @@ function nerMichoelSendShiurEvent( postId, event ) {
 		loadTrack( true );
 	}
 
-	function parseQueue( el ) {
+	function parseQueue( el, attr ) {
 		try {
-			return JSON.parse( el.getAttribute( 'data-play-queue' ) );
+			return JSON.parse( el.getAttribute( attr || 'data-play-queue' ) );
 		} catch ( e ) {
 			return null;
 		}
@@ -626,11 +724,19 @@ function nerMichoelSendShiurEvent( postId, event ) {
 		if ( ! row ) {
 			return;
 		}
+		// Video rows are links to the shiur's own page, not audio rows, so
+		// they have no queue index. Let the link work and don't play anything.
+		if ( row.classList.contains( 'sh-track--video' ) ) {
+			return;
+		}
 		var list = row.closest( '.sh-tracklist' );
 		if ( ! list ) {
 			return;
 		}
-		var queue = parseQueue( list );
+		// The track list keeps its queue in data-queue, not data-play-queue
+		// (that name is for cards and Play All). Reading the wrong one meant
+		// no row ever played.
+		var queue = parseQueue( list, 'data-queue' );
 		var index = parseInt( row.getAttribute( 'data-index' ), 10 ) || 0;
 		if ( ! queue ) {
 			return;

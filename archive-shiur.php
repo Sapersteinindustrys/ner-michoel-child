@@ -15,7 +15,7 @@ if ( 'classic' === $layout ) :
 	$classic_query = ner_michoel_get_classic_query();
 	?>
 	<div class="shiurim-app shiurim-app--classic">
-			<?php ner_michoel_render_back_button( home_url( '/' ) ); ?>
+			<?php ner_michoel_render_back_button(); ?>
 		<header class="sh-page-header">
 			<h1><?php post_type_archive_title(); ?></h1>
 		</header>
@@ -40,7 +40,7 @@ $is_recent     = isset( $_GET['sh_view'] ) && 'recent' === $_GET['sh_view']; // 
 	<?php ner_michoel_render_shiurim_sidebar(); ?>
 
 	<div class="shiurim-app sh-main">
-			<?php ner_michoel_render_back_button( home_url( '/' ) ); ?>
+			<?php ner_michoel_render_back_button(); ?>
 		<header class="sh-page-header">
 			<h1><?php echo $is_recent ? esc_html__( 'Recent Shiurim', 'ner-michoel-child' ) : post_type_archive_title( '', false ); ?></h1>
 		</header>

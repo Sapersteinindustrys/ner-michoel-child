@@ -16,12 +16,15 @@
 	align-items: center;
 	gap: 6px;
 	padding: 6px 14px 6px 8px;
+	border: 0;
 	border-radius: var(--nm-radius-pill, 999px);
+	background: transparent;
 	color: var(--sh-text-muted);
+	font: inherit;
 	font-size: 0.9rem;
 	font-weight: 600;
-	text-decoration: none;
-	transition: color 0.15s ease, background-color 0.15s ease;
+	cursor: pointer;
+	transition: color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
 }
 
 .sh-back svg {
@@ -30,10 +33,21 @@
 	flex: 0 0 auto;
 }
 
-.sh-back:hover,
-.sh-back:focus-visible {
+.sh-back:not(:disabled):hover,
+.sh-back:not(:disabled):focus-visible {
 	color: var(--sh-text);
 	background: var(--sh-surface-hover);
+}
+
+/* The search results' Back is a link, not a button (inc/search.php). */
+a.sh-back {
+	text-decoration: none;
+}
+
+/* Nothing to go back to yet: visible, but clearly inert. */
+.sh-back:disabled {
+	opacity: 0.4;
+	cursor: default;
 }
 
 /*

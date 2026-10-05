@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.38' );
+define( 'NER_MICHOEL_VERSION', '0.2.39' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -81,7 +81,10 @@ function ner_michoel_enqueue_component_styles() {
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_component_styles', 21 );
 
 /**
- * Account page (login/sign up/profile) assets.
+ * Account page (login/sign up/profile) assets — gated to its own
+ * template rather than loaded site-wide like the component styles
+ * above, since (unlike the Live Shiur block) there's exactly one page
+ * that ever needs this CSS/JS and it's known at enqueue time.
  */
 function ner_michoel_enqueue_account_assets() {
 	if ( ! is_page_template( 'page-templates/account.php' ) ) {
@@ -103,6 +106,11 @@ function ner_michoel_enqueue_account_assets() {
 		true
 	);
 
+	// X-WP-Nonce for the two routes that require being logged in
+	// (update-profile, avatar) — WordPress's own REST cookie-auth
+	// middleware checks this against the request automatically; a
+	// missing/stale nonce here is why an otherwise-correct authenticated
+	// request would get rejected.
 	wp_localize_script(
 		'ner-michoel-account',
 		'nerMichoelAccount',
@@ -152,3 +160,4 @@ require_once NER_MICHOEL_PATH . '/inc/classic-view.php';
 require_once NER_MICHOEL_PATH . '/inc/updates.php';
 require_once NER_MICHOEL_PATH . '/inc/appearance.php';
 require_once NER_MICHOEL_PATH . '/inc/navigation.php';
+require_once NER_MICHOEL_PATH . '/inc/search.php';
