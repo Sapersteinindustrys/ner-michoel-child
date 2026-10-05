@@ -22,6 +22,21 @@
 get_header();
 
 $notice = isset( $_GET['nm_contact'] ) ? sanitize_key( wp_unslash( $_GET['nm_contact'] ) ) : '';
+
+// "Email a Magid Shiur" — moved here from its own page. Same handler
+// (forms.php, nm_email_magid_submit), so its redirect and notices are unchanged.
+$magid_notice = isset( $_GET['nm_magid'] ) ? sanitize_key( wp_unslash( $_GET['nm_magid'] ) ) : '';
+$speakers     = get_terms( array( 'taxonomy' => 'speaker', 'hide_empty' => false ) );
+$has_speakers = ! is_wp_error( $speakers ) && $speakers;
+$all_shiurim  = get_posts(
+	array(
+		'post_type'      => 'shiur',
+		'post_status'    => 'publish',
+		'posts_per_page' => -1,
+		'orderby'        => 'title',
+		'order'          => 'ASC',
+	)
+);
 ?>
 
 <div class="nm-page nm-page--contact">
@@ -93,6 +108,63 @@ $notice = isset( $_GET['nm_contact'] ) ? sanitize_key( wp_unslash( $_GET['nm_con
 				</label>
 				<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Send', 'ner-michoel-child' ); ?></button>
 			</form>
+		</div>
+		<div class="nm-contact-form-wrap" id="email-magid-shiur">
+			<h2><?php esc_html_e( 'Email a Magid Shiur', 'ner-michoel-child' ); ?></h2>
+			<p class="nm-page__intro"><?php esc_html_e( 'Send a question or message directly to one of the Magidei Shiur.', 'ner-michoel-child' ); ?></p>
+
+			<?php if ( ! $has_speakers ) : ?>
+				<p class="sh-empty"><?php esc_html_e( 'No speakers set up yet.', 'ner-michoel-child' ); ?></p>
+			<?php else : ?>
+
+				<?php if ( 'sent' === $magid_notice ) : ?>
+					<p class="nm-form-notice nm-form-notice--success"><?php esc_html_e( 'Thanks — your message has been sent.', 'ner-michoel-child' ); ?></p>
+				<?php elseif ( 'error' === $magid_notice ) : ?>
+					<p class="nm-form-notice nm-form-notice--error"><?php esc_html_e( 'Something went wrong sending your message — please try again.', 'ner-michoel-child' ); ?></p>
+				<?php endif; ?>
+
+				<form class="nm-contact-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+					<input type="hidden" name="action" value="nm_email_magid_submit" />
+					<?php wp_nonce_field( 'nm_email_magid_submit', 'nm_email_magid_nonce' ); ?>
+
+					<div class="nm-hp-field" aria-hidden="true">
+						<label for="nm_magid_hp"><?php esc_html_e( 'Leave this field blank', 'ner-michoel-child' ); ?></label>
+						<input type="text" id="nm_magid_hp" name="nm_magid_hp" tabindex="-1" autocomplete="off" value="" />
+					</div>
+
+					<label class="nm-contact-form__field">
+						<?php esc_html_e( 'Magid Shiur', 'ner-michoel-child' ); ?>
+						<select name="nm_speaker_id" required>
+							<option value=""><?php esc_html_e( 'Choose a speaker…', 'ner-michoel-child' ); ?></option>
+							<?php foreach ( $speakers as $speaker_term ) : ?>
+								<option value="<?php echo esc_attr( $speaker_term->term_id ); ?>"><?php echo esc_html( $speaker_term->name ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</label>
+					<label class="nm-contact-form__field">
+						<?php esc_html_e( 'Which shiur is this about? (optional)', 'ner-michoel-child' ); ?>
+						<select name="nm_shiur_id">
+							<option value=""><?php esc_html_e( '— Not about a specific shiur —', 'ner-michoel-child' ); ?></option>
+							<?php foreach ( $all_shiurim as $shiur ) : ?>
+								<option value="<?php echo esc_attr( $shiur->ID ); ?>"><?php echo esc_html( $shiur->post_title ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</label>
+					<label class="nm-contact-form__field">
+						<?php esc_html_e( 'My Name', 'ner-michoel-child' ); ?>
+						<input type="text" name="nm_name" required />
+					</label>
+					<label class="nm-contact-form__field">
+						<?php esc_html_e( 'My Email', 'ner-michoel-child' ); ?>
+						<input type="email" name="nm_email" required />
+					</label>
+					<label class="nm-contact-form__field">
+						<?php esc_html_e( 'Message', 'ner-michoel-child' ); ?>
+						<textarea name="nm_message" rows="5" required></textarea>
+					</label>
+					<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Send', 'ner-michoel-child' ); ?></button>
+				</form>
+			<?php endif; ?>
 		</div>
 		<?php
 	endwhile;

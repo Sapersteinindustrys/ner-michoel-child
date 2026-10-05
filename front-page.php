@@ -57,6 +57,16 @@ $recent_galleries = post_type_exists( 'gallery' ) ? get_posts(
 $shiurim_url = get_post_type_archive_link( 'shiur' );
 $gallery_url = get_post_type_archive_link( 'gallery' );
 
+$recent_written = post_type_exists( 'written_shiur' ) ? get_posts(
+	array(
+		'post_type'      => 'written_shiur',
+		'posts_per_page' => 4,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	)
+) : array();
+$written_url    = post_type_exists( 'written_shiur' ) ? get_post_type_archive_link( 'written_shiur' ) : '';
+
 // Admin-managed homepage slider (Site Control Panel > Homepage
 // Slider). Falls back to a static welcome hero when no slides have
 // been added yet, so the homepage is never blank on a fresh install.
@@ -266,6 +276,34 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 		<?php endif; ?>
 	</section>
 	<?php endif; ?>
+
+			<?php if ( $recent_written ) : ?>
+		<section class="nm-home-section nm-home-written-section">
+			<div class="nm-home-section__head">
+				<h2><?php esc_html_e( 'Written Shiurim', 'ner-michoel-child' ); ?></h2>
+				<?php if ( $written_url ) : ?><a class="nm-home-more" href="<?php echo esc_url( $written_url ); ?>"><?php esc_html_e( 'See all', 'ner-michoel-child' ); ?> &rarr;</a><?php endif; ?>
+			</div>
+			<div class="nm-home-written-grid">
+				<?php foreach ( $recent_written as $written ) : ?>
+					<?php
+					$speaker_terms = get_the_terms( $written->ID, 'speaker' );
+					$speaker_name  = ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) ? $speaker_terms[0]->name : '';
+					$first_line    = function_exists( 'ner_michoel_written_first_line' ) ? ner_michoel_written_first_line( $written ) : '';
+					?>
+					<a class="nm-home-written-card" href="<?php echo esc_url( get_permalink( $written ) ); ?>">
+						<span class="nm-home-written-card__icon"><?php echo ner_michoel_line_icon( 'book-open' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
+						<span class="nm-home-written-card__title"><?php echo esc_html( get_the_title( $written ) ); ?></span>
+						<?php if ( $speaker_name ) : ?>
+							<span class="nm-home-written-card__speaker"><?php echo esc_html( $speaker_name ); ?></span>
+						<?php endif; ?>
+						<?php if ( $first_line ) : ?>
+							<span class="nm-home-written-card__line"><?php echo esc_html( $first_line ); ?></span>
+						<?php endif; ?>
+					</a>
+				<?php endforeach; ?>
+			</div>
+		</section>
+		<?php endif; ?>
 
 	<section class="nm-home-closing">
 		<h2><?php esc_html_e( 'Stay Connected', 'ner-michoel-child' ); ?></h2>

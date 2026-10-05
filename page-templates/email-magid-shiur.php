@@ -22,6 +22,12 @@
  * ?nm_magid=sent / ?nm_magid=error.
  */
 
+// The form now lives on the Contact page (page-templates/contact.php). Old links
+// to this page land there instead, scrolled to the form.
+$contact_page = get_page_by_path( 'contact' );
+wp_safe_redirect( ( $contact_page ? get_permalink( $contact_page ) : home_url( '/contact/' ) ) . '#email-magid-shiur', 301 );
+exit;
+
 get_header();
 
 $speakers = get_terms( array( 'taxonomy' => 'speaker', 'hide_empty' => false ) );

@@ -770,3 +770,28 @@ function ner_michoel_enqueue_shiurim_card_styles() {
 	);
 }
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_shiurim_card_styles', 21 );
+
+/**
+ * The first line of a written shiur, for its homepage card. That's the
+ * excerpt if there is one, otherwise the first non-empty line of the
+ * description, trimmed to about 22 words. '' when there's no text at all.
+ * Works on Hebrew and other non-Latin text: words are split on spaces.
+ */
+function ner_michoel_written_first_line( $post ) {
+	$post = get_post( $post );
+	if ( ! $post ) {
+		return '';
+	}
+
+	$text = '' !== trim( (string) $post->post_excerpt ) ? $post->post_excerpt : $post->post_content;
+	$text = wp_strip_all_tags( strip_shortcodes( (string) $text ) );
+
+	foreach ( preg_split( '/\R/u', $text ) as $line ) {
+		$line = trim( preg_replace( '/\s+/u', ' ', $line ) );
+		if ( '' !== $line ) {
+			return wp_trim_words( $line, 22, '…' );
+		}
+	}
+
+	return '';
+}

@@ -45,9 +45,7 @@ while ( have_posts() ) :
 			// here. An iframe starts downloading its PDF as soon as it's in the
 			// page, even hidden, so until the visitor asks for it there's only
 			// a button. The PDF URL lives on the button, not on an iframe.
-			?>
-			<?php
-			// data-post-id: so the click handler can record History
+						// data-post-id: so the click handler can record History
 			// (ner-michoel-core's user-library.php) for this specific
 			// written shiur — there's nothing else on the button to
 			// derive a post ID from.

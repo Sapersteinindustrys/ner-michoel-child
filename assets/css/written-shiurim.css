@@ -167,3 +167,68 @@
 	font-weight: 600;
 	cursor: pointer;
 }
+
+/* Homepage block: written shiur cards (front-page.php). */
+.nm-home-written-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 16px;
+}
+
+.nm-home-written-card {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 18px;
+	border: 1px solid var(--nm-border);
+	border-radius: var(--nm-radius);
+	background: #fff;
+	box-shadow: var(--nm-shadow);
+	color: var(--nm-text);
+	text-decoration: none;
+	transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.nm-home-written-card:hover,
+.nm-home-written-card:focus-visible {
+	box-shadow: var(--nm-shadow-hover);
+	transform: translateY(-2px);
+}
+
+.nm-home-written-card__icon {
+	display: inline-flex;
+	margin-bottom: 4px;
+	color: var(--nm-primary);
+}
+
+.nm-home-written-card__icon svg {
+	width: 26px;
+	height: 26px;
+}
+
+.nm-home-written-card__title {
+	font-size: 1.05rem;
+	font-weight: 700;
+	line-height: 1.3;
+}
+
+.nm-home-written-card__speaker {
+	color: var(--nm-text-muted);
+	font-size: 0.9rem;
+}
+
+.nm-home-written-card__line {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	color: var(--nm-text-muted);
+	font-size: 0.9rem;
+	line-height: 1.45;
+}
+
+@media (max-width: 560px) {
+	.nm-home-written-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
