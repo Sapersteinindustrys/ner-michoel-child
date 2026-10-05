@@ -10,6 +10,18 @@
 	color: var(--nm-text-muted);
 }
 
+/* The browser's own `[hidden] { display: none }` rule and
+   .nm-contact-form's `display: flex` (custom.css) are equal
+   specificity (one attribute selector, one class selector) — and on
+   a tie, author CSS always beats the user-agent stylesheet, so
+   .nm-contact-form won and the Sign Up / Forgot Password panels
+   stayed visible (flexed open) underneath Log In the whole time,
+   [hidden] attribute or not. Same fix either way the attribute gets
+   set: directly in the PHP, or by account.js toggling panel.hidden. */
+.nm-account-panel[hidden] {
+	display: none;
+}
+
 /* ---- Tabs (Log In / Sign Up) ---- */
 
 .nm-account-tabs {
