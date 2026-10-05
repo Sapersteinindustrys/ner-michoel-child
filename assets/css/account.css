@@ -1,0 +1,126 @@
+/*
+ * Account page (page-templates/account.php) — login/sign up tabs,
+ * the forgot-password panel, and the logged-in profile. Builds on
+ * .nm-page / .nm-contact-form / .nm-form-notice from custom.css
+ * (static-page wrapper, form fields, and the success/error banner)
+ * rather than redefining them.
+ */
+
+.nm-empty {
+	color: var(--nm-text-muted);
+}
+
+/* ---- Tabs (Log In / Sign Up) ---- */
+
+.nm-account-tabs {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 24px;
+	border-bottom: 1px solid var(--nm-border);
+}
+
+.nm-account-tab {
+	padding: 10px 4px;
+	margin-bottom: -1px;
+	border: none;
+	border-bottom: 2px solid transparent;
+	background: none;
+	color: var(--nm-text-muted);
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.nm-account-tab + .nm-account-tab {
+	margin-left: 20px;
+}
+
+.nm-account-tab:hover {
+	color: var(--nm-text);
+}
+
+.nm-account-tab.is-active {
+	color: var(--nm-primary);
+	border-bottom-color: var(--nm-primary);
+}
+
+/* The Forgot Password panel isn't one of the two tabs — reached from
+   a link on the Log In form instead — so no tab is marked active
+   while it's showing, which is fine; its own heading-like intro text
+   is enough context for where you are. */
+
+.nm-account-panel__intro {
+	margin: 0 0 16px;
+	color: var(--nm-text-muted);
+	max-width: 480px;
+}
+
+.nm-account-link {
+	align-self: start;
+	font-size: 0.9rem;
+	color: var(--nm-text-muted);
+}
+
+.nm-account-link:hover {
+	color: var(--nm-primary);
+}
+
+/* ---- Logged-in profile ---- */
+
+.nm-account-avatar {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 28px;
+}
+
+.nm-account-avatar__img {
+	width: 96px;
+	height: 96px;
+	border-radius: 50%;
+	object-fit: cover;
+	background: var(--nm-surface);
+	border: 1px solid var(--nm-border);
+}
+
+.nm-account-avatar__upload {
+	padding: 9px 18px;
+	border: 1px solid var(--nm-border);
+	border-radius: var(--nm-radius-pill);
+	font-size: 0.9rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.nm-account-avatar__upload:hover {
+	border-color: var(--nm-primary);
+	color: var(--nm-primary);
+}
+
+.nm-account-subhead {
+	margin: 36px 0 16px;
+	font-size: 1.1rem;
+}
+
+.nm-account-logout {
+	margin-top: 32px;
+	padding-top: 20px;
+	border-top: 1px solid var(--nm-border);
+}
+
+.nm-account-logout a {
+	color: var(--nm-text-muted);
+}
+
+.nm-account-logout a:hover {
+	color: var(--nm-primary);
+}
+
+@media (max-width: 480px) {
+	.nm-account-avatar {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}

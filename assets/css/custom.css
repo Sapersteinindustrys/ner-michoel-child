@@ -254,13 +254,25 @@
    tighten the menu so seven items + the button stay on one row. */
 @media (min-width: 922px) and (max-width: 1120px) {
 	.site-header .ast-builder-menu-1 .main-header-menu > .menu-item > .menu-link {
-		padding: 8px 10px;
-		font-size: 0.875rem;
+		padding: 8px 8px;
+		font-size: 0.8125rem;
 	}
 
 	.site-header .ast-builder-menu-1 .main-header-menu > .menu-item > .menu-link::after {
-		left: 10px;
-		right: 10px;
+		left: 8px;
+		right: 8px;
+	}
+
+	/* The CTA and the Log In link after it don't need as much
+	   breathing room as the content links to stay legible/tappable —
+	   shrinking them too is what actually closes the gap enough for
+	   an 8th item (Log In) to fit without wrapping to a second row. */
+	.site-header .ast-builder-menu-1 .main-header-menu > .menu-item.nm-menu-cta {
+		margin-left: 4px;
+	}
+
+	.site-header .ast-builder-menu-1 .main-header-menu > .menu-item.nm-menu-cta > .menu-link {
+		padding: 8px 14px;
 	}
 }
 
