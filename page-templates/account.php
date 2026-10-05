@@ -56,7 +56,7 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 				<button type="button" class="nm-account-tab is-active" data-tab="profile" role="tab"><?php esc_html_e( 'Profile', 'ner-michoel-child' ); ?></button>
 				<?php if ( $has_library ) : ?>
 					<button type="button" class="nm-account-tab" data-tab="history" role="tab"><?php esc_html_e( 'History', 'ner-michoel-child' ); ?></button>
-					<button type="button" class="nm-account-tab" data-tab="saved" role="tab"><?php esc_html_e( 'Saved', 'ner-michoel-child' ); ?></button>
+					<button type="button" class="nm-account-tab" data-tab="saved" role="tab"><?php esc_html_e( 'Liked', 'ner-michoel-child' ); ?></button>
 					<button type="button" class="nm-account-tab" data-tab="suggested" role="tab"><?php esc_html_e( 'Suggested', 'ner-michoel-child' ); ?></button>
 				<?php endif; ?>
 			</div>
@@ -128,7 +128,7 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 							<?php endforeach; ?>
 						</div>
 					<?php else : ?>
-						<p class="nm-empty"><?php esc_html_e( 'Nothing saved yet — look for the heart on a shiur or written shiur.', 'ner-michoel-child' ); ?></p>
+						<p class="nm-empty"><?php esc_html_e( 'Nothing liked yet — tap the heart on a shiur or written shiur to add it here.', 'ner-michoel-child' ); ?></p>
 					<?php endif; ?>
 				</div>
 
@@ -190,6 +190,15 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 				<label class="nm-contact-form__field">
 					<?php esc_html_e( 'Confirm Password', 'ner-michoel-child' ); ?>
 					<input type="password" name="password_confirm" autocomplete="new-password" minlength="8" required />
+				</label>
+				<?php // Two separate choices, both optional. Stored as user meta by accounts.php. ?>
+				<label class="nm-contact-form__check">
+					<input type="checkbox" name="pref_updates" value="1" />
+					<span><?php esc_html_e( 'Send me Ner Michoel updates', 'ner-michoel-child' ); ?></span>
+				</label>
+				<label class="nm-contact-form__check">
+					<input type="checkbox" name="pref_new_shiur_alerts" value="1" />
+					<span><?php esc_html_e( 'Alert me when new shiurim are posted', 'ner-michoel-child' ); ?></span>
 				</label>
 				<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Create Account', 'ner-michoel-child' ); ?></button>
 			</form>

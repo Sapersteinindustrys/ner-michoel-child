@@ -37,10 +37,6 @@ get_header();
 			<h2><?php esc_html_e( 'Rabbi Michoel Weiner zt"l', 'ner-michoel-child' ); ?></h2>
 			<p><?php esc_html_e( 'Reb Michoel studied under some of the most prominent Torah scholars of his generation and was known for his meticulous scholarship. His diligence in learning was legendary; he would sit for long hours, toiling in the understanding of Torah with complete focus. His commentaries on Talmudic texts are noted for their halakhic precision.', 'ner-michoel-child' ); ?></p>
 			<p><?php esc_html_e( 'Alongside his intensity in learning, Reb Michoel possessed an extraordinary sense of humor, and maintained a joyful home centered on spiritual service.', 'ner-michoel-child' ); ?></p>
-
-			<?php if ( get_the_content() ) : ?>
-				<?php the_content(); ?>
-			<?php endif; ?>
 		</div>
 		<?php
 	endwhile;

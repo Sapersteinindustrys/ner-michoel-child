@@ -57,6 +57,25 @@
 	border-bottom-color: var(--nm-primary);
 }
 
+/* Astra paints every button's hover and focus state with its theme colour,
+   which turned the whole tab box blue. Tabs show their state with the
+   underline and text colour only, so the box stays plain on hover, focus,
+   and press. Keyboard focus still gets a visible mark: an underline. The
+   selectors are scoped to the tab strip so they beat Astra's global rule. */
+.nm-account-tabs .nm-account-tab,
+.nm-account-tabs .nm-account-tab:hover,
+.nm-account-tabs .nm-account-tab:focus,
+.nm-account-tabs .nm-account-tab:active {
+	background: transparent;
+	box-shadow: none;
+	outline: none;
+}
+
+.nm-account-tabs .nm-account-tab:focus-visible {
+	text-decoration: underline;
+	text-underline-offset: 6px;
+}
+
 /* The Forgot Password panel isn't one of the two tabs — reached from
    a link on the Log In form instead — so no tab is marked active
    while it's showing, which is fine; its own heading-like intro text
@@ -135,4 +154,17 @@
 		flex-direction: column;
 		align-items: flex-start;
 	}
+}
+
+/* Optional sign-up choices (accounts.php stores them): checkbox, then its label. */
+.nm-contact-form__check {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 4px 0;
+	font-size: 0.95rem;
+}
+
+.nm-contact-form__check input {
+	margin-top: 3px;
 }

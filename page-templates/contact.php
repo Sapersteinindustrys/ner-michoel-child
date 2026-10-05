@@ -29,14 +29,6 @@ $notice = isset( $_GET['nm_contact'] ) ? sanitize_key( wp_unslash( $_GET['nm_con
 	while ( have_posts() ) :
 		the_post();
 		?>
-		<header class="nm-page__header">
-			<h1><?php the_title(); ?></h1>
-		</header>
-
-		<div class="nm-page__content entry-content">
-			<?php the_content(); ?>
-		</div>
-
 		<div class="nm-office-grid">
 			<div class="nm-office-card">
 				<h2><?php esc_html_e( 'American Office', 'ner-michoel-child' ); ?></h2>

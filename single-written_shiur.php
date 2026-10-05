@@ -17,7 +17,7 @@ while ( have_posts() ) :
 	$pdf_url       = function_exists( 'ner_michoel_get_written_shiur_pdf_url' ) ? ner_michoel_get_written_shiur_pdf_url( $post_id ) : '';
 	$download_url  = function_exists( 'ner_michoel_get_written_shiur_download_url' ) ? ner_michoel_get_written_shiur_download_url( $post_id ) : '';
 	?>
-	<div class="nm-app<?php echo 'classic' === ner_michoel_get_layout() ? ' nm-app--classic' : ''; ?>">
+	<div class="nm-app nm-written-page<?php echo 'classic' === ner_michoel_get_layout() ? ' nm-app--classic' : ''; ?>">
 		<?php ner_michoel_render_back_button(); ?>
 		<header class="sh-page-header">
 			<h1><?php the_title(); ?></h1>

@@ -11,11 +11,13 @@ get_header();
 $layout = ner_michoel_get_layout();
 ?>
 
-<div class="nm-app<?php echo 'classic' === $layout ? ' nm-app--classic' : ''; ?>">
+<div class="nm-app nm-written-page<?php echo 'classic' === $layout ? ' nm-app--classic' : ''; ?>">
 	<?php ner_michoel_render_back_button(); ?>
 	<header class="sh-page-header">
 		<h1><?php post_type_archive_title(); ?></h1>
 	</header>
+
+	<?php ner_michoel_render_written_search_form(); ?>
 
 	<?php if ( have_posts() ) : ?>
 		<section class="sh-section">

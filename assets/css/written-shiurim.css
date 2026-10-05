@@ -1,9 +1,42 @@
 /*
  * Written Shiurim: the archive list (archive-written_shiur.php, rows from
  * ner_michoel_render_written_row()) and the single page
- * (single-written_shiur.php). Written pages are in the app context, so the
- * dark --sh-* tokens from custom.css apply to them.
+ * (single-written_shiur.php).
+ *
+ * The page sits on its own light sheet, .nm-written-page, with dark text.
+ * Before this, written pages took the dark Shiurim colour tokens from
+ * custom.css, but Astra's light content card could paint over the dark
+ * background. White text on a white card was invisible until hover, which
+ * turned it green. The sheet sets its background and its text colour on the
+ * same element, and sets the --sh-* tokens here too, so they can't disagree.
+ * Shiurim pages keep the dark app look.
  */
+
+.nm-written-page {
+	--sh-text: #1f2937;
+	--sh-text-muted: #5b6472;
+	--sh-border: rgba(0, 0, 0, 0.1);
+	--sh-surface: #f3f4f6;
+	--sh-surface-hover: #e5e7eb;
+	--sh-accent: var(--nm-primary);
+
+	background: #fff;
+	color: #1f2937;
+	border-radius: 12px;
+	box-shadow: var(--nm-shadow-hover);
+	padding: 28px 28px 32px;
+}
+
+.nm-written-page .sh-page-header h1 {
+	color: #111827;
+}
+
+@media (max-width: 560px) {
+	.nm-written-page {
+		padding: 20px 16px 24px;
+		border-radius: 8px;
+	}
+}
 
 .sh-written-list {
 	border-top: 1px solid var(--sh-border);
@@ -103,4 +136,34 @@
 	.sh-pdf-viewer {
 		display: none;
 	}
+}
+
+/* Written Shiurim search box (inc/search.php: ner_michoel_render_written_search_form()). */
+.sh-written-search {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0 0 20px;
+}
+
+.sh-written-search input[type="search"] {
+	flex: 1 1 240px;
+	min-width: 0;
+	padding: 9px 14px;
+	border: 1px solid var(--nm-border);
+	border-radius: var(--nm-radius-pill, 999px);
+	background: #fff;
+	color: #1f2937;
+	font: inherit;
+}
+
+.sh-written-search button {
+	padding: 9px 20px;
+	border: 0;
+	border-radius: var(--nm-radius-pill, 999px);
+	background: var(--nm-primary);
+	color: #fff;
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
 }

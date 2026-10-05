@@ -1,0 +1,59 @@
+/*
+ * Series cards (archive-shiur.php, the Series row). A series is a collection,
+ * so it reads differently from a single shiur card: a stacked-cover look, and
+ * a small "Series" label above the title. Regular shiur cards are unchanged.
+ * Uses the app's dark tokens, which apply on the Shiurim pages.
+ */
+
+.sh-card--series .sh-card__art {
+	box-shadow:
+		8px 8px 0 -2px var(--sh-surface, #181818),
+		8px 8px 0 -1px rgba(255, 255, 255, 0.10),
+		16px 16px 0 -4px var(--sh-surface, #181818),
+		16px 16px 0 -3px rgba(255, 255, 255, 0.05);
+}
+
+/* Like (heart) on a track row: sits in the duration cell, after the time. */
+.sh-track__save {
+	display: inline-flex;
+	align-items: center;
+	margin: 0 0 0 8px;
+	padding: 4px;
+	border: 0;
+	background: transparent;
+	color: var(--sh-text-muted, rgba(255, 255, 255, 0.6));
+	line-height: 0;
+	cursor: pointer;
+	vertical-align: middle;
+}
+
+.sh-track__save svg {
+	width: 16px;
+	height: 16px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2px;
+}
+
+.sh-track__save:hover,
+.sh-track__save:focus-visible {
+	color: var(--sh-text, #fff);
+}
+
+.sh-track__save.is-saved {
+	color: var(--sh-accent, #2f8f5b);
+}
+
+.sh-track__save.is-saved svg {
+	fill: currentColor;
+	stroke: none;
+}
+
+.sh-card--series .sh-card__kicker {
+	color: var(--sh-accent, #2f8f5b);
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	margin-bottom: 2px;
+}

@@ -291,6 +291,25 @@ function nerMichoelRecordHistory( postId ) {
 						if ( card ) {
 							card.remove();
 						}
+					} else {
+						// Liking a card in History or Suggested adds it to the Liked tab
+						// straight away, instead of waiting for a page reload.
+						var source = btn.closest( '.nm-home-shiur-card' );
+						var liked  = document.querySelector( '[data-saved-list]' );
+						if ( source && liked && ! liked.querySelector( '[data-save-id="' + btn.getAttribute( 'data-save-id' ) + '"]' ) ) {
+							var likedGrid = liked.querySelector( '.nm-home-shiur-grid' );
+							if ( ! likedGrid ) {
+								var emptyNote = liked.querySelector( '.nm-empty' );
+								likedGrid     = document.createElement( 'div' );
+								likedGrid.className = 'nm-home-shiur-grid';
+								if ( emptyNote ) {
+									emptyNote.replaceWith( likedGrid );
+								} else {
+									liked.appendChild( likedGrid );
+								}
+							}
+							likedGrid.appendChild( source.cloneNode( true ) );
+						}
 					}
 				}
 			} )
@@ -838,7 +857,9 @@ function nerMichoelRecordHistory( postId ) {
 
 	// Tracklist rows.
 	document.addEventListener( 'click', function ( e ) {
-		if ( e.target.closest( '.sh-track__download' ) ) {
+		// The download and like buttons in a row have their own jobs, so
+		// pressing them doesn't start playback.
+		if ( e.target.closest( '.sh-track__download, .sh-save' ) ) {
 			return;
 		}
 		var row = e.target.closest( '.sh-track' );

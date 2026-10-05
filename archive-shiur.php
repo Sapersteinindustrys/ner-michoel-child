@@ -88,6 +88,8 @@ $is_recent     = isset( $_GET['sh_view'] ) && 'recent' === $_GET['sh_view']; // 
 								'image'    => ner_michoel_get_series_cover_url( $term->term_id ),
 								'link'     => get_term_link( $term ),
 								'queue'    => ner_michoel_build_track_queue( $shiurim ),
+								'variant'  => 'series',
+								'kicker'   => __( 'Series', 'ner-michoel-child' ),
 							)
 						);
 					endforeach; ?>

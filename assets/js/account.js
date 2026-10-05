@@ -118,6 +118,8 @@
 				name: signupForm.name.value,
 				email: signupForm.email.value,
 				password: signupForm.password.value,
+				pref_updates: signupForm.pref_updates.checked,
+				pref_new_shiur_alerts: signupForm.pref_new_shiur_alerts.checked,
 				website: signupForm.website.value // honeypot — always blank for real visitors
 			} ).then( function ( result ) {
 				if ( result.ok && result.data.success ) {

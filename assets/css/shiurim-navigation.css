@@ -50,6 +50,13 @@ a.sh-back {
 	cursor: default;
 }
 
+/* The site footer doesn't belong on Shiurim pages: the player bar and the
+   page's own navigation already sit at the bottom. */
+body.is-shiurim .site-footer,
+body.is-shiurim #colophon {
+	display: none;
+}
+
 /*
  * 24Six now has the player bar too (see ner_michoel_render_player_bar()),
  * so the bottom-placed layout toggle needs the same clearance Modern

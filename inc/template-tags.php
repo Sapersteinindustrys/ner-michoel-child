@@ -388,13 +388,16 @@ function ner_michoel_render_media_card( $args ) {
 			'queue'    => array(),
 			'round'    => false,
 			'save_id'  => 0,
+			'variant'  => '', // 'series' gives a series card its own look (see shiurim-cards.css).
+			'kicker'   => '', // Small label above the title, e.g. "Series".
 		)
 	);
 
 	$show_save = $args['save_id'] && is_user_logged_in() && function_exists( 'ner_michoel_is_post_saved_by_user' );
 	$is_saved  = $show_save && ner_michoel_is_post_saved_by_user( $args['save_id'] );
+	$classes   = 'sh-card' . ( $args['round'] ? ' sh-card--round' : '' ) . ( 'series' === $args['variant'] ? ' sh-card--series' : '' );
 	?>
-	<a class="sh-card<?php echo $args['round'] ? ' sh-card--round' : ''; ?>" href="<?php echo esc_url( $args['link'] ); ?>">
+	<a class="<?php echo esc_attr( $classes ); ?>" href="<?php echo esc_url( $args['link'] ); ?>">
 		<div class="sh-card__art">
 			<?php if ( $args['image'] ) : ?>
 				<img src="<?php echo esc_url( $args['image'] ); ?>" alt="" loading="lazy" />
@@ -420,6 +423,9 @@ function ner_michoel_render_media_card( $args ) {
 				><?php echo ner_michoel_icon( 'heart' ); ?></button>
 			<?php endif; ?>
 		</div>
+		<?php if ( $args['kicker'] ) : ?>
+			<div class="sh-card__kicker"><?php echo esc_html( $args['kicker'] ); ?></div>
+		<?php endif; ?>
 		<div class="sh-card__title"><?php echo esc_html( $args['title'] ); ?></div>
 		<?php if ( $args['subtitle'] ) : ?>
 			<div class="sh-card__subtitle"><?php echo esc_html( $args['subtitle'] ); ?></div>
@@ -625,7 +631,14 @@ function ner_michoel_render_track_row( $shiur, $index, $show_speaker = true ) {
 				<div class="sh-track__speaker"><?php echo esc_html( $speaker_name ); ?></div>
 			<?php endif; ?>
 		</div>
-		<div class="sh-track__duration"><?php echo esc_html( ner_michoel_get_shiur_duration( $shiur->ID ) ); ?></div>
+		<div class="sh-track__duration"><?php echo esc_html( ner_michoel_get_shiur_duration( $shiur->ID ) ); ?><?php
+			// Like this shiur from its row. The heart sits in the duration cell so the
+			// row's grid stays as it is. Logged-in visitors only, like every heart.
+			if ( is_user_logged_in() && function_exists( 'ner_michoel_is_post_saved_by_user' ) ) :
+				$row_saved = ner_michoel_is_post_saved_by_user( $shiur->ID );
+				?>
+				<button type="button" class="sh-save sh-track__save<?php echo $row_saved ? ' is-saved' : ''; ?>" data-save-id="<?php echo esc_attr( $shiur->ID ); ?>" aria-pressed="<?php echo $row_saved ? 'true' : 'false'; ?>" aria-label="<?php esc_attr_e( 'Like', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'heart' ); ?></button>
+			<?php endif; ?></div>
 		<?php
 		$download_url = function_exists( 'ner_michoel_get_shiur_download_url' ) ? ner_michoel_get_shiur_download_url( $shiur->ID ) : '';
 		if ( $download_url ) :
@@ -744,3 +757,16 @@ function ner_michoel_render_player_bar() {
 	ner_michoel_render_player_sheet();
 }
 add_action( 'wp_footer', 'ner_michoel_render_player_bar' );
+
+/**
+ * Stylesheet for the series-card look (archive-shiur.php's Series row).
+ */
+function ner_michoel_enqueue_shiurim_card_styles() {
+	wp_enqueue_style(
+		'ner-michoel-shiurim-cards',
+		NER_MICHOEL_URI . '/assets/css/shiurim-cards.css',
+		array( 'ner-michoel-custom' ),
+		NER_MICHOEL_VERSION
+	);
+}
+add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_shiurim_card_styles', 21 );
