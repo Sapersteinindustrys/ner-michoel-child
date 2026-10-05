@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.35' );
+define( 'NER_MICHOEL_VERSION', '0.2.36' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -79,6 +79,40 @@ function ner_michoel_enqueue_component_styles() {
 	);
 }
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_component_styles', 21 );
+
+/**
+ * Account page (login/sign up/profile) assets.
+ */
+function ner_michoel_enqueue_account_assets() {
+	if ( ! is_page_template( 'page-templates/account.php' ) ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'ner-michoel-account',
+		NER_MICHOEL_URI . '/assets/css/account.css',
+		array( 'ner-michoel-custom' ),
+		NER_MICHOEL_VERSION
+	);
+
+	wp_enqueue_script(
+		'ner-michoel-account',
+		NER_MICHOEL_URI . '/assets/js/account.js',
+		array(),
+		NER_MICHOEL_VERSION,
+		true
+	);
+
+	wp_localize_script(
+		'ner-michoel-account',
+		'nerMichoelAccount',
+		array(
+			'root'  => esc_url_raw( rest_url( 'ner-michoel/v1' ) ),
+			'nonce' => wp_create_nonce( 'wp_rest' ),
+		)
+	);
+}
+add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_account_assets', 21 );
 
 /**
  * Forces the Customizer's logo uploader into a fixed-box drag/zoom
