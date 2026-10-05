@@ -27,10 +27,35 @@ function nerMichoelSendShiurEvent( postId, event ) {
 	}
 	fetch( window.nerMichoelSettings.shiurEventUrl, {
 		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
+		// X-WP-Nonce: required even though this endpoint itself allows
+		// anonymous callers — see the nonce note in functions.php's
+		// ner_michoel_enqueue_assets(). Without it, every ping from a
+		// logged-in visitor (not an anonymous one) is silently rejected
+		// before this endpoint's own code ever runs.
+		headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': window.nerMichoelSettings.nonce || '' },
 		body: JSON.stringify( { post_id: parseInt( postId, 10 ), event: event } )
 	} ).catch( function () {
 		// Ignore — stats are best-effort, not critical path.
+	} );
+}
+
+/**
+ * Records History for a written shiur (no "play" event to ride, unlike
+ * audio/video — see nerMichoelSendShiurEvent above). Only called for a
+ * logged-in visitor (checked by the caller via nerMichoelSettings.
+ * isLoggedIn) since the endpoint requires one and there's nothing
+ * useful an anonymous visitor's response could do with a 403.
+ */
+function nerMichoelRecordHistory( postId ) {
+	if ( ! postId || ! window.nerMichoelSettings || ! window.nerMichoelSettings.historyUrl ) {
+		return;
+	}
+	fetch( window.nerMichoelSettings.historyUrl, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': window.nerMichoelSettings.nonce || '' },
+		body: JSON.stringify( { post_id: parseInt( postId, 10 ) } )
+	} ).catch( function () {
+		// Best-effort, same reasoning as nerMichoelSendShiurEvent.
 	} );
 }
 
@@ -206,6 +231,75 @@ function nerMichoelSendShiurEvent( postId, event ) {
 		viewer.appendChild( frame );
 		viewer.hidden = false;
 		btn.hidden = true;
+
+		if ( window.nerMichoelSettings && window.nerMichoelSettings.isLoggedIn ) {
+			nerMichoelRecordHistory( btn.getAttribute( 'data-post-id' ) );
+		}
+	} );
+} )();
+
+( function () {
+	'use strict';
+
+	// Save button: the standalone one on single-shiur.php /
+	// single-written_shiur.php, and the one overlaid on each card in
+	// the Account page's History/Saved/Suggested grids
+	// (ner_michoel_render_library_card() — that one sits INSIDE the
+	// card's own <a>, so e.preventDefault() here matters: without it,
+	// a click would also follow the link before the toggle finishes.
+	// Harmless no-op on the standalone button, which isn't inside a
+	// link to begin with.
+	//
+	// Logged-out visitors never see any Save button at all (server-
+	// rendered conditionally), so every click here is already an
+	// authenticated one; still best-effort like the other two
+	// trackers, since a failed toggle shouldn't trap the visitor in a
+	// stuck-looking button — it just stays in its last-known state and
+	// they can click again.
+	document.addEventListener( 'click', function ( e ) {
+		var btn = e.target.closest( '.sh-save' );
+		if ( ! btn || btn.disabled || ! window.nerMichoelSettings || ! window.nerMichoelSettings.savedToggleUrl ) {
+			return;
+		}
+		e.preventDefault();
+		btn.disabled = true;
+		fetch( window.nerMichoelSettings.savedToggleUrl, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': window.nerMichoelSettings.nonce || '' },
+			body: JSON.stringify( { post_id: parseInt( btn.getAttribute( 'data-save-id' ), 10 ) } )
+		} )
+			.then( function ( res ) { return res.json(); } )
+			.then( function ( data ) {
+				if ( data && data.success ) {
+					btn.classList.toggle( 'is-saved', !! data.saved );
+					btn.setAttribute( 'aria-pressed', data.saved ? 'true' : 'false' );
+					var label = btn.hasAttribute( 'data-label-saved' )
+						? ( data.saved ? btn.getAttribute( 'data-label-saved' ) : btn.getAttribute( 'data-label-unsaved' ) )
+						: null;
+					if ( label ) {
+						var text = btn.querySelector( '.sh-save__text' );
+						if ( text ) {
+							text.textContent = label;
+						}
+					}
+					// Unsaving from the Saved tab itself: the card no longer
+					// belongs in this list, so take it out rather than leave
+					// an unsaved item sitting in "Saved" until the visitor
+					// happens to reload.
+					if ( ! data.saved ) {
+						var card = btn.closest( '[data-saved-list] .nm-home-shiur-card' );
+						if ( card ) {
+							card.remove();
+						}
+					}
+				}
+			} )
+			.catch( function () {
+				// Best-effort — button just stays as it was.
+			} )
+			.then( function () {
+				btn.disabled = false;
+			} );
 	} );
 } )();
 

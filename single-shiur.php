@@ -62,6 +62,7 @@ while ( have_posts() ) :
 					<?php endif; ?>
 					&middot; <?php echo esc_html( get_the_date() ); ?>
 				</p>
+				<?php ner_michoel_render_save_button( get_the_ID() ); ?>
 				<?php if ( $is_embed && $vimeo_id ) : ?>
 					<div class="sh-video-player sh-video-player--embed">
 						<iframe src="https://player.vimeo.com/video/<?php echo esc_attr( $vimeo_id ); ?>?title=0&amp;byline=0&amp;portrait=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
@@ -125,6 +126,7 @@ while ( have_posts() ) :
 						&middot; <a href="<?php echo esc_url( get_term_link( $series_terms[0] ) ); ?>"><?php echo esc_html( $series_terms[0]->name ); ?></a>
 					<?php endif; ?>
 				</p>
+				<?php ner_michoel_render_save_button( get_the_ID() ); ?>
 			</header>
 			<?php if ( $is_embed && $vimeo_id ) : ?>
 				<div class="sh-video-player sh-video-player--embed">
@@ -171,6 +173,7 @@ while ( have_posts() ) :
 							<?php if ( $download_url ) : ?>
 								<a class="sh-download-link" href="<?php echo esc_url( $download_url ); ?>"><?php echo ner_michoel_icon( 'download' ); ?> <?php esc_html_e( 'Download', 'ner-michoel-child' ); ?></a>
 							<?php endif; ?>
+							<?php ner_michoel_render_save_button( get_the_ID() ); ?>
 						</div>
 					<?php else : ?>
 						<p class="sh-empty"><?php esc_html_e( 'No audio uploaded yet.', 'ner-michoel-child' ); ?></p>

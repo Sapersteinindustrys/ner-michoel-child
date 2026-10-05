@@ -1,12 +1,21 @@
 /**
- * Account page (page-templates/account.php): tab switching between
- * Log In / Sign Up / Forgot Password, and the REST calls behind every
- * form on the page (logged-out and logged-in alike).
+ * Account page (page-templates/account.php): tab switching — Log In /
+ * Sign Up / Forgot Password logged out, or Profile / History / Saved /
+ * Suggested logged in, whichever set of .nm-account-tab/.nm-account-panel
+ * elements the server actually rendered — and the REST calls behind
+ * every form on the page.
  *
  * Server truth, not client state: a successful login or sign-up just
  * reloads the page — functions.php/template-tags.php already decide
  * what to render from is_user_logged_in(), so there's no separate
- * client-side "am I logged in" state to keep in sync with it.
+ * client-side "am I logged in" state to keep in sync with it. Same
+ * reasoning is why showPanel() below is generic rather than hardcoding
+ * either tab set: it works off whichever .nm-account-tab/.nm-account-panel
+ * elements exist in the DOM, however many that turns out to be.
+ *
+ * The History/Saved/Suggested grids' own Save-button clicks are handled
+ * in assets/js/custom.js (shared with the standalone Save button on
+ * single-shiur.php/single-written_shiur.php), not here.
  */
 ( function () {
 	'use strict';

@@ -5,14 +5,20 @@
  * One URL for the whole feature rather than separate Login/Sign Up/
  * Account pages: logged out, it shows Log In / Sign Up tabs (plus a
  * Forgot Password panel, reached from a link on the Log In tab);
- * logged in, the same URL shows the profile instead. Which to render
- * is decided here, server-side, from is_user_logged_in() — the only
- * state account.js keeps is which tab is showing.
+ * logged in, the same URL shows Profile / History / Saved / Suggested
+ * tabs instead. Which to render is decided here, server-side, from
+ * is_user_logged_in() — the only state account.js keeps is which tab
+ * is showing (same generic tab/panel script either way: both sets of
+ * tabs use the same .nm-account-tab/.nm-account-panel classes).
  *
  * Backend: ner-michoel-core/includes/accounts.php (REST routes,
- * ordinary WP `subscriber` users — no parallel auth system). That file
- * not being active yet (plugin not updated) degrades to an empty,
- * harmless page rather than a fatal error — same guard pattern as
+ * ordinary WP `subscriber` users — no parallel auth system) and
+ * includes/user-library.php (History/Saved/Suggested — two small
+ * per-user tables, not post/user meta; see that file for why). Either
+ * not being active yet (plugin not updated, or updated to a version
+ * before user-library.php shipped) degrades gracefully — an empty
+ * "not available yet" page, or a Profile tab with no History/Saved/
+ * Suggested tabs — rather than a fatal error, same guard pattern as
  * ner_michoel_live_shiur_is_set() elsewhere in this theme.
  */
 
@@ -36,50 +42,109 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 
 		<?php elseif ( $account ) : ?>
 
-			<?php // ---- Logged in: profile ---- ?>
+			<?php
+			// ---- Logged in: Profile / History / Saved / Suggested ----
+			$user_id = get_current_user_id();
+
+			$has_library = function_exists( 'ner_michoel_get_user_history' );
+			$history     = $has_library ? ner_michoel_get_user_history( $user_id, 24 ) : array();
+			$saved       = $has_library ? ner_michoel_get_user_saved( $user_id ) : array();
+			$suggested   = $has_library ? ner_michoel_get_suggested_for_user( $user_id, 12 ) : array();
+			?>
+
+			<div class="nm-account-tabs" role="tablist">
+				<button type="button" class="nm-account-tab is-active" data-tab="profile" role="tab"><?php esc_html_e( 'Profile', 'ner-michoel-child' ); ?></button>
+				<?php if ( $has_library ) : ?>
+					<button type="button" class="nm-account-tab" data-tab="history" role="tab"><?php esc_html_e( 'History', 'ner-michoel-child' ); ?></button>
+					<button type="button" class="nm-account-tab" data-tab="saved" role="tab"><?php esc_html_e( 'Saved', 'ner-michoel-child' ); ?></button>
+					<button type="button" class="nm-account-tab" data-tab="suggested" role="tab"><?php esc_html_e( 'Suggested', 'ner-michoel-child' ); ?></button>
+				<?php endif; ?>
+			</div>
 
 			<p id="nm-account-notice" class="nm-form-notice" hidden></p>
 
-			<div class="nm-account-avatar">
-				<img id="nm-account-avatar-preview" class="nm-account-avatar__img" src="<?php echo esc_url( $account['avatarUrl'] ); ?>" width="96" height="96" alt="" />
-				<label class="nm-account-avatar__upload">
-					<?php esc_html_e( 'Change Photo', 'ner-michoel-child' ); ?>
-					<input type="file" id="nm-account-avatar-input" accept="image/jpeg,image/png,image/gif,image/webp" hidden />
-				</label>
+			<div class="nm-account-panel" data-panel="profile">
+				<div class="nm-account-avatar">
+					<img id="nm-account-avatar-preview" class="nm-account-avatar__img" src="<?php echo esc_url( $account['avatarUrl'] ); ?>" width="96" height="96" alt="" />
+					<label class="nm-account-avatar__upload">
+						<?php esc_html_e( 'Change Photo', 'ner-michoel-child' ); ?>
+						<input type="file" id="nm-account-avatar-input" accept="image/jpeg,image/png,image/gif,image/webp" hidden />
+					</label>
+				</div>
+
+				<form id="nm-account-profile-form" class="nm-contact-form">
+					<label class="nm-contact-form__field">
+						<?php esc_html_e( 'Name', 'ner-michoel-child' ); ?>
+						<input type="text" name="name" value="<?php echo esc_attr( $account['name'] ); ?>" required />
+					</label>
+					<label class="nm-contact-form__field">
+						<?php esc_html_e( 'Email', 'ner-michoel-child' ); ?>
+						<input type="email" value="<?php echo esc_attr( $account['email'] ); ?>" disabled />
+					</label>
+					<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Save Changes', 'ner-michoel-child' ); ?></button>
+				</form>
+
+				<h2 class="nm-account-subhead"><?php esc_html_e( 'Change Password', 'ner-michoel-child' ); ?></h2>
+				<form id="nm-account-password-form" class="nm-contact-form">
+					<label class="nm-contact-form__field">
+						<?php esc_html_e( 'Current Password', 'ner-michoel-child' ); ?>
+						<input type="password" name="current_password" autocomplete="current-password" required />
+					</label>
+					<label class="nm-contact-form__field">
+						<?php esc_html_e( 'New Password', 'ner-michoel-child' ); ?>
+						<input type="password" name="new_password" autocomplete="new-password" minlength="8" required />
+					</label>
+					<label class="nm-contact-form__field">
+						<?php esc_html_e( 'Confirm New Password', 'ner-michoel-child' ); ?>
+						<input type="password" name="new_password_confirm" autocomplete="new-password" minlength="8" required />
+					</label>
+					<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Update Password', 'ner-michoel-child' ); ?></button>
+				</form>
+
+				<p class="nm-account-logout">
+					<a href="<?php echo esc_url( wp_logout_url( home_url( '/account/' ) ) ); ?>"><?php esc_html_e( 'Log Out', 'ner-michoel-child' ); ?></a>
+				</p>
 			</div>
 
-			<form id="nm-account-profile-form" class="nm-contact-form">
-				<label class="nm-contact-form__field">
-					<?php esc_html_e( 'Name', 'ner-michoel-child' ); ?>
-					<input type="text" name="name" value="<?php echo esc_attr( $account['name'] ); ?>" required />
-				</label>
-				<label class="nm-contact-form__field">
-					<?php esc_html_e( 'Email', 'ner-michoel-child' ); ?>
-					<input type="email" value="<?php echo esc_attr( $account['email'] ); ?>" disabled />
-				</label>
-				<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Save Changes', 'ner-michoel-child' ); ?></button>
-			</form>
+			<?php if ( $has_library ) : ?>
 
-			<h2 class="nm-account-subhead"><?php esc_html_e( 'Change Password', 'ner-michoel-child' ); ?></h2>
-			<form id="nm-account-password-form" class="nm-contact-form">
-				<label class="nm-contact-form__field">
-					<?php esc_html_e( 'Current Password', 'ner-michoel-child' ); ?>
-					<input type="password" name="current_password" autocomplete="current-password" required />
-				</label>
-				<label class="nm-contact-form__field">
-					<?php esc_html_e( 'New Password', 'ner-michoel-child' ); ?>
-					<input type="password" name="new_password" autocomplete="new-password" minlength="8" required />
-				</label>
-				<label class="nm-contact-form__field">
-					<?php esc_html_e( 'Confirm New Password', 'ner-michoel-child' ); ?>
-					<input type="password" name="new_password_confirm" autocomplete="new-password" minlength="8" required />
-				</label>
-				<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Update Password', 'ner-michoel-child' ); ?></button>
-			</form>
+				<div class="nm-account-panel" data-panel="history" hidden>
+					<?php if ( $history ) : ?>
+						<div class="nm-home-shiur-grid">
+							<?php foreach ( $history as $row ) : ?>
+								<?php ner_michoel_render_library_card( $row->post_id ); ?>
+							<?php endforeach; ?>
+						</div>
+					<?php else : ?>
+						<p class="nm-empty"><?php esc_html_e( 'Nothing listened to or read yet — your history will show up here.', 'ner-michoel-child' ); ?></p>
+					<?php endif; ?>
+				</div>
 
-			<p class="nm-account-logout">
-				<a href="<?php echo esc_url( wp_logout_url( home_url( '/account/' ) ) ); ?>"><?php esc_html_e( 'Log Out', 'ner-michoel-child' ); ?></a>
-			</p>
+				<div class="nm-account-panel" data-panel="saved" hidden data-saved-list>
+					<?php if ( $saved ) : ?>
+						<div class="nm-home-shiur-grid">
+							<?php foreach ( $saved as $row ) : ?>
+								<?php ner_michoel_render_library_card( $row->post_id ); ?>
+							<?php endforeach; ?>
+						</div>
+					<?php else : ?>
+						<p class="nm-empty"><?php esc_html_e( 'Nothing saved yet — look for the heart on a shiur or written shiur.', 'ner-michoel-child' ); ?></p>
+					<?php endif; ?>
+				</div>
+
+				<div class="nm-account-panel" data-panel="suggested" hidden>
+					<?php if ( $suggested ) : ?>
+						<div class="nm-home-shiur-grid">
+							<?php foreach ( $suggested as $suggested_post ) : ?>
+								<?php ner_michoel_render_library_card( $suggested_post->ID ); ?>
+							<?php endforeach; ?>
+						</div>
+					<?php else : ?>
+						<p class="nm-empty"><?php esc_html_e( 'Nothing to suggest yet.', 'ner-michoel-child' ); ?></p>
+					<?php endif; ?>
+				</div>
+
+			<?php endif; ?>
 
 		<?php else : ?>
 

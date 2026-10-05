@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.39' );
+define( 'NER_MICHOEL_VERSION', '0.2.40' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -48,11 +48,33 @@ function ner_michoel_enqueue_assets() {
 	// (e.g. /website_xxxx/) — a hardcoded '/wp-json/...' path in JS
 	// would 404 there, so the play/completion tracker (custom.js) reads
 	// this instead of assuming the REST base is at the site root.
+	//
+	// nonce: WordPress's own REST cookie-auth middleware
+	// (rest_cookie_check_errors(), always active) rejects the entire
+	// request — not just anything requiring a login — whenever the
+	// visitor's browser sends a valid logged-in auth cookie without a
+	// matching X-WP-Nonce header, as a CSRF guard. shiur-event's own
+	// permission_callback is public (works with no login at all), but
+	// that middleware runs first: a logged-in visitor's browser sends
+	// their session cookie on this same-origin fetch whether the
+	// endpoint needs it or not, so without this nonce every play/
+	// complete ping from a logged-in visitor was silently rejected —
+	// invisible until there were real logged-in visitors to notice.
+	// historyUrl/savedToggleUrl: the Account page's History/Saved tabs
+	// (ner-michoel-core's user-library.php) — written shiurim record
+	// history through historyUrl on "Read here" (shiur history rides
+	// the existing shiur-event ping instead, see shiur-stats.php), and
+	// the Save button on single shiur/written-shiur pages uses
+	// savedToggleUrl.
 	wp_localize_script(
 		'ner-michoel-custom',
 		'nerMichoelSettings',
 		array(
-			'shiurEventUrl' => rest_url( 'ner-michoel/v1/shiur-event' ),
+			'shiurEventUrl'   => rest_url( 'ner-michoel/v1/shiur-event' ),
+			'historyUrl'      => rest_url( 'ner-michoel/v1/history-record' ),
+			'savedToggleUrl'  => rest_url( 'ner-michoel/v1/saved-toggle' ),
+			'nonce'           => wp_create_nonce( 'wp_rest' ),
+			'isLoggedIn'      => is_user_logged_in(),
 		)
 	);
 }

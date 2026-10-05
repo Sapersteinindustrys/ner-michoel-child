@@ -148,6 +148,11 @@ function ner_michoel_icon( $name ) {
 		'download' => '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 3v10.17l3.59-3.58L17 11l-5 5-5-5 1.41-1.41L11 13.17V3h1zM5 19h14v2H5z"/></svg>',
 		'video'    => '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>',
 		'search'   => '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>',
+		// One path serves both states of the Save button: filled via the
+		// default fill="currentColor" when saved, or outline-only via a
+		// CSS override (.sh-save:not(.is-saved) svg) when not — see
+		// ner_michoel_render_save_button().
+		'heart'    => '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>',
 	);
 	return isset( $icons[ $name ] ) ? $icons[ $name ] : '';
 }
@@ -332,6 +337,36 @@ function ner_michoel_render_shiur_badges( $post_id ) {
 }
 
 /**
+ * A toggleable Save button for a shiur or written shiur — adds/removes
+ * it from the visitor's Saved list (ner-michoel-core's user-library.php;
+ * Account page > Saved tab, once ner-michoel-child's account.php grows
+ * one). Logged-out visitors never see it: there's no saved list to add
+ * to without an account, and a button that only bounces you to a
+ * login page on click is worse than no button, not better. The actual
+ * toggle (POST savedToggleUrl, assets/js/custom.js) needs
+ * is_user_logged_in() true at request time regardless — this is also
+ * just the honest reflection of that on the page.
+ */
+function ner_michoel_render_save_button( $post_id ) {
+	if ( ! is_user_logged_in() || ! function_exists( 'ner_michoel_is_post_saved_by_user' ) ) {
+		return;
+	}
+
+	$is_saved = ner_michoel_is_post_saved_by_user( $post_id );
+	$label    = $is_saved ? __( 'Saved', 'ner-michoel-child' ) : __( 'Save', 'ner-michoel-child' );
+	?>
+	<button
+		type="button"
+		class="sh-save<?php echo $is_saved ? ' is-saved' : ''; ?>"
+		data-save-id="<?php echo esc_attr( $post_id ); ?>"
+		data-label-saved="<?php esc_attr_e( 'Saved', 'ner-michoel-child' ); ?>"
+		data-label-unsaved="<?php esc_attr_e( 'Save', 'ner-michoel-child' ); ?>"
+		aria-pressed="<?php echo $is_saved ? 'true' : 'false'; ?>"
+	><?php echo ner_michoel_icon( 'heart' ); ?> <span class="sh-save__text"><?php echo esc_html( $label ); ?></span></button>
+	<?php
+}
+
+/**
  * A clickable card for a speaker or series — cover art, title,
  * subtitle, and (if a track queue is supplied) a hover play button
  * that starts playback without leaving the grid.
@@ -369,6 +404,73 @@ function ner_michoel_render_media_card( $args ) {
 		<div class="sh-card__title"><?php echo esc_html( $args['title'] ); ?></div>
 		<?php if ( $args['subtitle'] ) : ?>
 			<div class="sh-card__subtitle"><?php echo esc_html( $args['subtitle'] ); ?></div>
+		<?php endif; ?>
+	</a>
+	<?php
+}
+
+/**
+ * A shiur or written-shiur card for the Account page's History /
+ * Saved / Suggested tabs (page-templates/account.php). Deliberately
+ * not ner_michoel_render_media_card() above: that card (.sh-card)
+ * depends on the --sh-* custom properties that only exist under
+ * body.is-nm-app's dark app shell, and the Account page is the plain
+ * light .nm-page template (login/profile), not that shell — used
+ * there it would render with invisible/default text, the same bug
+ * class as the documented .is-nm-app text-color incident elsewhere in
+ * this file's history. Reuses the homepage's light-themed "Recent
+ * Shiurim" card instead (front-page.php's .nm-home-shiur-card),
+ * extended to also cover written_shiur and an optional Save toggle —
+ * kept as its own function rather than factored out of a page that
+ * was already live and working, so this is new, isolated surface
+ * rather than a refactor of it.
+ */
+function ner_michoel_render_library_card( $post_id ) {
+	$post_id = (int) $post_id;
+	$post    = get_post( $post_id );
+	if ( ! $post ) {
+		return;
+	}
+
+	$is_written    = 'written_shiur' === $post->post_type;
+	$speaker_terms = get_the_terms( $post_id, 'speaker' );
+	$speaker       = ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) ? $speaker_terms[0] : null;
+
+	$cover = get_the_post_thumbnail_url( $post_id, 'medium' );
+	if ( ! $cover && $speaker && function_exists( 'ner_michoel_get_speaker_photo_url' ) ) {
+		$cover = ner_michoel_get_speaker_photo_url( $speaker->term_id );
+	}
+
+	$show_save = is_user_logged_in() && function_exists( 'ner_michoel_is_post_saved_by_user' );
+	$is_saved  = $show_save && ner_michoel_is_post_saved_by_user( $post_id );
+	?>
+	<a class="nm-home-shiur-card" href="<?php echo esc_url( get_permalink( $post_id ) ); ?>">
+		<div class="nm-home-shiur-card__art">
+			<?php if ( $cover ) : ?>
+				<img src="<?php echo esc_url( $cover ); ?>" alt="" loading="lazy" />
+			<?php else : ?>
+				<?php echo ner_michoel_art_placeholder( $is_written ? 'image' : 'audio' ); ?>
+			<?php endif; ?>
+			<?php if ( $show_save ) : ?>
+				<button
+					type="button"
+					class="sh-save nm-home-shiur-card__save<?php echo $is_saved ? ' is-saved' : ''; ?>"
+					data-save-id="<?php echo esc_attr( $post_id ); ?>"
+					aria-pressed="<?php echo $is_saved ? 'true' : 'false'; ?>"
+					aria-label="<?php esc_attr_e( 'Save', 'ner-michoel-child' ); ?>"
+				><?php echo ner_michoel_icon( 'heart' ); ?></button>
+			<?php endif; ?>
+		</div>
+		<div class="nm-home-shiur-card__title">
+			<?php echo esc_html( get_the_title( $post_id ) ); ?>
+			<?php
+			if ( ! $is_written ) {
+				ner_michoel_render_shiur_badges( $post_id );
+			}
+			?>
+		</div>
+		<?php if ( $speaker ) : ?>
+			<div class="nm-home-shiur-card__meta"><?php echo esc_html( $speaker->name ); ?></div>
 		<?php endif; ?>
 	</a>
 	<?php

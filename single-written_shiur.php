@@ -30,6 +30,7 @@ while ( have_posts() ) :
 				<?php endif; ?>
 				&middot; <?php echo esc_html( get_the_date() ); ?>
 			</p>
+			<?php ner_michoel_render_save_button( $post_id ); ?>
 		</header>
 
 		<?php if ( $pdf_url ) : ?>
@@ -45,7 +46,13 @@ while ( have_posts() ) :
 			// page, even hidden, so until the visitor asks for it there's only
 			// a button. The PDF URL lives on the button, not on an iframe.
 			?>
-			<button type="button" class="sh-pdf-load" data-pdf-src="<?php echo esc_url( $pdf_url ); ?>" data-pdf-title="<?php echo esc_attr( get_the_title() ); ?>"><?php esc_html_e( 'Read here', 'ner-michoel-child' ); ?></button>
+			<?php
+			// data-post-id: so the click handler can record History
+			// (ner-michoel-core's user-library.php) for this specific
+			// written shiur — there's nothing else on the button to
+			// derive a post ID from.
+			?>
+			<button type="button" class="sh-pdf-load" data-pdf-src="<?php echo esc_url( $pdf_url ); ?>" data-pdf-title="<?php echo esc_attr( get_the_title() ); ?>" data-post-id="<?php echo esc_attr( $post_id ); ?>"><?php esc_html_e( 'Read here', 'ner-michoel-child' ); ?></button>
 			<div class="sh-pdf-viewer" data-pdf-viewer hidden></div>
 		<?php else : ?>
 			<p class="sh-empty"><?php esc_html_e( 'The PDF for this shiur hasn\'t been uploaded yet.', 'ner-michoel-child' ); ?></p>

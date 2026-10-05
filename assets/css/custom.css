@@ -977,6 +977,61 @@ body.is-nm-app .ast-article-single {
 	color: var(--sh-text);
 }
 
+/* Save button (single-shiur.php, single-written_shiur.php —
+   ner_michoel_render_save_button() in inc/template-tags.php). Same
+   quiet link style as .sh-download-link until saved, when the heart
+   fills in and turns the accent color — one <svg> path serves both
+   states (see the 'heart' entry in ner_michoel_icon()), toggled here
+   rather than swapping markup. */
+.sh-save {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin: 8px 0 0;
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--sh-text-muted);
+	font-weight: 600;
+	font-size: inherit;
+	font-family: inherit;
+	cursor: pointer;
+	transition: color 0.15s ease;
+}
+
+.sh-save svg {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2px;
+	transition: fill 0.15s ease, stroke 0.15s ease;
+}
+
+.sh-save:hover {
+	color: var(--sh-text);
+}
+
+.sh-save.is-saved {
+	color: var(--sh-accent);
+}
+
+.sh-save.is-saved svg {
+	fill: currentColor;
+	stroke: none;
+}
+
+.sh-save:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+/* Inside .sh-hero__actions (the audio layout's Play/Download row) the
+   button sits as a flex sibling instead of standing alone under a
+   meta line — that row's own `gap` already spaces it, so the standalone
+   top margin above would just misalign it against Play/Download. */
+.sh-hero__actions .sh-save {
+	margin-top: 0;
+}
+
 /* Tracklist */
 
 .sh-tracklist {
@@ -3134,6 +3189,7 @@ body.sh-layout-classic.is-nm-app a {
 }
 
 .nm-home-shiur-card__art {
+	position: relative;
 	width: 100%;
 	aspect-ratio: 1 / 1;
 	border-radius: 10px;
@@ -3161,6 +3217,32 @@ body.sh-layout-classic.is-nm-app a {
 .nm-home-shiur-card__meta {
 	font-size: 0.85rem;
 	color: #64748b;
+}
+
+/* Save toggle overlaid on a library card's art (Account page History/
+   Saved/Suggested — ner_michoel_render_library_card()). Reuses .sh-save
+   for its fill/stroke heart-toggle behavior (custom.css, near
+   .sh-download-link) — these overrides only change its position and
+   give it a scrim to stay legible over any photo. */
+.nm-home-shiur-card__save {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	margin: 0;
+	padding: 6px;
+	border-radius: 999px;
+	background: rgba(15, 23, 42, 0.55);
+	color: #fff;
+	line-height: 0;
+}
+
+.nm-home-shiur-card__save:hover {
+	background: rgba(15, 23, 42, 0.75);
+	color: #fff;
+}
+
+.nm-home-shiur-card__save.is-saved {
+	color: #ef4444;
 }
 
 .nm-home-gallery-grid {
