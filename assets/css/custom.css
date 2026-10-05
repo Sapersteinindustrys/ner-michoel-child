@@ -283,10 +283,29 @@
 	font-size: 1rem;
 }
 
-/* Astra's mobile menu drops down over the page with no edge, so it
-   bled into the hero beneath it. */
+/* Astra's mobile menu is an absolutely-positioned panel sized to its
+   own content, floating over whatever's in normal page flow beneath
+   it — on this homepage, the hero slider. The panel (6 items + the
+   Contribute pill) runs ~510px tall; the slider is 480px — so the
+   menu didn't just dip into the top of it, it covered the slider
+   completely and spilled past its bottom edge into the index cards
+   below, with no visual separation explaining why a chunk of the
+   slider had gone dark. Pinned as a proper full-height drawer
+   instead: starts right under the header, always reaches the bottom
+   of the viewport regardless of how tall the slider or the menu's own
+   content is, and scrolls internally if the menu list ever exceeds
+   that. Reads as a deliberate panel now, not as the menu accidentally
+   swallowing a photo. */
 #ast-mobile-header .ast-mobile-header-content {
-	border-bottom: 1px solid #e2e8f0;
+	position: fixed;
+	top: var(--nm-header-h);
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 100000;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	background: #fff;
 	box-shadow: 0 16px 28px rgba(15, 23, 42, 0.12);
 }
 
