@@ -64,6 +64,7 @@ $shown       = 0;
 						'image'    => get_the_post_thumbnail_url( $shiur, 'medium' ),
 						'link'     => get_permalink( $shiur ),
 						'queue'    => ner_michoel_build_track_queue( array( $shiur ) ),
+						'save_id'  => $shiur->ID,
 					)
 				);
 				++$shown;

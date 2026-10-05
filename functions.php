@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.40' );
+define( 'NER_MICHOEL_VERSION', '0.2.41' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -71,6 +71,7 @@ function ner_michoel_enqueue_assets() {
 		'nerMichoelSettings',
 		array(
 			'shiurEventUrl'   => rest_url( 'ner-michoel/v1/shiur-event' ),
+			'nextUpUrl'       => rest_url( 'ner-michoel/v1/next-up' ),
 			'historyUrl'      => rest_url( 'ner-michoel/v1/history-record' ),
 			'savedToggleUrl'  => rest_url( 'ner-michoel/v1/saved-toggle' ),
 			'nonce'           => wp_create_nonce( 'wp_rest' ),
@@ -183,3 +184,4 @@ require_once NER_MICHOEL_PATH . '/inc/updates.php';
 require_once NER_MICHOEL_PATH . '/inc/appearance.php';
 require_once NER_MICHOEL_PATH . '/inc/navigation.php';
 require_once NER_MICHOEL_PATH . '/inc/search.php';
+require_once NER_MICHOEL_PATH . '/inc/player-sheet.php';

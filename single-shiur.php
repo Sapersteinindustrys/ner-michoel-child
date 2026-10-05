@@ -110,7 +110,10 @@ while ( have_posts() ) :
 		continue;
 	endif;
 
-	$queue = $is_video ? array() : ner_michoel_build_track_queue( array( get_post() ) );
+	// The queue runs on from this shiur (rest of its series, else its speaker's),
+	// so autoplay has something to carry on into. Falls back to just this shiur.
+	$queue_shiurim = function_exists( 'ner_michoel_autoplay_list_for_shiur' ) ? ner_michoel_autoplay_list_for_shiur( get_post() ) : array( get_post() );
+	$queue         = $is_video ? array() : ner_michoel_build_track_queue( $queue_shiurim );
 	?>
 
 	<div class="shiurim-app">

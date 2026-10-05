@@ -367,9 +367,15 @@ function ner_michoel_render_save_button( $post_id ) {
 }
 
 /**
- * A clickable card for a speaker or series — cover art, title,
- * subtitle, and (if a track queue is supplied) a hover play button
- * that starts playback without leaving the grid.
+ * A clickable card for a speaker, series, shiur, or written shiur —
+ * cover art, title, subtitle, and (if a track queue is supplied) a
+ * hover play button that starts playback without leaving the grid.
+ *
+ * save_id (optional, default 0): a shiur/written_shiur post ID to
+ * overlay a Save toggle on, for callers that render actual content
+ * cards rather than speaker/series cards (those have nothing to
+ * save). Logged-out visitors never see it, same as everywhere else
+ * Save appears — nothing extra for a caller to check first.
  */
 function ner_michoel_render_media_card( $args ) {
 	$args = wp_parse_args(
@@ -381,8 +387,12 @@ function ner_michoel_render_media_card( $args ) {
 			'link'     => '',
 			'queue'    => array(),
 			'round'    => false,
+			'save_id'  => 0,
 		)
 	);
+
+	$show_save = $args['save_id'] && is_user_logged_in() && function_exists( 'ner_michoel_is_post_saved_by_user' );
+	$is_saved  = $show_save && ner_michoel_is_post_saved_by_user( $args['save_id'] );
 	?>
 	<a class="sh-card<?php echo $args['round'] ? ' sh-card--round' : ''; ?>" href="<?php echo esc_url( $args['link'] ); ?>">
 		<div class="sh-card__art">
@@ -399,6 +409,15 @@ function ner_michoel_render_media_card( $args ) {
 					data-play-queue="<?php echo esc_attr( wp_json_encode( $args['queue'] ) ); ?>"
 					data-play-index="0"
 				><?php echo ner_michoel_icon( 'play' ); ?></button>
+			<?php endif; ?>
+			<?php if ( $show_save ) : ?>
+				<button
+					type="button"
+					class="sh-save sh-card__save<?php echo $is_saved ? ' is-saved' : ''; ?>"
+					data-save-id="<?php echo esc_attr( $args['save_id'] ); ?>"
+					aria-pressed="<?php echo $is_saved ? 'true' : 'false'; ?>"
+					aria-label="<?php esc_attr_e( 'Save', 'ner-michoel-child' ); ?>"
+				><?php echo ner_michoel_icon( 'heart' ); ?></button>
 			<?php endif; ?>
 		</div>
 		<div class="sh-card__title"><?php echo esc_html( $args['title'] ); ?></div>
@@ -697,6 +716,9 @@ function ner_michoel_render_player_bar() {
 			</div>
 
 			<div class="sh-player__end">
+				<button type="button" class="sh-player__open" id="sh-player-open" aria-expanded="false" aria-controls="sh-sheet" aria-label="<?php esc_attr_e( 'Autoplay and queue', 'ner-michoel-child' ); ?>">
+					<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+				</button>
 				<span class="sh-player__times">
 					<span class="sh-player__time" id="sh-player-current">0:00</span>
 					<span class="sh-player__time-sep">/</span>
@@ -718,5 +740,7 @@ function ner_michoel_render_player_bar() {
 		</div>
 	</div>
 	<?php
+	// Autoplay switch and queue, slid up from the bar (inc/player-sheet.php).
+	ner_michoel_render_player_sheet();
 }
 add_action( 'wp_footer', 'ner_michoel_render_player_bar' );

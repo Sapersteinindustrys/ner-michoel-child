@@ -1,0 +1,322 @@
+/*
+ * The player's sheet (inc/player-sheet.php): the autoplay switch and the
+ * queue, sliding up from the bottom of the player bar. The bar itself is
+ * styled in custom.css. The bar sits at z-index 9999, so the backdrop goes
+ * just under it, and the bar stays usable while the sheet is open.
+ */
+
+.sh-sheet-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 9000;
+	background: rgba(0, 0, 0, 0.45);
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.sh-sheet-backdrop.is-open {
+	opacity: 1;
+	visibility: visible;
+}
+
+.sh-sheet {
+	position: fixed;
+	left: 50%;
+	bottom: var(--sh-player-height, 92px);
+	z-index: 9001;
+	display: flex;
+	flex-direction: column;
+	width: min(720px, calc(100% - 16px));
+	max-height: 72vh;
+	background: var(--sh-surface, #181818);
+	color: var(--sh-text, #fff);
+	border-radius: 14px 14px 0 0;
+	box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.4);
+	transform: translate(-50%, 110%);
+	visibility: hidden;
+	transition: transform 0.3s ease, visibility 0.3s ease;
+}
+
+.sh-sheet.is-open {
+	transform: translate(-50%, 0);
+	visibility: visible;
+}
+
+.sh-sheet__grip {
+	width: 40px;
+	height: 4px;
+	margin: 8px auto 0;
+	border-radius: 2px;
+	background: var(--sh-text-muted, rgba(255, 255, 255, 0.4));
+	opacity: 0.6;
+}
+
+.sh-sheet__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 16px;
+}
+
+.sh-sheet__now {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-width: 0;
+}
+
+.sh-sheet__cover {
+	width: 52px;
+	height: 52px;
+	flex: 0 0 auto;
+	border-radius: 6px;
+	overflow: hidden;
+	background: rgba(255, 255, 255, 0.06);
+}
+
+.sh-sheet__cover img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.sh-sheet__now-text {
+	min-width: 0;
+}
+
+.sh-sheet__eyebrow {
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--sh-text-muted, rgba(255, 255, 255, 0.6));
+}
+
+.sh-sheet__now-title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-weight: 700;
+}
+
+.sh-sheet__now-speaker {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--sh-text-muted, rgba(255, 255, 255, 0.6));
+	font-size: 0.9rem;
+}
+
+.sh-sheet__close {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--sh-text, #fff);
+	cursor: pointer;
+}
+
+.sh-sheet__close:hover,
+.sh-sheet__close:focus-visible {
+	background: var(--sh-surface-hover, #282828);
+}
+
+/* Autoplay switch: a real checkbox (role=switch) under a styled track. */
+.sh-sheet__autoplay {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin: 0 16px 8px;
+	padding: 12px 14px;
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.04);
+	cursor: pointer;
+}
+
+.sh-sheet__autoplay-text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.sh-sheet__autoplay-text span {
+	color: var(--sh-text-muted, rgba(255, 255, 255, 0.6));
+	font-size: 0.85rem;
+}
+
+.sh-sheet__switch-input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	border: 0;
+}
+
+.sh-sheet__switch {
+	position: relative;
+	flex: 0 0 auto;
+	width: 46px;
+	height: 26px;
+	border-radius: 13px;
+	background: rgba(255, 255, 255, 0.18);
+	transition: background-color 0.2s ease;
+}
+
+.sh-sheet__switch::after {
+	content: "";
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: #fff;
+	transition: transform 0.2s ease;
+}
+
+.sh-sheet__switch-input:checked + .sh-sheet__switch {
+	background: var(--sh-accent, var(--nm-primary, #2f8f5b));
+}
+
+.sh-sheet__switch-input:checked + .sh-sheet__switch::after {
+	transform: translateX(20px);
+}
+
+.sh-sheet__switch-input:focus-visible + .sh-sheet__switch {
+	outline: 2px solid var(--sh-accent, #2f8f5b);
+	outline-offset: 2px;
+}
+
+.sh-sheet__queue-title {
+	margin: 4px 16px 6px;
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--sh-text-muted, rgba(255, 255, 255, 0.6));
+}
+
+/* The queue sits at the bottom of the sheet and scrolls on its own. */
+.sh-sheet__queue {
+	flex: 1 1 auto;
+	min-height: 0;
+	margin: 0;
+	padding: 0 8px 12px;
+	list-style: none;
+	overflow-y: auto;
+}
+
+.sh-sheet__item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+	padding: 10px 10px;
+	border: 0;
+	border-radius: 8px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: start;
+	cursor: pointer;
+}
+
+.sh-sheet__item:hover,
+.sh-sheet__item:focus-visible {
+	background: var(--sh-surface-hover, #282828);
+}
+
+.sh-sheet__item.is-current {
+	background: rgba(255, 255, 255, 0.07);
+}
+
+.sh-sheet__item.is-current .sh-sheet__item-title {
+	color: var(--sh-accent, var(--nm-primary, #2f8f5b));
+}
+
+.sh-sheet__num {
+	flex: 0 0 26px;
+	color: var(--sh-text-muted, rgba(255, 255, 255, 0.6));
+	font-variant-numeric: tabular-nums;
+	text-align: center;
+}
+
+.sh-sheet__text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	flex: 1 1 auto;
+}
+
+.sh-sheet__item-title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-weight: 600;
+}
+
+.sh-sheet__item-speaker {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--sh-text-muted, rgba(255, 255, 255, 0.6));
+	font-size: 0.85rem;
+}
+
+.sh-sheet__duration {
+	flex: 0 0 auto;
+	color: var(--sh-text-muted, rgba(255, 255, 255, 0.6));
+	font-size: 0.85rem;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Up-arrow button on the bar that opens the sheet. */
+.sh-player__open {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--sh-text, #fff);
+	cursor: pointer;
+}
+
+.sh-player__open:hover,
+.sh-player__open:focus-visible,
+.sh-player__open[aria-expanded="true"] {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sh-sheet,
+	.sh-sheet-backdrop,
+	.sh-sheet__switch,
+	.sh-sheet__switch::after {
+		transition: none;
+	}
+}
+
+@media (max-width: 560px) {
+	.sh-sheet {
+		width: 100%;
+		max-height: 78vh;
+		border-radius: 14px 14px 0 0;
+	}
+}

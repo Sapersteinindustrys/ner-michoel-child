@@ -467,6 +467,29 @@ function nerMichoelRecordHistory( postId ) {
 	var elVolume    = document.getElementById( 'sh-player-volume' );
 	var elSpeed     = document.getElementById( 'sh-player-speed' );
 
+	// The sheet (inc/player-sheet.php): autoplay switch, queue, and its
+	// now-playing details. Absent on pages without the bar, so each piece is
+	// checked before use.
+	var elSheet        = document.getElementById( 'sh-sheet' );
+	var elSheetBackdrop = document.getElementById( 'sh-sheet-backdrop' );
+	var elSheetClose   = document.getElementById( 'sh-sheet-close' );
+	var elSheetOpen    = document.getElementById( 'sh-player-open' );
+	var elSheetCover   = document.getElementById( 'sh-sheet-cover' );
+	var elSheetTitle   = document.getElementById( 'sh-sheet-now-title' );
+	var elSheetSpeaker = document.getElementById( 'sh-sheet-now-speaker' );
+	var elSheetQueue   = document.getElementById( 'sh-sheet-queue' );
+	var elAutoplay     = document.getElementById( 'sh-autoplay' );
+
+	// Autoplay is on by default. The viewer can switch it off, and it's
+	// remembered on this device.
+	var AUTOPLAY_STORAGE_KEY = 'nerMichoelAutoplay';
+	var autoplayOn           = true;
+	try {
+		autoplayOn = window.localStorage.getItem( AUTOPLAY_STORAGE_KEY ) !== '0';
+	} catch ( e ) {
+		// Storage unavailable — autoplay stays on for this visit.
+	}
+
 	var ICON_PLAY  = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
 	var ICON_PAUSE = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
 
@@ -720,6 +743,7 @@ function nerMichoelRecordHistory( postId ) {
 			elCover.innerHTML = '';
 		}
 		updateActiveRowHighlight();
+		renderSheet();
 	}
 
 	function persist( playing ) {
@@ -730,6 +754,9 @@ function nerMichoelRecordHistory( postId ) {
 		try {
 			window.localStorage.setItem( STORAGE_KEY, JSON.stringify( {
 				track: track,
+				// The whole queue, so the next shiur carries on across page loads.
+				queue: state.queue,
+				index: state.index,
 				position: audio.currentTime || 0,
 				playing: !! playing
 			} ) );
@@ -905,12 +932,250 @@ function nerMichoelRecordHistory( postId ) {
 		}
 	} );
 
+	// With autoplay on, the next shiur in the queue starts when this one
+	// ends. With it off, playback stops at the end of each shiur. Prev and
+	// next still work either way.
+	// When the queue runs out, the next shiur comes from the server's "next up"
+	// ranking (includes/next-up.php): related shiurim only, in a fixed order, never
+	// a random one. If nothing is related, playback stops.
+	var nextUpUrl     = window.nerMichoelSettings && nerMichoelSettings.nextUpUrl ? nerMichoelSettings.nextUpUrl : '';
+	var nextUpPending = false;
+
+	function stopPlayback() {
+		setToggleIcon( false );
+		persist( false );
+	}
+
+	function fetchNextUp() {
+		var track = currentTrack();
+		if ( ! nextUpUrl || ! track || nextUpPending || ! window.fetch ) {
+			return Promise.resolve( [] );
+		}
+		nextUpPending = true;
+		var played = state.queue.map( function ( item ) {
+			return item.id;
+		} );
+		var url = nextUpUrl +
+			'?current=' + encodeURIComponent( track.id ) +
+			'&exclude=' + encodeURIComponent( played.join( ',' ) ) +
+			'&limit=5';
+
+		// X-WP-Nonce: same reasoning as nerMichoelSendShiurEvent above —
+		// next-up's permission_callback is public, but WordPress's REST
+		// cookie-auth middleware rejects the whole request for any
+		// signed-in visitor's browser (it sends its session cookie on
+		// this same-origin fetch regardless) unless this is present.
+		// Without it, autoplay didn't personalize for a signed-in
+		// visitor — it didn't run at all: every request 403'd, the
+		// catch() below swallowed it, and playback just stopped at the
+		// end of the queue instead of continuing.
+		return window.fetch( url, { credentials: 'same-origin', headers: { 'X-WP-Nonce': window.nerMichoelSettings.nonce || '' } } )
+			.then( function ( res ) {
+				return res.ok ? res.json() : [];
+			} )
+			.then( function ( list ) {
+				return Array.isArray( list ) ? list : [];
+			} )
+			.catch( function () {
+				return []; // Network or server problem: stop quietly, as before.
+			} )
+			.then( function ( list ) {
+				nextUpPending = false;
+				return list;
+			} );
+	}
+
 	audio.addEventListener( 'ended', function () {
+		if ( ! autoplayOn ) {
+			stopPlayback();
+			return;
+		}
 		if ( state.index < state.queue.length - 1 ) {
 			playIndex( state.index + 1 );
+			return;
+		}
+		fetchNextUp().then( function ( tracks ) {
+			if ( ! tracks.length ) {
+				stopPlayback();
+				return;
+			}
+			var start = state.queue.length;
+			state.queue = state.queue.concat( tracks );
+			playIndex( start );
+		} );
+	} );
+
+	// Builds the queue list at the bottom of the sheet, and the now-playing
+	// details at the top. Titles are set as text, never as HTML.
+	function renderSheet() {
+		var track = currentTrack();
+		if ( elSheetTitle ) {
+			elSheetTitle.textContent = track ? ( track.title || '' ) : '';
+		}
+		if ( elSheetSpeaker ) {
+			elSheetSpeaker.textContent = track ? ( track.speaker || '' ) : '';
+		}
+		if ( elSheetCover ) {
+			elSheetCover.textContent = '';
+			if ( track && track.cover ) {
+				var img = document.createElement( 'img' );
+				img.src = track.cover;
+				img.alt = '';
+				elSheetCover.appendChild( img );
+			}
+		}
+		if ( ! elSheetQueue ) {
+			return;
+		}
+
+		elSheetQueue.textContent = '';
+		state.queue.forEach( function ( item, i ) {
+			var li  = document.createElement( 'li' );
+			var btn = document.createElement( 'button' );
+			btn.type = 'button';
+			btn.className = 'sh-sheet__item' + ( i === state.index ? ' is-current' : '' );
+			btn.setAttribute( 'data-index', String( i ) );
+			if ( i === state.index ) {
+				btn.setAttribute( 'aria-current', 'true' );
+			}
+
+			var num = document.createElement( 'span' );
+			num.className   = 'sh-sheet__num';
+			num.textContent = String( i + 1 );
+
+			var text    = document.createElement( 'span' );
+			text.className = 'sh-sheet__text';
+			var itemTitle = document.createElement( 'span' );
+			itemTitle.className   = 'sh-sheet__item-title';
+			itemTitle.textContent = item.title || '';
+			var itemSpeaker = document.createElement( 'span' );
+			itemSpeaker.className   = 'sh-sheet__item-speaker';
+			itemSpeaker.textContent = item.speaker || '';
+			text.appendChild( itemTitle );
+			text.appendChild( itemSpeaker );
+
+			var duration = document.createElement( 'span' );
+			duration.className   = 'sh-sheet__duration';
+			duration.textContent = item.duration || '';
+
+			btn.appendChild( num );
+			btn.appendChild( text );
+			btn.appendChild( duration );
+			li.appendChild( btn );
+			elSheetQueue.appendChild( li );
+		} );
+
+		if ( elSheet && elSheet.classList.contains( 'is-open' ) ) {
+			var current = elSheetQueue.querySelector( '.is-current' );
+			if ( current && current.scrollIntoView ) {
+				current.scrollIntoView( { block: 'nearest' } );
+			}
+		}
+	}
+
+	function isSheetOpen() {
+		return !! elSheet && elSheet.classList.contains( 'is-open' );
+	}
+
+	function openSheet() {
+		if ( ! elSheet || ! state.queue.length ) {
+			return;
+		}
+		renderSheet();
+		elSheet.classList.add( 'is-open' );
+		elSheet.setAttribute( 'aria-hidden', 'false' );
+		if ( elSheetBackdrop ) {
+			elSheetBackdrop.classList.add( 'is-open' );
+			elSheetBackdrop.setAttribute( 'aria-hidden', 'false' );
+		}
+		if ( elSheetOpen ) {
+			elSheetOpen.setAttribute( 'aria-expanded', 'true' );
+		}
+		if ( elSheetClose ) {
+			elSheetClose.focus();
+		}
+	}
+
+	function closeSheet( returnFocus ) {
+		if ( ! elSheet ) {
+			return;
+		}
+		elSheet.classList.remove( 'is-open' );
+		elSheet.setAttribute( 'aria-hidden', 'true' );
+		if ( elSheetBackdrop ) {
+			elSheetBackdrop.classList.remove( 'is-open' );
+			elSheetBackdrop.setAttribute( 'aria-hidden', 'true' );
+		}
+		if ( elSheetOpen ) {
+			elSheetOpen.setAttribute( 'aria-expanded', 'false' );
+			if ( returnFocus ) {
+				elSheetOpen.focus();
+			}
+		}
+	}
+
+	if ( elAutoplay ) {
+		elAutoplay.checked = autoplayOn;
+		elAutoplay.addEventListener( 'change', function () {
+			autoplayOn = elAutoplay.checked;
+			try {
+				window.localStorage.setItem( AUTOPLAY_STORAGE_KEY, autoplayOn ? '1' : '0' );
+			} catch ( e ) {
+				// Storage unavailable — the switch still works for this visit.
+			}
+		} );
+	}
+
+	if ( elSheetOpen ) {
+		elSheetOpen.addEventListener( 'click', function () {
+			if ( isSheetOpen() ) {
+				closeSheet( true );
+			} else {
+				openSheet();
+			}
+		} );
+	}
+
+	if ( elSheetClose ) {
+		elSheetClose.addEventListener( 'click', function () {
+			closeSheet( true );
+		} );
+	}
+
+	if ( elSheetBackdrop ) {
+		elSheetBackdrop.addEventListener( 'click', function () {
+			closeSheet( false );
+		} );
+	}
+
+	// Pressing the bar itself opens the sheet. Its controls and links keep
+	// their own jobs, so pressing the title still opens the shiur's page.
+	player.addEventListener( 'click', function ( e ) {
+		if ( e.target.closest( 'button, input, a, label, select, textarea' ) ) {
+			return;
+		}
+		if ( isSheetOpen() ) {
+			closeSheet( false );
 		} else {
-			setToggleIcon( false );
-			persist( false );
+			openSheet();
+		}
+	} );
+
+	// A tap on a queue item plays that shiur. The sheet stays open, so the
+	// viewer can see it move to "now playing".
+	if ( elSheetQueue ) {
+		elSheetQueue.addEventListener( 'click', function ( e ) {
+			var item = e.target.closest( '.sh-sheet__item' );
+			if ( ! item ) {
+				return;
+			}
+			playIndex( parseInt( item.getAttribute( 'data-index' ), 10 ) );
+		} );
+	}
+
+	document.addEventListener( 'keydown', function ( e ) {
+		if ( e.key === 'Escape' && isSheetOpen() ) {
+			closeSheet( true );
 		}
 	} );
 
@@ -999,14 +1264,23 @@ function nerMichoelRecordHistory( postId ) {
 		if ( saved ) {
 			var snapshot = JSON.parse( saved );
 			if ( snapshot && snapshot.track ) {
-				state.queue = [ snapshot.track ];
-				state.index = 0;
-				audio.src = snapshot.track.src;
+				// Restore the saved queue when it's there and the track is in it.
+				// Older saves hold only the track, so that's the fallback.
+				var savedQueue = Array.isArray( snapshot.queue ) ? snapshot.queue : [];
+				var savedIndex = parseInt( snapshot.index, 10 );
+				if ( savedQueue.length && savedIndex >= 0 && savedIndex < savedQueue.length ) {
+					state.queue = savedQueue;
+					state.index = savedIndex;
+				} else {
+					state.queue = [ snapshot.track ];
+					state.index = 0;
+				}
+				audio.src = currentTrack().src;
 				audio.playbackRate = currentSpeed;
 				updateMeta();
 				player.hidden = false;
-				elPrev.disabled = true;
-				elNext.disabled = true;
+				elPrev.disabled = state.index <= 0;
+				elNext.disabled = state.index >= state.queue.length - 1;
 				setToggleIcon( false );
 				var resumeAt = snapshot.position || 0;
 				audio.addEventListener( 'loadedmetadata', function onMeta() {

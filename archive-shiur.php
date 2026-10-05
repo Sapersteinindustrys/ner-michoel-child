@@ -60,6 +60,7 @@ $is_recent     = isset( $_GET['sh_view'] ) && 'recent' === $_GET['sh_view']; // 
 								'image'    => get_the_post_thumbnail_url( $shiur, 'medium' ),
 								'link'     => get_permalink( $shiur ),
 								'queue'    => ner_michoel_build_track_queue( array( $shiur ) ),
+								'save_id'  => $shiur->ID,
 							)
 						);
 					endforeach; ?>

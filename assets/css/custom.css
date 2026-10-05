@@ -842,6 +842,44 @@ body.is-nm-app .ast-article-single {
 	background: var(--sh-accent-hover) !important;
 }
 
+/* Save toggle on a content card (shiur/written shiur — the optional
+   save_id arg to ner_michoel_render_media_card()). Top-right, opposite
+   .sh-card__play's bottom-right, and always visible rather than
+   hover-revealed like Play: whether something's saved is useful to
+   see at a glance while scanning a grid, not just on hover. !important
+   for the same reason as .sh-card__play above — Astra's own global
+   button style otherwise wins over a plain <button>'s background/
+   shape/position here. */
+.sh-card__save {
+	position: absolute !important;
+	top: 8px !important;
+	right: 8px !important;
+	bottom: auto !important;
+	left: auto !important;
+	width: 32px !important;
+	height: 32px !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	box-sizing: border-box !important;
+	line-height: 1 !important;
+	border-radius: 50% !important;
+	border: none !important;
+	background: rgba(0, 0, 0, 0.55) !important;
+	color: #fff;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	cursor: pointer;
+}
+
+.sh-card__save:hover {
+	background: rgba(0, 0, 0, 0.75) !important;
+}
+
+.sh-card__save.is-saved {
+	color: #ef4444;
+}
+
 /* Two lines then ellipsis, for the same reason as the sidebar links:
    series titles differ only at the end ("... / Perek 3"), so a
    single-line cut made sibling cards read identically. */
