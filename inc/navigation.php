@@ -94,3 +94,17 @@ function ner_michoel_nav_is_header_menu( $args ) {
 
 	return 'primary' === $location || false !== strpos( $menu_class, 'main-header-menu' );
 }
+
+/**
+ * Styles for the Back link on Shiurim-section pages, and the layout
+ * toggle's position under 24Six. See assets/css/shiurim-navigation.css.
+ */
+function ner_michoel_enqueue_shiurim_navigation_styles() {
+	wp_enqueue_style(
+		'ner-michoel-shiurim-navigation',
+		NER_MICHOEL_URI . '/assets/css/shiurim-navigation.css',
+		array( 'ner-michoel-custom' ),
+		NER_MICHOEL_VERSION
+	);
+}
+add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_shiurim_navigation_styles', 21 );

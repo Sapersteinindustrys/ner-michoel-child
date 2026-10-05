@@ -18,6 +18,7 @@ while ( have_posts() ) :
 	$download_url  = function_exists( 'ner_michoel_get_written_shiur_download_url' ) ? ner_michoel_get_written_shiur_download_url( $post_id ) : '';
 	?>
 	<div class="nm-app<?php echo 'classic' === ner_michoel_get_layout() ? ' nm-app--classic' : ''; ?>">
+		<?php ner_michoel_render_back_button( get_post_type_archive_link( 'written_shiur' ) ); ?>
 		<header class="sh-page-header">
 			<h1><?php the_title(); ?></h1>
 			<p class="sh-classic-meta">

@@ -1,0 +1,48 @@
+/*
+ * Shiurim-section navigation: the Back link above each page's header
+ * (ner_michoel_render_back_button() in inc/template-tags.php), and the
+ * layout toggle's position when the player bar is showing.
+ *
+ * Kept out of custom.css so this file can be read on its own. It loads
+ * after custom.css, so the toggle rule below wins on equal specificity.
+ */
+
+.sh-back-row {
+	margin: 0 0 12px;
+}
+
+.sh-back {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 14px 6px 8px;
+	border-radius: var(--nm-radius-pill, 999px);
+	color: var(--sh-text-muted);
+	font-size: 0.9rem;
+	font-weight: 600;
+	text-decoration: none;
+	transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.sh-back svg {
+	width: 18px;
+	height: 18px;
+	flex: 0 0 auto;
+}
+
+.sh-back:hover,
+.sh-back:focus-visible {
+	color: var(--sh-text);
+	background: var(--sh-surface-hover);
+}
+
+/*
+ * 24Six now has the player bar too (see ner_michoel_render_player_bar()),
+ * so the bottom-placed layout toggle needs the same clearance Modern
+ * already gets. custom.css only sets that for .sh-layout-stream.
+ */
+body.is-shiurim.sh-layout-24six .sh-layout-toggle--bottom-left,
+body.is-shiurim.sh-layout-24six .sh-layout-toggle--bottom-center,
+body.is-shiurim.sh-layout-24six .sh-layout-toggle--bottom-right {
+	bottom: calc(var(--sh-player-height) + var(--nm-toggle-offset));
+}

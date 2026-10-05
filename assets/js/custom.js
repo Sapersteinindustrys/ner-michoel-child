@@ -76,6 +76,27 @@ function nerMichoelSendShiurEvent( postId, event ) {
 ( function () {
 	'use strict';
 
+	// Back buttons on Shiurim-section pages (ner_michoel_render_back_button()
+	// in inc/template-tags.php). If the visitor came from this site, go back
+	// one step in their own history, which keeps their scroll position and
+	// filters. Otherwise (a new tab, a shared link) follow the link's
+	// fallback href, so the button still gets them somewhere sensible.
+	document.addEventListener( 'click', function ( e ) {
+		var back = e.target.closest( '[data-nm-back]' );
+		if ( ! back ) {
+			return;
+		}
+		var fromSite = document.referrer.indexOf( window.location.origin + '/' ) === 0;
+		if ( fromSite && window.history.length > 1 ) {
+			e.preventDefault();
+			window.history.back();
+		}
+	} );
+} )();
+
+( function () {
+	'use strict';
+
 	// Site-wide layout toggle (Shiurim, Galleries, News & Events) —
 	// sets a cookie the server reads (see ner_michoel_get_layout() in
 	// inc/template-tags.php) and reloads, since Modern/Classic are

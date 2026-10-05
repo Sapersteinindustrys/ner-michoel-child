@@ -226,6 +226,29 @@ function ner_michoel_gallery_card_subtitle( $post_id ) {
 }
 
 /**
+ * "Back" link at the top of a Shiurim-section page, in every layout.
+ * custom.js sends the visitor to the previous page in their own history
+ * when they came from this site. Otherwise (a shared link, a new tab) the
+ * link goes to $fallback_url, so there's always a way out.
+ */
+function ner_michoel_render_back_button( $fallback_url, $label = '' ) {
+	if ( ! $fallback_url ) {
+		return;
+	}
+	if ( '' === $label ) {
+		$label = __( 'Back', 'ner-michoel-child' );
+	}
+	?>
+	<nav class="sh-back-row" aria-label="<?php esc_attr_e( 'Page navigation', 'ner-michoel-child' ); ?>">
+		<a class="sh-back" href="<?php echo esc_url( $fallback_url ); ?>" data-nm-back>
+			<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+			<span><?php echo esc_html( $label ); ?></span>
+		</a>
+	</nav>
+	<?php
+}
+
+/**
  * Opens a collection of media cards as either the wrapping grid
  * (Modern/'stream') or a horizontal-scrolling carousel row ('24six')
  * — the cards themselves (ner_michoel_render_media_card()) are
@@ -540,9 +563,14 @@ function ner_michoel_render_tracklist( $shiurim, $show_speaker = true ) {
  * Persistent bottom player bar — printed once in the footer on any
  * Shiurim-related page so playback state can survive navigating
  * between speaker/series/archive pages (see assets/js/custom.js).
+ *
+ * Shown in Modern ('stream') and 24Six. Every play control (cards, Play
+ * All, tracklist rows) is wired to this bar, and custom.js exits early
+ * without it, so 24Six had no playback at all until this covered it too.
+ * Classic doesn't get it: its audio is plain links.
  */
 function ner_michoel_render_player_bar() {
-	if ( ! ner_michoel_is_shiurim_context() || 'stream' !== ner_michoel_get_layout() ) {
+	if ( ! ner_michoel_is_shiurim_context() || 'classic' === ner_michoel_get_layout() ) {
 		return;
 	}
 	?>

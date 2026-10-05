@@ -13,6 +13,7 @@ if ( 'classic' === ner_michoel_get_layout() ) :
 	$classic_query = ner_michoel_get_classic_query( array( 'series_term' => $term->term_id ) );
 	?>
 	<div class="shiurim-app shiurim-app--classic">
+			<?php ner_michoel_render_back_button( get_post_type_archive_link( 'shiur' ) ); ?>
 		<header class="sh-page-header">
 			<h1><?php echo esc_html( $term->name ); ?></h1>
 		</header>
@@ -30,6 +31,7 @@ $queue   = ner_michoel_build_track_queue( $shiurim );
 ?>
 
 <div class="shiurim-app">
+	<?php ner_michoel_render_back_button( get_post_type_archive_link( 'shiur' ) ); ?>
 	<header class="sh-hero">
 		<div class="sh-hero__art sh-hero__art--square">
 			<?php if ( $image ) : ?>

@@ -50,6 +50,7 @@ while ( have_posts() ) :
 	if ( 'classic' === ner_michoel_get_layout() ) :
 		?>
 		<div class="shiurim-app shiurim-app--classic">
+				<?php ner_michoel_render_back_button( get_post_type_archive_link( 'shiur' ) ); ?>
 			<header class="sh-page-header">
 				<h1><?php the_title(); ?><?php ner_michoel_render_shiur_badges( get_the_ID() ); ?></h1>
 				<p class="sh-classic-meta">
@@ -112,6 +113,7 @@ while ( have_posts() ) :
 	?>
 
 	<div class="shiurim-app">
+		<?php ner_michoel_render_back_button( get_post_type_archive_link( 'shiur' ) ); ?>
 		<?php if ( $is_video ) : ?>
 			<header class="sh-page-header">
 				<h1><?php the_title(); ?><?php ner_michoel_render_shiur_badges( get_the_ID() ); ?></h1>
