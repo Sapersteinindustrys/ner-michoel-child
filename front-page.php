@@ -135,6 +135,8 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 	</section>
 	<?php endif; ?>
 
+	<?php get_template_part( 'template-parts/live-shiur' ); ?>
+
 	<?php if ( $recent_galleries ) : ?>
 	<section class="nm-home-section nm-home-gallery-section">
 		<div class="nm-home-section__head">
@@ -168,7 +170,7 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 	// six floating shadowed cards with emoji — the latter being the
 	// stock generated-template look this replaced.
 	$index_links = array(
-		array( 'headphones', __( 'Shiurim', 'ner-michoel-child' ), __( 'Audio & video lectures', 'ner-michoel-child' ), $shiurim_url ? $shiurim_url : '#' ),
+		array( 'headphones', __( 'Shiurim', 'ner-michoel-child' ), __( 'Audio, video & written lectures', 'ner-michoel-child' ), $shiurim_url ? $shiurim_url : '#' ),
 		array( 'image', __( 'Galleries', 'ner-michoel-child' ), __( 'Photos & videos from events', 'ner-michoel-child' ), $gallery_url ? $gallery_url : '#' ),
 		array( 'newspaper', __( 'News & Events', 'ner-michoel-child' ), __( 'Updates & Mazal Tovs', 'ner-michoel-child' ), home_url( '/news-events/' ) ),
 		array( 'book-open', __( 'Connections', 'ner-michoel-child' ), __( 'Magazine archive', 'ner-michoel-child' ), home_url( '/connections/' ) ),

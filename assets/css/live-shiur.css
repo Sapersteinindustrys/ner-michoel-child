@@ -1,0 +1,86 @@
+/*
+ * Live Shiur block (template-parts/live-shiur.php), shown on the homepage
+ * and News & Events. A solid primary-green band with white text, so it
+ * reads the same on the light homepage and the dark News & Events page.
+ * Uses only the site-wide --nm-* tokens from custom.css.
+ */
+
+.nm-live-shiur {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px 24px;
+	width: min(1052px, calc(100% - 48px));
+	margin: 28px auto;
+	padding: 22px 26px;
+	border-radius: var(--nm-radius);
+	background: var(--nm-primary);
+	color: #fff;
+	box-shadow: var(--nm-shadow-hover);
+}
+
+.nm-live-shiur__body {
+	min-width: 0;
+	flex: 1 1 320px;
+}
+
+.nm-live-shiur__kicker {
+	display: block;
+	margin-bottom: 4px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	opacity: 0.85;
+}
+
+.nm-live-shiur__title {
+	margin: 0 0 6px;
+	color: #fff;
+	font-size: 1.5rem;
+	line-height: 1.2;
+}
+
+.nm-live-shiur__schedule,
+.nm-live-shiur__meeting {
+	margin: 0;
+	font-size: 0.95rem;
+	opacity: 0.95;
+}
+
+.nm-live-shiur__meeting {
+	margin-top: 6px;
+}
+
+.nm-live-shiur__join {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	flex: 0 0 auto;
+	padding: 12px 24px;
+	border-radius: var(--nm-radius-pill);
+	background: #fff;
+	color: var(--nm-primary);
+	font-weight: 700;
+	text-decoration: none;
+	white-space: nowrap;
+	transition: background-color 0.15s ease;
+}
+
+.nm-live-shiur__join:hover,
+.nm-live-shiur__join:focus-visible {
+	background: #f1f5f9;
+	color: var(--nm-primary-hover);
+}
+
+@media (max-width: 560px) {
+	.nm-live-shiur {
+		padding: 18px;
+	}
+
+	.nm-live-shiur__join {
+		width: 100%;
+		justify-content: center;
+	}
+}

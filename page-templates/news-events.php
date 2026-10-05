@@ -47,6 +47,8 @@ $has_mazal_tov_type_tax = taxonomy_exists( 'mazal_tov_type' );
 		<h1><?php the_title(); ?></h1>
 	</header>
 
+	<?php get_template_part( 'template-parts/live-shiur' ); ?>
+
 	<section class="sh-section">
 		<h2 class="sh-section__title"><?php esc_html_e( 'News & Events', 'ner-michoel-child' ); ?></h2>
 		<?php if ( ! $news_query->have_posts() ) : ?>

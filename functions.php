@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.29' );
+define( 'NER_MICHOEL_VERSION', '0.2.30' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -59,6 +59,28 @@ function ner_michoel_enqueue_assets() {
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_assets', 20 );
 
 /**
+ * Component stylesheets, kept out of custom.css so each feature's styles
+ * stay in one file. Both depend on custom.css for the --nm-* / --sh-*
+ * tokens they use.
+ */
+function ner_michoel_enqueue_component_styles() {
+	wp_enqueue_style(
+		'ner-michoel-live-shiur',
+		NER_MICHOEL_URI . '/assets/css/live-shiur.css',
+		array( 'ner-michoel-custom' ),
+		NER_MICHOEL_VERSION
+	);
+
+	wp_enqueue_style(
+		'ner-michoel-written-shiurim',
+		NER_MICHOEL_URI . '/assets/css/written-shiurim.css',
+		array( 'ner-michoel-custom' ),
+		NER_MICHOEL_VERSION
+	);
+}
+add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_component_styles', 21 );
+
+/**
  * Forces the Customizer's logo uploader into a fixed-box drag/zoom
  * crop (flex-width/flex-height false + explicit dimensions) instead
  * of accepting any aspect ratio — the admin still repositions the
@@ -95,3 +117,4 @@ require_once NER_MICHOEL_PATH . '/inc/template-tags.php';
 require_once NER_MICHOEL_PATH . '/inc/classic-view.php';
 require_once NER_MICHOEL_PATH . '/inc/updates.php';
 require_once NER_MICHOEL_PATH . '/inc/appearance.php';
+require_once NER_MICHOEL_PATH . '/inc/navigation.php';

@@ -19,13 +19,48 @@ function ner_michoel_is_shiurim_context() {
 }
 
 /**
+ * Written shiurim (PDF lectures): their own archive and single page, but
+ * not a Shiurim page — no player bar, no audio queue. They sit in the
+ * app look and show the layout toggle, like Galleries do.
+ */
+function ner_michoel_is_written_context() {
+	return is_post_type_archive( 'written_shiur' ) || is_singular( 'written_shiur' );
+}
+
+/**
+ * One row in a written-shiurim list: date, title, speaker, and a Read PDF
+ * link when a PDF is attached. Expects to be called inside the loop, or
+ * with an explicit post ID.
+ */
+function ner_michoel_render_written_row( $post_id ) {
+	$speaker_terms = get_the_terms( $post_id, 'speaker' );
+	$speaker       = ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) ? $speaker_terms[0]->name : '';
+	$pdf_url       = function_exists( 'ner_michoel_get_written_shiur_download_url' ) ? ner_michoel_get_written_shiur_download_url( $post_id ) : '';
+	?>
+	<article class="sh-written-row">
+		<div class="sh-written-row__date"><?php echo esc_html( get_the_date( '', $post_id ) ); ?></div>
+		<div class="sh-written-row__body">
+			<h3 class="sh-written-row__title"><a href="<?php echo esc_url( get_permalink( $post_id ) ); ?>"><?php echo esc_html( get_the_title( $post_id ) ); ?></a></h3>
+			<?php if ( $speaker ) : ?>
+				<p class="sh-written-row__meta"><?php echo esc_html( $speaker ); ?></p>
+			<?php endif; ?>
+		</div>
+		<?php if ( $pdf_url ) : ?>
+			<a class="sh-download-link sh-written-row__pdf" href="<?php echo esc_url( $pdf_url ); ?>"><?php esc_html_e( 'Download PDF', 'ner-michoel-child' ); ?></a>
+		<?php endif; ?>
+	</article>
+	<?php
+}
+
+/**
  * True on any page that carries the Modern/Classic layout toggle:
- * Shiurim, Galleries, or the News & Events page. Mazal Tov has no
- * context of its own — it's a section inside the News & Events page,
- * not a separate archive.
+ * Shiurim, Written Shiurim, Galleries, or the News & Events page. Mazal
+ * Tov has no context of its own — it's a section inside the News & Events
+ * page, not a separate archive.
  */
 function ner_michoel_is_app_context() {
 	return ner_michoel_is_shiurim_context()
+		|| ner_michoel_is_written_context()
 		|| is_post_type_archive( 'gallery' ) || is_tax( 'gallery_type' ) || is_singular( 'gallery' )
 		|| is_page_template( 'page-templates/news-events.php' );
 }
@@ -343,6 +378,9 @@ function ner_michoel_render_shiurim_sidebar() {
 		<nav class="sh-sidebar__nav">
 			<a href="<?php echo esc_url( $shiurim_url ); ?>" class="sh-sidebar__link<?php echo $is_all ? ' is-active' : ''; ?>"><?php esc_html_e( 'All Shiurim', 'ner-michoel-child' ); ?></a>
 			<a href="<?php echo esc_url( add_query_arg( 'sh_view', 'recent', $shiurim_url ) ); ?>" class="sh-sidebar__link<?php echo $is_recent ? ' is-active' : ''; ?>"><?php esc_html_e( 'Recent', 'ner-michoel-child' ); ?></a>
+			<?php if ( post_type_exists( 'written_shiur' ) ) : ?>
+				<a href="<?php echo esc_url( get_post_type_archive_link( 'written_shiur' ) ); ?>" class="sh-sidebar__link<?php echo is_post_type_archive( 'written_shiur' ) ? ' is-active' : ''; ?>"><?php esc_html_e( 'Written Shiurim', 'ner-michoel-child' ); ?></a>
+			<?php endif; ?>
 		</nav>
 
 		<?php if ( $series_terms && ! is_wp_error( $series_terms ) ) : ?>
