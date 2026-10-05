@@ -63,7 +63,7 @@ $shown       = 0;
 						'subtitle' => $speaker_name,
 						'image'    => get_the_post_thumbnail_url( $shiur, 'medium' ),
 						'link'     => get_permalink( $shiur ),
-						'queue'    => ner_michoel_build_track_queue( array( $shiur ) ),
+						'queue'    => ner_michoel_build_track_queue( ner_michoel_series_rest_for_shiur( $shiur ) ), // a series shiur plays the rest of its series in order
 						'save_id'  => $shiur->ID,
 					)
 				);

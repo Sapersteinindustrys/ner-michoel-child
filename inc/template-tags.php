@@ -772,9 +772,49 @@ function ner_michoel_enqueue_shiurim_card_styles() {
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_shiurim_card_styles', 21 );
 
 /**
+ * "Continue series" card for the Account page. It shows the series and the
+ * shiur the listener last played in it. Play queues from that shiur through the
+ * rest of the series (ner_michoel_series_rest_for_shiur()), then autoplay goes on.
+ */
+function ner_michoel_render_continue_card( $term, $shiur ) {
+	$queue  = ner_michoel_build_track_queue( ner_michoel_series_rest_for_shiur( $shiur ) );
+	$cover  = ner_michoel_get_series_cover_url( $term->term_id );
+	$link   = get_term_link( $term );
+	?>
+	<div class="nm-continue-card">
+		<a class="nm-continue-card__link" href="<?php echo esc_url( is_wp_error( $link ) ? '#' : $link ); ?>">
+			<span class="nm-continue-card__art">
+				<?php if ( $cover ) : ?>
+					<img src="<?php echo esc_url( $cover ); ?>" alt="" loading="lazy" />
+				<?php else : ?>
+					<?php echo ner_michoel_placeholder_art( $term->name ); ?>
+				<?php endif; ?>
+			</span>
+			<span class="nm-continue-card__text">
+				<span class="nm-continue-card__kicker"><?php esc_html_e( 'Continue series', 'ner-michoel-child' ); ?></span>
+				<span class="nm-continue-card__title"><?php echo esc_html( $term->name ); ?></span>
+				<span class="nm-continue-card__meta">
+					<?php
+					/* translators: %s: title of the shiur the listener last played */
+					echo esc_html( sprintf( __( 'Left off at: %s', 'ner-michoel-child' ), get_the_title( $shiur ) ) );
+					?>
+				</span>
+			</span>
+		</a>
+		<?php if ( $queue ) : ?>
+			<button type="button" class="nm-continue-card__play" data-play-queue="<?php echo esc_attr( wp_json_encode( $queue ) ); ?>" data-play-index="0">
+				<?php echo ner_michoel_icon( 'play' ); ?>
+				<span><?php esc_html_e( 'Continue', 'ner-michoel-child' ); ?></span>
+			</button>
+		<?php endif; ?>
+	</div>
+	<?php
+}
+
+/**
  * The first line of a written shiur, for its homepage card. That's the
  * excerpt if there is one, otherwise the first non-empty line of the
- * description, trimmed to about 22 words. '' when there's no text at all.
+ * description, trimmed to about 18 words. '' when there's no text at all.
  * Works on Hebrew and other non-Latin text: words are split on spaces.
  */
 function ner_michoel_written_first_line( $post ) {
@@ -789,7 +829,12 @@ function ner_michoel_written_first_line( $post ) {
 	foreach ( preg_split( '/\R/u', $text ) as $line ) {
 		$line = trim( preg_replace( '/\s+/u', ' ', $line ) );
 		if ( '' !== $line ) {
-			return wp_trim_words( $line, 22, '…' );
+			// Always ends with an ellipsis, so the card reads as the start of a longer
+			// text. Skip adding a second one when the line already ends with one itself
+			// (a hand-written excerpt, say). '…' is a fixed 3-byte UTF-8 sequence, so a
+			// plain byte-wise substr() compares it correctly without needing mbstring.
+			$trimmed = rtrim( wp_trim_words( $line, 18, '' ), " \t.,;:" );
+			return ( '…' === substr( $trimmed, -3 ) ) ? $trimmed : $trimmed . '…';
 		}
 	}
 

@@ -41,17 +41,11 @@ while ( have_posts() ) :
 				<?php endif; ?>
 			</p>
 			<?php
-			// The viewer is added on click (assets/js/custom.js), not rendered
-			// here. An iframe starts downloading its PDF as soon as it's in the
-			// page, even hidden, so until the visitor asks for it there's only
-			// a button. The PDF URL lives on the button, not on an iframe.
-						// data-post-id: so the click handler can record History
-			// (ner-michoel-core's user-library.php) for this specific
-			// written shiur — there's nothing else on the button to
-			// derive a post ID from.
+			// The viewer loads by itself on wide screens (assets/js/custom.js). Phones
+			// get the links above only: many can't embed a PDF, and the viewer is hidden
+			// there. data-post-id lets the script record History for this written shiur.
 			?>
-			<button type="button" class="sh-pdf-load" data-pdf-src="<?php echo esc_url( $pdf_url ); ?>" data-pdf-title="<?php echo esc_attr( get_the_title() ); ?>" data-post-id="<?php echo esc_attr( $post_id ); ?>"><?php esc_html_e( 'Read here', 'ner-michoel-child' ); ?></button>
-			<div class="sh-pdf-viewer" data-pdf-viewer hidden></div>
+			<div class="sh-pdf-viewer" data-pdf-viewer data-pdf-src="<?php echo esc_url( $pdf_url ); ?>" data-pdf-title="<?php echo esc_attr( get_the_title() ); ?>" data-post-id="<?php echo esc_attr( $post_id ); ?>"></div>
 		<?php else : ?>
 			<p class="sh-empty"><?php esc_html_e( 'The PDF for this shiur hasn\'t been uploaded yet.', 'ner-michoel-child' ); ?></p>
 		<?php endif; ?>

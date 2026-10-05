@@ -213,29 +213,26 @@ function nerMichoelRecordHistory( postId ) {
 ( function () {
 	'use strict';
 
-	// Written shiur PDFs (single-written_shiur.php). The viewer is only
-	// created when the visitor clicks "Read here". Nothing loads on page
-	// open, and a PDF is a large download, so this keeps the page fast.
-	document.addEventListener( 'click', function ( e ) {
-		var btn = e.target.closest( '.sh-pdf-load' );
-		if ( ! btn ) {
-			return;
-		}
-		var viewer = document.querySelector( '[data-pdf-viewer]' );
-		if ( ! viewer || viewer.querySelector( 'iframe' ) ) {
-			return;
-		}
-		var frame = document.createElement( 'iframe' );
-		frame.src   = btn.getAttribute( 'data-pdf-src' ) + '#view=FitH';
-		frame.title = btn.getAttribute( 'data-pdf-title' ) || '';
-		viewer.appendChild( frame );
-		viewer.hidden = false;
-		btn.hidden = true;
+	// Written shiur PDF (single-written_shiur.php). It loads by itself once the
+	// page is ready, so there's nothing to press. Phones skip it: many can't
+	// embed a PDF, and the viewer is hidden there anyway. The Open and Download
+	// links still work on every device.
+	var viewer = document.querySelector( '[data-pdf-viewer]' );
+	if ( ! viewer || ( window.matchMedia && window.matchMedia( '(max-width: 560px)' ).matches ) ) {
+		return;
+	}
+	var src = viewer.getAttribute( 'data-pdf-src' );
+	if ( ! src ) {
+		return;
+	}
+	var frame = document.createElement( 'iframe' );
+	frame.src   = src + '#view=FitH';
+	frame.title = viewer.getAttribute( 'data-pdf-title' ) || '';
+	viewer.appendChild( frame );
 
-		if ( window.nerMichoelSettings && window.nerMichoelSettings.isLoggedIn ) {
-			nerMichoelRecordHistory( btn.getAttribute( 'data-post-id' ) );
-		}
-	} );
+	if ( window.nerMichoelSettings && window.nerMichoelSettings.isLoggedIn ) {
+		nerMichoelRecordHistory( viewer.getAttribute( 'data-post-id' ) );
+	}
 } )();
 
 ( function () {

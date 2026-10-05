@@ -109,6 +109,18 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 			<?php if ( $has_library ) : ?>
 
 				<div class="nm-account-panel" data-panel="history" hidden>
+					<?php
+					// Series picked up where they were left off, above the plain history.
+					$continue = ( $has_library && function_exists( 'ner_michoel_continue_series_for_user' ) ) ? ner_michoel_continue_series_for_user( $user_id ) : array();
+					if ( $continue ) :
+						?>
+						<h3 class="nm-account-subhead"><?php esc_html_e( 'Continue a series', 'ner-michoel-child' ); ?></h3>
+						<div class="nm-continue-grid">
+							<?php foreach ( $continue as $item ) : ?>
+								<?php ner_michoel_render_continue_card( $item['term'], $item['shiur'] ); ?>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
 					<?php if ( $history ) : ?>
 						<div class="nm-home-shiur-grid">
 							<?php foreach ( $history as $row ) : ?>
