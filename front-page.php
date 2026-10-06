@@ -13,9 +13,24 @@
  *
  * Only renders if the admin sets a static front page in
  * Settings > Reading — WP falls back to home.php/index.php otherwise.
+ *
+ * This is now the "Current" homepage. A newer design lives in
+ * template-parts/home-new.php, and a Current / New switch in the page's
+ * top-right corner flips between the two (inc/home.php). That switch is
+ * separate from the Modern/Classic/24Six layouts, which still don't apply
+ * here.
  */
 
 get_header();
+
+// Two homepage designs: the new one (template-parts/home-new.php) and the
+// current one below. inc/home.php picks, and the Current / New switch in the
+// page's top-right corner flips between them.
+if ( 'new' === ner_michoel_get_home_view() ) {
+	get_template_part( 'template-parts/home-new' );
+	get_footer();
+	return;
+}
 
 $recent_shiurim = get_posts(
 	array(
@@ -77,6 +92,7 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 
 	<?php if ( $hero_slides ) : ?>
 	<section class="nm-home-hero nm-home-hero--slider">
+		<?php ner_michoel_render_home_switch(); ?>
 		<?php
 		$hero_interval_ms = function_exists( 'ner_michoel_get_homepage_slider_interval_seconds' )
 			? ner_michoel_get_homepage_slider_interval_seconds() * 1000
@@ -131,6 +147,7 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 	</section>
 	<?php else : ?>
 	<section class="nm-home-hero">
+		<?php ner_michoel_render_home_switch(); ?>
 		<div class="nm-home-hero__inner">
 			<span class="nm-home-hero__kicker"><?php esc_html_e( 'Yeshivas Toras Moshe Alumni Association', 'ner-michoel-child' ); ?></span>
 			<h1><?php esc_html_e( 'Welcome to Ner Michoel', 'ner-michoel-child' ); ?></h1>
