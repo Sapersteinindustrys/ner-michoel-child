@@ -401,7 +401,8 @@ function ner_michoel_render_media_card( $args ) {
 			'subtitle' => '',
 			'image'    => '',
 			'link'     => '',
-			'queue'    => array(),
+			'queue'     => array(),
+			'queue_url' => '', // The full queue, loaded when the play button is clicked (ner-michoel/v1/queue).
 			'round'    => false,
 			'save_id'  => 0,
 			'variant'  => '', // 'series' gives a series card its own look (see shiurim-cards.css).
@@ -420,12 +421,17 @@ function ner_michoel_render_media_card( $args ) {
 			<?php else : ?>
 				<?php echo ner_michoel_placeholder_art( $args['title'] ); ?>
 			<?php endif; ?>
-			<?php if ( ! empty( $args['queue'] ) ) : ?>
+			<?php if ( ! empty( $args['queue'] ) || $args['queue_url'] ) : ?>
 				<button
 					type="button"
 					class="sh-card__play"
 					aria-label="<?php esc_attr_e( 'Play', 'ner-michoel-child' ); ?>"
+					<?php if ( ! empty( $args['queue'] ) ) : ?>
 					data-play-queue="<?php echo esc_attr( wp_json_encode( $args['queue'] ) ); ?>"
+					<?php endif; ?>
+					<?php if ( $args['queue_url'] ) : ?>
+					data-queue-url="<?php echo esc_url( $args['queue_url'] ); ?>"
+					<?php endif; ?>
 					data-play-index="0"
 				><?php echo ner_michoel_icon( 'play' ); ?></button>
 			<?php endif; ?>

@@ -31,7 +31,10 @@ while ( have_posts() ) :
 	// capped at 6. No backend support needed: reuses the existing
 	// ner_michoel_get_speaker_shiurim() accessor.
 	$related = array();
-	if ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) {
+	if ( $speaker_terms && ! is_wp_error( $speaker_terms ) && function_exists( 'ner_michoel_related_speaker_shiurim' ) ) {
+		// Asks for six, not the speaker's whole list (one speaker has over 1,000 shiurim).
+		$related = ner_michoel_related_speaker_shiurim( get_the_ID(), $speaker_terms[0]->term_id, 6 );
+	} elseif ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) {
 		$current_id = get_the_ID();
 		$related    = array_slice(
 			array_values(
@@ -110,10 +113,16 @@ while ( have_posts() ) :
 		continue;
 	endif;
 
-	// The queue runs on from this shiur (rest of its series, else its speaker's),
-	// so autoplay has something to carry on into. Falls back to just this shiur.
-	$queue_shiurim = function_exists( 'ner_michoel_autoplay_list_for_shiur' ) ? ner_michoel_autoplay_list_for_shiur( get_post() ) : array( get_post() );
-	$queue         = $is_video ? array() : ner_michoel_build_track_queue( $queue_shiurim );
+	// Play All starts this shiur. With the lazy queues only this shiur's own track is in
+	// the page; the autoplay list loads from ner-michoel/v1/queue when Play is pressed.
+	if ( function_exists( 'ner_michoel_queue_url' ) ) {
+		$queue     = ( $is_video || ! ner_michoel_get_shiur_audio_url( get_the_ID() ) ) ? array() : ner_michoel_build_track_queue( array( get_post() ) );
+		$queue_url = $queue ? ner_michoel_queue_url( array( 'shiur' => get_the_ID(), 'mode' => 'autoplay' ) ) : '';
+	} else {
+		$queue_shiurim = function_exists( 'ner_michoel_autoplay_list_for_shiur' ) ? ner_michoel_autoplay_list_for_shiur( get_post() ) : array( get_post() );
+		$queue         = $is_video ? array() : ner_michoel_build_track_queue( $queue_shiurim );
+		$queue_url     = '';
+	}
 	?>
 
 	<div class="shiurim-app">
@@ -165,12 +174,13 @@ while ( have_posts() ) :
 							&middot; <a href="<?php echo esc_url( get_term_link( $series_terms[0] ) ); ?>"><?php echo esc_html( $series_terms[0]->name ); ?></a>
 						<?php endif; ?>
 					</p>
-					<?php if ( $queue ) : ?>
+					<?php if ( $queue || $queue_url ) : ?>
 						<div class="sh-hero__actions">
 							<button
 								type="button"
 								class="sh-play-all"
-								data-play-queue="<?php echo esc_attr( wp_json_encode( $queue ) ); ?>"
+								<?php if ( $queue ) : ?>data-play-queue="<?php echo esc_attr( wp_json_encode( $queue ) ); ?>"<?php endif; ?>
+								<?php if ( $queue_url ) : ?>data-queue-url="<?php echo esc_url( $queue_url ); ?>"<?php endif; ?>
 								data-play-index="0"
 							><?php echo ner_michoel_icon( 'play' ); ?> <?php esc_html_e( 'Play', 'ner-michoel-child' ); ?></button>
 							<?php if ( $download_url ) : ?>

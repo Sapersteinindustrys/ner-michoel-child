@@ -815,17 +815,78 @@ function nerMichoelRecordHistory( postId ) {
 		}
 	}
 
-	// Cards and "Play All" buttons.
+	// Cards and "Play All" buttons. The first track is in the page, so playback starts inside
+	// the tap. The full queue comes from data-queue-url and replaces the rest of the list behind
+	// the track that is playing (upgradeQueue). With no first track, the full queue plays when it arrives.
+	var queueRequest = 0;
 	document.addEventListener( 'click', function ( e ) {
-		var trigger = e.target.closest( '[data-play-queue]' );
+		var trigger = e.target.closest( '[data-play-queue], [data-queue-url]' );
 		if ( ! trigger ) {
 			return;
 		}
 		e.preventDefault();
-		var queue = parseQueue( trigger );
-		var index = parseInt( trigger.getAttribute( 'data-play-index' ), 10 ) || 0;
-		playQueue( queue, index );
+		var index   = parseInt( trigger.getAttribute( 'data-play-index' ), 10 ) || 0;
+		var url     = trigger.getAttribute( 'data-queue-url' );
+		var head    = trigger.hasAttribute( 'data-play-queue' ) ? parseQueue( trigger ) : null;
+		var request = ++queueRequest;
+		if ( head && head.length ) {
+			playQueue( head, index );
+		}
+		if ( url ) {
+			fetchQueue( url, function ( full ) {
+				// A later click has made this one out of date.
+				if ( request !== queueRequest ) {
+					return;
+				}
+				if ( head && head.length ) {
+					upgradeQueue( full );
+				} else {
+					playQueue( full, index );
+				}
+			} );
+		}
 	} );
+
+	// Loads a queue from the queue endpoint. If the request fails, the first track keeps playing.
+	function fetchQueue( url, done ) {
+		fetch( url, { credentials: 'same-origin' } )
+			.then( function ( response ) {
+				if ( ! response.ok ) {
+					throw new Error( 'Queue not available' );
+				}
+				return response.json();
+			} )
+			.then( function ( list ) {
+				if ( Array.isArray( list ) && list.length ) {
+					done( list );
+				}
+			} )
+			.catch( function () {} );
+	}
+
+	// Puts the full queue in place of the first track's queue. The track that is playing keeps
+	// playing, and its place in the list is found by id.
+	function upgradeQueue( full ) {
+		var track = currentTrack();
+		if ( ! track ) {
+			return;
+		}
+		var at = -1;
+		for ( var i = 0; i < full.length; i++ ) {
+			if ( String( full[ i ].id ) === String( track.id ) ) {
+				at = i;
+				break;
+			}
+		}
+		if ( at < 0 ) {
+			return;
+		}
+		state.queue = full;
+		state.index = at;
+		elPrev.disabled = state.index <= 0;
+		elNext.disabled = state.index >= state.queue.length - 1;
+		persist( ! audio.paused );
+	}
 
 	// Tracklist rows.
 	document.addEventListener( 'click', function ( e ) {

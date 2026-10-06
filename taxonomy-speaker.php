@@ -31,6 +31,12 @@ $series      = ner_michoel_get_speaker_series( $term->term_id );
 $standalone  = ner_michoel_get_speaker_standalone_shiurim( $term->term_id );
 $image       = ner_michoel_get_speaker_photo_url( $term->term_id );
 $is_carousel = '24six' === ner_michoel_get_layout();
+
+// The series cards: each one's count and first track come in one query for all of them,
+// and its full queue loads when its play button is pressed (see archive-shiur.php).
+$lazy_queues   = function_exists( 'ner_michoel_queue_url' );
+$series_counts = $lazy_queues && $series ? ner_michoel_term_shiur_counts( 'series' ) : array();
+$series_first  = $lazy_queues && $series ? ner_michoel_first_track_by_term( 'series', wp_list_pluck( $series, 'term_id' ), false ) : array();
 ?>
 
 <div class="shiurim-app">
@@ -57,18 +63,30 @@ $is_carousel = '24six' === ner_michoel_get_layout();
 		<h2 class="sh-section__title"><?php esc_html_e( 'Series', 'ner-michoel-child' ); ?></h2>
 		<?php ner_michoel_render_card_collection_start( $is_carousel ); ?>
 			<?php foreach ( $series as $s ) :
-				$s_shiurim = ner_michoel_get_series_shiurim( $s->term_id );
+				if ( $lazy_queues ) {
+					$s_count    = isset( $series_counts[ $s->term_id ] ) ? $series_counts[ $s->term_id ] : 0;
+					$queue_args = array(
+						'queue'     => isset( $series_first[ $s->term_id ] ) ? $series_first[ $s->term_id ] : array(),
+						'queue_url' => ner_michoel_queue_url( array( 'series' => $s->term_id ) ),
+					);
+				} else {
+					$s_shiurim  = ner_michoel_get_series_shiurim( $s->term_id );
+					$s_count    = count( $s_shiurim );
+					$queue_args = array( 'queue' => ner_michoel_build_track_queue( $s_shiurim ) );
+				}
 				ner_michoel_render_media_card(
-					array(
-						'title'    => $s->name,
-						'subtitle' => sprintf(
-							/* translators: %d: number of shiurim */
-							_n( '%d shiur', '%d shiurim', count( $s_shiurim ), 'ner-michoel-child' ),
-							count( $s_shiurim )
+					array_merge(
+						array(
+							'title'    => $s->name,
+							'subtitle' => sprintf(
+								/* translators: %d: number of shiurim */
+								_n( '%d shiur', '%d shiurim', $s_count, 'ner-michoel-child' ),
+								$s_count
+							),
+							'image'    => ner_michoel_get_series_cover_url( $s->term_id ),
+							'link'     => get_term_link( $s ),
 						),
-						'image'    => ner_michoel_get_series_cover_url( $s->term_id ),
-						'link'     => get_term_link( $s ),
-						'queue'    => ner_michoel_build_track_queue( $s_shiurim ),
+						$queue_args
 					)
 				);
 			endforeach; ?>
