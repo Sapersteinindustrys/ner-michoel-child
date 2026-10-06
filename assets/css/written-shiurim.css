@@ -77,6 +77,13 @@
 	font-size: 0.9rem;
 }
 
+.sh-written-row__summary {
+	margin: 6px 0 0;
+	color: var(--sh-text-muted);
+	font-size: 0.9rem;
+	line-height: 1.45;
+}
+
 .sh-written-row__pdf {
 	white-space: nowrap;
 }

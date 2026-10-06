@@ -45,6 +45,10 @@ function ner_michoel_render_written_row( $post_id ) {
 			<?php if ( $speaker ) : ?>
 				<p class="sh-written-row__meta"><?php echo esc_html( $speaker ); ?></p>
 			<?php endif; ?>
+			<?php $first_line = ner_michoel_written_first_line( $post_id ); ?>
+			<?php if ( $first_line ) : ?>
+				<p class="sh-written-row__summary"><?php echo esc_html( $first_line ); ?></p>
+			<?php endif; ?>
 		</div>
 		<?php if ( $pdf_url ) : ?>
 			<a class="sh-download-link sh-written-row__pdf" href="<?php echo esc_url( $pdf_url ); ?>"><?php esc_html_e( 'Download PDF', 'ner-michoel-child' ); ?></a>
