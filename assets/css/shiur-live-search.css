@@ -1,0 +1,117 @@
+/*
+ * Live search on the Shiurim search page (search-shiurim.php, shiur-live-search.js).
+ * Colours come from the app shell's variables (body.is-nm-app in custom.css), so
+ * it reads on the dark Modern and 24Six layouts. Classic only redefines the text
+ * colours there, so it gets its own light surface and border below.
+ */
+
+.nm-live-search {
+	margin: 0 0 24px;
+}
+
+.nm-live-search[hidden] {
+	display: none;
+}
+
+body.sh-layout-classic .nm-live-search {
+	--sh-surface: #fff;
+	--sh-border: #c9d1d9;
+}
+
+.nm-live-search__query,
+.nm-live-search__filters select,
+.nm-live-search__more {
+	border: 1px solid var(--sh-border, #c9d1d9);
+	background: var(--sh-surface, #fff);
+	color: var(--sh-text, inherit);
+	font: inherit;
+}
+
+.nm-live-search__query {
+	width: 100%;
+	max-width: 640px;
+	box-sizing: border-box;
+	padding: 10px 14px;
+	border-radius: 8px;
+	font-size: 1rem;
+}
+
+.nm-live-search__query::placeholder {
+	color: var(--sh-text-muted, #5b6470);
+	opacity: 1;
+}
+
+.nm-live-search__query:focus-visible,
+.nm-live-search__filters select:focus-visible,
+.nm-live-search__more:focus-visible {
+	outline: 2px solid var(--sh-accent, #1d4ed8);
+	outline-offset: 2px;
+}
+
+.nm-live-search__filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 10px 0;
+}
+
+.nm-live-search__filters label {
+	flex: 1 1 180px;
+	min-width: 0;
+}
+
+.nm-live-search__filters select {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 8px 10px;
+	border-radius: 8px;
+	font-size: 0.95rem;
+}
+
+.nm-live-search__count {
+	margin: 6px 0 10px;
+	color: var(--sh-text-muted, #5b6470);
+	font-size: 0.9rem;
+}
+
+.nm-live-results {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.nm-live-results__item {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--sh-border, #e5e7eb);
+}
+
+/* Two classes, to beat body.is-nm-app a { color: inherit } in custom.css. */
+.nm-live-search .nm-live-results__title {
+	color: var(--sh-text, inherit);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.nm-live-search .nm-live-results__title:hover,
+.nm-live-search .nm-live-results__title:focus-visible {
+	color: var(--sh-accent, #1d4ed8);
+}
+
+.nm-live-results__meta {
+	color: var(--sh-text-muted, #5b6470);
+	font-size: 0.88rem;
+}
+
+.nm-live-search__more {
+	margin-top: 12px;
+	padding: 8px 18px;
+	border-radius: 999px;
+	cursor: pointer;
+}
+
+.nm-live-search__more:hover {
+	border-color: var(--sh-accent, #1d4ed8);
+}

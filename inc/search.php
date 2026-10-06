@@ -15,6 +15,59 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * True on the plain Shiurim search: the server-ranked results, for browsers
+ * without JavaScript, or when the live search's index can't be loaded (the
+ * script then reloads with nm_plain=1). Everywhere else the page is the live
+ * search, and the server doesn't rank at all.
+ */
+function ner_michoel_is_plain_shiur_search() {
+	return ! empty( $_GET['nm_plain'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display switch.
+}
+
+/**
+ * Turns core's server ranking off on the live search page (see
+ * ner_michoel_shiur_search_pre_get_posts() in ner-michoel-core). Only for
+ * Shiurim searches; the Written Shiurim search keeps it.
+ */
+function ner_michoel_skip_server_ranking( $run, $query ) {
+	if ( ner_michoel_is_plain_shiur_search() || 'shiur' !== $query->get( 'post_type' ) ) {
+		return $run;
+	}
+	return false;
+}
+add_filter( 'ner_michoel_shiur_search_server_ranking', 'ner_michoel_skip_server_ranking', 10, 2 );
+
+/**
+ * Loads the live search (assets/js/shiur-live-search.js) on the Shiurim search
+ * results page only, and not on the plain search.
+ */
+function ner_michoel_enqueue_shiur_live_search() {
+	if ( ! ner_michoel_is_shiur_search() || ner_michoel_is_plain_shiur_search() ) {
+		return;
+	}
+
+	wp_enqueue_style( 'ner-michoel-shiur-live-search', NER_MICHOEL_URI . '/assets/css/shiur-live-search.css', array(), NER_MICHOEL_VERSION );
+	wp_enqueue_script( 'ner-michoel-shiur-live-search', NER_MICHOEL_URI . '/assets/js/shiur-live-search.js', array(), NER_MICHOEL_VERSION, true );
+	wp_localize_script(
+		'ner-michoel-shiur-live-search',
+		'nmLiveSearch',
+		array(
+			'loading'  => __( 'Loading shiurim…', 'ner-michoel-child' ),
+			'none'     => __( 'No shiurim match these words and filters. Try fewer or different words.', 'ner-michoel-child' ),
+			/* translators: 1: shiurim shown so far, 2: shiurim found */
+			'showing'  => __( 'Showing %1$s of %2$s shiurim', 'ner-michoel-child' ),
+			'foundOne' => __( '1 shiur found.', 'ner-michoel-child' ),
+			/* translators: %s: number of shiurim found */
+			'found'    => __( '%s shiurim found.', 'ner-michoel-child' ),
+			'audio'    => __( 'Audio', 'ner-michoel-child' ),
+			'video'    => __( 'Video', 'ner-michoel-child' ),
+			'written'  => __( 'Written', 'ner-michoel-child' ),
+		)
+	);
+}
+add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_shiur_live_search', 22 );
+
+/**
  * True on a Shiurim search results page (the sidebar's search form sends
  * post_type=shiur with the term).
  */
