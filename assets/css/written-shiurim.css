@@ -957,6 +957,41 @@
 	display: none;
 }
 
+/* Filtering lays the matches out as one grid, newest first. A filtered week
+   rarely holds more than one piece, and each sheet already names its Sefer,
+   parsha, year and date, so a row per week would be mostly empty space. The
+   week heads stay for screen readers, which still hear each week first. */
+.nm-library.is-filtering {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
+	gap: 26px 24px;
+	padding: 30px 10px 10px 0;
+	border-top: 1px solid var(--rr-rule);
+}
+
+.nm-library.is-filtering:empty {
+	padding: 0;
+	border-top: 0;
+}
+
+.nm-library.is-filtering .nm-week,
+.nm-library.is-filtering .nm-week__sheets {
+	display: contents;
+}
+
+.nm-library.is-filtering .nm-week__head {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	border: 0;
+	white-space: nowrap;
+}
+
 .nm-library__more {
 	display: flex;
 	justify-content: center;
@@ -1561,9 +1596,14 @@ html.nm-reader-open body {
 	}
 
 	.nm-week__sheets,
-	.nm-related__sheets {
+	.nm-related__sheets,
+	.nm-library.is-filtering {
 		grid-template-columns: minmax(0, 1fr);
 		gap: 22px;
+	}
+
+	.nm-library.is-filtering {
+		padding-top: 24px;
 	}
 
 	.nm-library:not(.is-filtering) .nm-week--feature {

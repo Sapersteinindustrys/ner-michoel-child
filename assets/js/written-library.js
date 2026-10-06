@@ -10,7 +10,10 @@
  * - Filters live in the URL (?q=, ?by=, ?sefer=, ?yr=), so a filtered view
  *   can be shared and survives Back. Not "author" or "year": those are
  *   WordPress's own query vars and would filter the page's query itself.
- *   "/" focuses the search.
+ *   The server filters such a link the same way before this runs
+ *   (ner_michoel_written_filter_weeks()); keep matches() and fold() in step
+ *   with it. "/" focuses the search.
+ * - While filtering, the matches lay out as one grid (written-shiurim.css).
  * - The filter bar folds to one row once it sticks to the top.
  */
 ( function () {
@@ -68,7 +71,9 @@
 	var toggle   = bar.querySelector( '[data-written-toggle]' );
 	var badge    = bar.querySelector( '[data-written-badge]' );
 	var sentinel = document.querySelector( '[data-written-sentinel]' );
-	var allText  = countEl ? countEl.textContent : '';
+	// A filtered link arrives showing "Showing 3 of 180"; data-all is the
+	// unfiltered line to go back to.
+	var allText  = countEl ? ( countEl.getAttribute( 'data-all' ) || countEl.textContent ) : '';
 	var speakers = index.speakers || {};
 	var state    = { q: '', speaker: '', sefer: '', year: '' };
 

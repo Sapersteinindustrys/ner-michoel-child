@@ -7,7 +7,8 @@
  * (inc/written-shiurim.php, assets/js/written-library.js). The first weeks
  * are rendered here; the rest of the library comes as a compact JSON index
  * that the script filters and renders from as you scroll, so a library of
- * thousands stays light.
+ * thousands stays light. A link with filters in it is filtered here too,
+ * the same way the script does it, so it doesn't open on the whole library.
  *
  * Classic: the plain dated list, paginated.
  */
@@ -67,6 +68,16 @@ foreach ( $weeks as $week ) {
 
 // How many weeks arrive as HTML; the script renders the rest on demand.
 $first_weeks = (int) apply_filters( 'ner_michoel_written_first_weeks', 20 );
+
+// A link with filters in it (?q=, ?by=, ?sefer=, ?yr=) arrives filtered.
+// The script then takes over from the same URL and finds the same pieces.
+$filters   = ner_michoel_written_request_filters();
+$filtering = ner_michoel_written_is_filtering( $filters );
+$shown     = $filtering ? ner_michoel_written_filter_weeks( $weeks, $filters ) : $weeks;
+$matched   = 0;
+foreach ( $shown as $week ) {
+	$matched += count( $week['items'] );
+}
 ?>
 
 <div class="nm-app nm-written-page nm-reading-room">
@@ -88,21 +99,20 @@ $first_weeks = (int) apply_filters( 'ner_michoel_written_first_weeks', 20 );
 	</header>
 
 	<?php if ( $weeks ) : ?>
-		<?php ner_michoel_render_written_filters( $weeks ); ?>
+		<?php ner_michoel_render_written_filters( $weeks, $filters, $filtering ? $matched : null ); ?>
 
-		<div class="nm-library" data-written-library>
-			<?php
-			foreach ( array_slice( $weeks, 0, $first_weeks ) as $index => $week ) {
-				ner_michoel_render_written_week( $week, 0 === $index );
-			}
-			?>
-		</div>
+		<?php // No whitespace inside when nothing matches, so the library is :empty (written-shiurim.css). ?>
+		<div class="nm-library<?php echo $filtering ? ' is-filtering' : ''; ?>" data-written-library><?php
+		foreach ( array_slice( $shown, 0, $first_weeks ) as $index => $week ) {
+			ner_michoel_render_written_week( $week, ! $filtering && 0 === $index );
+		}
+		?></div>
 
 		<div class="nm-library__more" data-written-more hidden>
 			<button type="button" class="nm-btn"><?php esc_html_e( 'Show earlier weeks', 'ner-michoel-child' ); ?></button>
 		</div>
 
-		<div class="nm-library__empty" data-written-empty hidden>
+		<div class="nm-library__empty" data-written-empty<?php echo $shown ? ' hidden' : ''; ?>>
 			<p><?php esc_html_e( 'Nothing matches those filters.', 'ner-michoel-child' ); ?></p>
 			<button type="button" class="nm-btn" data-written-clear><?php esc_html_e( 'Show everything', 'ner-michoel-child' ); ?></button>
 		</div>

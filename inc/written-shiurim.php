@@ -347,8 +347,13 @@ function ner_michoel_render_written_sheet( $item, $variant = '' ) {
 						<button type="button" class="sh-save nm-sheet__icon<?php echo $is_saved ? ' is-saved' : ''; ?>" data-slot="save" data-save-id="<?php echo esc_attr( $item['id'] ); ?>" aria-pressed="<?php echo $is_saved ? 'true' : 'false'; ?>" aria-label="<?php esc_attr_e( 'Save', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'heart' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></button>
 					<?php endif; ?>
 					<?php if ( $item['download_url'] ) : ?>
-						<?php /* translators: %s: written shiur title */ $download_label = __( 'Download %s', 'ner-michoel-child' ); ?>
-						<a class="nm-sheet__icon" data-slot="download" data-label="<?php echo esc_attr( $download_label ); ?>" href="<?php echo esc_url( $item['download_url'] ); ?>" aria-label="<?php echo esc_attr( sprintf( $download_label, $item['title'] ) ); ?>"><?php echo ner_michoel_line_icon( 'download' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></a>
+						<?php
+						/* translators: %s: written shiur title */
+						$download_label = __( 'Download %s', 'ner-michoel-child' );
+						// Title and note as the card shows them; buildSheet() in written-library.js matches.
+						$download_name = $item['main'] . ( $item['note'] ? ' (' . $item['note'] . ')' : '' );
+						?>
+						<a class="nm-sheet__icon" data-slot="download" data-label="<?php echo esc_attr( $download_label ); ?>" href="<?php echo esc_url( $item['download_url'] ); ?>" aria-label="<?php echo esc_attr( sprintf( $download_label, $download_name ) ); ?>"><?php echo ner_michoel_line_icon( 'download' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></a>
 					<?php endif; ?>
 				</span>
 			</footer>
@@ -358,12 +363,133 @@ function ner_michoel_render_written_sheet( $item, $variant = '' ) {
 }
 
 /**
+ * The library filters asked for in the URL: ?q= (search), ?by= (author
+ * term ID), ?sefer= (Sefer slug) and ?yr= (year). written-library.js keeps
+ * them there as you filter; reading them here too means a shared link
+ * arrives already filtered rather than showing the whole library until the
+ * script catches up. Not "author" or "year": WordPress claims those.
+ *
+ * @return array{q: string, speaker: string, sefer: string, year: string}
+ */
+function ner_michoel_written_request_filters() {
+	$filters = array();
+	foreach ( array(
+		'q'       => 'q',
+		'speaker' => 'by',
+		'sefer'   => 'sefer',
+		'year'    => 'yr',
+	) as $key => $param ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view filters.
+		$value           = isset( $_GET[ $param ] ) && is_string( $_GET[ $param ] ) ? wp_unslash( $_GET[ $param ] ) : '';
+		$filters[ $key ] = sanitize_text_field( $value );
+	}
+	return $filters;
+}
+
+/**
+ * Lowercase, straight quotes, single spaces: "V’Eim" matches "v'eim".
+ * fold() in written-library.js does the same, so both find the same pieces.
+ */
+function ner_michoel_written_fold( $text ) {
+	$text = (string) $text;
+	$text = function_exists( 'mb_strtolower' ) ? mb_strtolower( $text, 'UTF-8' ) : strtolower( $text );
+	$text = str_replace( array( "\u{2018}", "\u{2019}", "\u{02BC}", '`' ), "'", $text );
+	$text = str_replace( array( "\u{201C}", "\u{201D}" ), '"', $text );
+	return trim( (string) preg_replace( '/[\s\x{00A0}\x{1680}\x{2000}-\x{200A}\x{2028}\x{2029}\x{202F}\x{205F}\x{3000}\x{FEFF}]+/u', ' ', $text ) );
+}
+
+/**
+ * Whether any filter is set. Mirrors isFiltering() in written-library.js.
+ */
+function ner_michoel_written_is_filtering( $filters ) {
+	return '' !== ner_michoel_written_fold( $filters['q'] )
+		|| '' !== $filters['speaker']
+		|| '' !== $filters['sefer']
+		|| '' !== $filters['year'];
+}
+
+/**
+ * What the search box looks through for one piece: the same fields, in the
+ * same form, as its row in ner_michoel_written_index(), which the script
+ * searches.
+ */
+function ner_michoel_written_search_text( $item ) {
+	$parts = array(
+		$item['main'],
+		$item['note'] ? $item['note'] : '',
+		$item['speaker'] ? $item['speaker']->name : '',
+		$item['sefer'] ? $item['sefer'] : __( 'Written Shiur', 'ner-michoel-child' ),
+		$item['topic'] !== $item['sefer'] ? $item['topic'] : '',
+		$item['year'],
+		$item['summary'] ? $item['summary'] : '',
+	);
+	return ner_michoel_written_fold( html_entity_decode( implode( ' ', $parts ), ENT_QUOTES, 'UTF-8' ) );
+}
+
+/**
+ * The weeks cut down to the pieces that match the filters, leaving out
+ * weeks with none. Mirrors matchingWeeks() and matches() in
+ * written-library.js: every search word must appear, and the author, Sefer
+ * and year must be the ones picked.
+ */
+function ner_michoel_written_filter_weeks( $weeks, $filters ) {
+	$words = array_values( array_filter( explode( ' ', ner_michoel_written_fold( $filters['q'] ) ), 'strlen' ) );
+	$out   = array();
+
+	foreach ( $weeks as $week ) {
+		$items = array();
+		foreach ( $week['items'] as $item ) {
+			$speaker = $item['speaker'] ? (string) $item['speaker']->term_id : '0';
+			if ( ( '' !== $filters['speaker'] && $speaker !== $filters['speaker'] )
+				|| ( '' !== $filters['sefer'] && $item['slug'] !== $filters['sefer'] )
+				|| ( '' !== $filters['year'] && (string) $item['year'] !== $filters['year'] ) ) {
+				continue;
+			}
+			if ( $words ) {
+				$text = ner_michoel_written_search_text( $item );
+				foreach ( $words as $word ) {
+					if ( false === strpos( $text, $word ) ) {
+						continue 2;
+					}
+				}
+			}
+			$items[] = $item;
+		}
+		if ( $items ) {
+			$week['items'] = $items;
+			$out[]         = $week;
+		}
+	}
+
+	return $out;
+}
+
+/**
  * The archive's filter bar: an instant search box and chips for author
  * and Sefer, with counts. Filtering happens in the page
  * (written-library.js); without script the search box still submits to
  * the server search.
+ *
+ * @param array    $weeks   The whole library, ner_michoel_written_weeks().
+ * @param array    $filters The filters in force, ner_michoel_written_request_filters().
+ * @param int|null $matched How many pieces match them, when filtering.
  */
-function ner_michoel_render_written_filters( $weeks ) {
+function ner_michoel_render_written_filters( $weeks, $filters = array(), $matched = null ) {
+	$filters   = array_merge(
+		array(
+			'q'       => '',
+			'speaker' => '',
+			'sefer'   => '',
+			'year'    => '',
+		),
+		$filters
+	);
+	$filtering = ner_michoel_written_is_filtering( $filters );
+	$is_on     = function ( $key, $value ) use ( $filters ) {
+		return (string) $value === $filters[ $key ];
+	};
+	$active    = count( array_filter( array( $filters['speaker'], $filters['sefer'], $filters['year'] ), 'strlen' ) );
+
 	$speakers = array();
 	$sefarim  = array();
 	$years    = array();
@@ -419,42 +545,49 @@ function ner_michoel_render_written_filters( $weeks ) {
 				<input type="hidden" name="post_type" value="written_shiur" />
 				<?php echo ner_michoel_line_icon( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?>
 				<label class="screen-reader-text" for="nm-written-filter"><?php esc_html_e( 'Search written shiurim', 'ner-michoel-child' ); ?></label>
-				<input type="search" id="nm-written-filter" name="s" placeholder="<?php esc_attr_e( 'Search by title, parsha or author…', 'ner-michoel-child' ); ?>" autocomplete="off" data-written-query />
+				<input type="search" id="nm-written-filter" name="s" value="<?php echo esc_attr( $filters['q'] ); ?>" placeholder="<?php esc_attr_e( 'Search by title, parsha or author…', 'ner-michoel-child' ); ?>" autocomplete="off" data-written-query />
 			</form>
 			<?php // Shown once the bar is stuck to the top and its chip rows fold away (written-library.js). ?>
 			<button type="button" class="nm-chip nm-filters__toggle" aria-expanded="false" aria-controls="nm-written-filter-rows" data-written-toggle hidden>
 				<?php esc_html_e( 'Filters', 'ner-michoel-child' ); ?>
-				<span class="nm-filters__badge" data-written-badge hidden></span>
+				<span class="nm-filters__badge" data-written-badge<?php echo $active ? '' : ' hidden'; ?>><?php echo $active ? esc_html( $active ) : ''; ?></span>
 			</button>
 		</div>
 
 		<div class="nm-filters__rows" id="nm-written-filter-rows">
 
 			<div class="nm-filters__row" role="group" aria-label="<?php esc_attr_e( 'Author', 'ner-michoel-child' ); ?>">
-				<button type="button" class="nm-chip is-on" data-filter="speaker" data-value="" aria-pressed="true"><?php esc_html_e( 'All authors', 'ner-michoel-child' ); ?></button>
+				<button type="button" class="nm-chip<?php echo $is_on( 'speaker', '' ) ? ' is-on' : ''; ?>" data-filter="speaker" data-value="" aria-pressed="<?php echo $is_on( 'speaker', '' ) ? 'true' : 'false'; ?>"><?php esc_html_e( 'All authors', 'ner-michoel-child' ); ?></button>
 				<?php foreach ( $speakers as $id => $speaker ) : ?>
-					<button type="button" class="nm-chip" data-filter="speaker" data-value="<?php echo esc_attr( $id ); ?>" aria-pressed="false"><?php echo esc_html( $speaker['name'] ); ?> <span class="nm-chip__count"><?php echo esc_html( $speaker['count'] ); ?></span></button>
+					<button type="button" class="nm-chip<?php echo $is_on( 'speaker', $id ) ? ' is-on' : ''; ?>" data-filter="speaker" data-value="<?php echo esc_attr( $id ); ?>" aria-pressed="<?php echo $is_on( 'speaker', $id ) ? 'true' : 'false'; ?>"><?php echo esc_html( $speaker['name'] ); ?> <span class="nm-chip__count"><?php echo esc_html( $speaker['count'] ); ?></span></button>
 				<?php endforeach; ?>
 			</div>
 
 			<div class="nm-filters__row" role="group" aria-label="<?php esc_attr_e( 'Sefer', 'ner-michoel-child' ); ?>">
-				<button type="button" class="nm-chip is-on" data-filter="sefer" data-value="" aria-pressed="true"><?php esc_html_e( 'All topics', 'ner-michoel-child' ); ?></button>
+				<button type="button" class="nm-chip<?php echo $is_on( 'sefer', '' ) ? ' is-on' : ''; ?>" data-filter="sefer" data-value="" aria-pressed="<?php echo $is_on( 'sefer', '' ) ? 'true' : 'false'; ?>"><?php esc_html_e( 'All topics', 'ner-michoel-child' ); ?></button>
 				<?php foreach ( $sefarim as $slug => $sefer ) : ?>
-					<button type="button" class="nm-chip nm-accent--<?php echo esc_attr( $slug ); ?>" data-filter="sefer" data-value="<?php echo esc_attr( $slug ); ?>" aria-pressed="false"><span class="nm-chip__dot" aria-hidden="true"></span><?php echo esc_html( $sefer['name'] ); ?> <span class="nm-chip__count"><?php echo esc_html( $sefer['count'] ); ?></span></button>
+					<button type="button" class="nm-chip nm-accent--<?php echo esc_attr( $slug ); ?><?php echo $is_on( 'sefer', $slug ) ? ' is-on' : ''; ?>" data-filter="sefer" data-value="<?php echo esc_attr( $slug ); ?>" aria-pressed="<?php echo $is_on( 'sefer', $slug ) ? 'true' : 'false'; ?>"><span class="nm-chip__dot" aria-hidden="true"></span><?php echo esc_html( $sefer['name'] ); ?> <span class="nm-chip__count"><?php echo esc_html( $sefer['count'] ); ?></span></button>
 				<?php endforeach; ?>
 			</div>
 
+			<?php
+			/* translators: %s: number of written shiurim */
+			$all_text = sprintf( _n( '%s written shiur', '%s written shiurim', $total, 'ner-michoel-child' ), number_format_i18n( $total ) );
+			/* translators: 1: shown count, 2: total count */
+			$showing = __( 'Showing %1$s of %2$s', 'ner-michoel-child' );
+			?>
 			<p class="nm-filters__status" aria-live="polite">
 				<span data-written-count
-					data-template="<?php /* translators: 1: shown count, 2: total count */ echo esc_attr( __( 'Showing %1$s of %2$s', 'ner-michoel-child' ) ); ?>"
+					data-template="<?php echo esc_attr( $showing ); ?>"
 					data-total="<?php echo esc_attr( $total ); ?>"
-				><?php echo esc_html( sprintf( /* translators: %s: number of written shiurim */ _n( '%s written shiur', '%s written shiurim', $total, 'ner-michoel-child' ), number_format_i18n( $total ) ) ); ?></span>
-				<button type="button" class="nm-filters__clear" data-written-clear hidden><?php esc_html_e( 'Clear filters', 'ner-michoel-child' ); ?></button>
+					data-all="<?php echo esc_attr( $all_text ); ?>"
+				><?php echo esc_html( $filtering ? sprintf( $showing, (int) $matched, $total ) : $all_text ); ?></span>
+				<button type="button" class="nm-filters__clear" data-written-clear<?php echo $filtering ? '' : ' hidden'; ?>><?php esc_html_e( 'Clear filters', 'ner-michoel-child' ); ?></button>
 				<?php if ( count( $years ) > 1 ) : ?>
 					<span class="nm-filters__years" role="group" aria-label="<?php esc_attr_e( 'Year', 'ner-michoel-child' ); ?>">
-						<button type="button" class="nm-chip nm-chip--small is-on" data-filter="year" data-value="" aria-pressed="true"><?php esc_html_e( 'Any year', 'ner-michoel-child' ); ?></button>
+						<button type="button" class="nm-chip nm-chip--small<?php echo $is_on( 'year', '' ) ? ' is-on' : ''; ?>" data-filter="year" data-value="" aria-pressed="<?php echo $is_on( 'year', '' ) ? 'true' : 'false'; ?>"><?php esc_html_e( 'Any year', 'ner-michoel-child' ); ?></button>
 						<?php foreach ( array_keys( $years ) as $year ) : ?>
-							<button type="button" class="nm-chip nm-chip--small" data-filter="year" data-value="<?php echo esc_attr( $year ); ?>" aria-pressed="false"><?php echo esc_html( $year ); ?></button>
+							<button type="button" class="nm-chip nm-chip--small<?php echo $is_on( 'year', $year ) ? ' is-on' : ''; ?>" data-filter="year" data-value="<?php echo esc_attr( $year ); ?>" aria-pressed="<?php echo $is_on( 'year', $year ) ? 'true' : 'false'; ?>"><?php echo esc_html( $year ); ?></button>
 						<?php endforeach; ?>
 					</span>
 				<?php endif; ?>
