@@ -50,6 +50,11 @@ a.sh-back {
 	cursor: default;
 }
 
+/* Home, beside Back (ner_michoel_render_back_button()). */
+.sh-home {
+	margin-left: 2px;
+}
+
 /* The site footer doesn't belong on Shiurim pages: the player bar and the
    page's own navigation already sit at the bottom. */
 body.is-shiurim .site-footer,
