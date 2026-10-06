@@ -213,31 +213,6 @@ function nerMichoelRecordHistory( postId ) {
 ( function () {
 	'use strict';
 
-	// Written shiur PDF (single-written_shiur.php). It loads by itself once the
-	// page is ready, so there's nothing to press. Phones skip it: many can't
-	// embed a PDF, and the viewer is hidden there anyway. The Open and Download
-	// links still work on every device.
-	var viewer = document.querySelector( '[data-pdf-viewer]' );
-	if ( ! viewer || ( window.matchMedia && window.matchMedia( '(max-width: 560px)' ).matches ) ) {
-		return;
-	}
-	var src = viewer.getAttribute( 'data-pdf-src' );
-	if ( ! src ) {
-		return;
-	}
-	var frame = document.createElement( 'iframe' );
-	frame.src   = src + '#view=FitH';
-	frame.title = viewer.getAttribute( 'data-pdf-title' ) || '';
-	viewer.appendChild( frame );
-
-	if ( window.nerMichoelSettings && window.nerMichoelSettings.isLoggedIn ) {
-		nerMichoelRecordHistory( viewer.getAttribute( 'data-post-id' ) );
-	}
-} )();
-
-( function () {
-	'use strict';
-
 	// Save button: the standalone one on single-shiur.php /
 	// single-written_shiur.php, and the one overlaid on each card in
 	// the Account page's History/Saved/Suggested grids

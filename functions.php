@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.46' );
+define( 'NER_MICHOEL_VERSION', '0.2.47' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -185,3 +185,4 @@ require_once NER_MICHOEL_PATH . '/inc/appearance.php';
 require_once NER_MICHOEL_PATH . '/inc/navigation.php';
 require_once NER_MICHOEL_PATH . '/inc/search.php';
 require_once NER_MICHOEL_PATH . '/inc/player-sheet.php';
+require_once NER_MICHOEL_PATH . '/inc/written-shiurim.php';

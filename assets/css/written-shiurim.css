@@ -88,60 +88,10 @@
 	white-space: nowrap;
 }
 
-.sh-written-actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 12px 20px;
-	margin: 0 0 20px;
-}
-
-.sh-pdf-viewer {
-	position: relative;
-	width: 100%;
-	height: 80vh;
-	min-height: 420px;
-	overflow: hidden;
-	border-radius: var(--sh-radius);
-	background: var(--sh-surface);
-}
-
-.sh-pdf-viewer iframe {
-	position: absolute;
-	inset: 0;
-	width: 100%;
-	height: 100%;
-	border: 0;
-}
-
-/* "Read here": starts the viewer on demand (custom.js). */
-.sh-pdf-load {
-	margin: 0 0 20px;
-	padding: 9px 20px;
-	border: 0;
-	border-radius: var(--nm-radius-pill, 999px);
-	background: var(--sh-accent);
-	color: #fff;
-	font: inherit;
-	font-weight: 600;
-	cursor: pointer;
-}
-
-.sh-pdf-load:hover,
-.sh-pdf-load:focus-visible {
-	background: var(--sh-accent-hover);
-}
-
 @media (max-width: 560px) {
 	.sh-written-row {
 		grid-template-columns: minmax(0, 1fr);
 		gap: 6px;
-	}
-
-	/* Phones often can't embed a PDF, so the open and download links are
-	   the path there. The viewer button and viewer stay hidden. */
-	.sh-pdf-load,
-	.sh-pdf-viewer {
-		display: none;
 	}
 }
 
@@ -237,5 +187,1454 @@
 @media (max-width: 560px) {
 	.nm-home-written-grid {
 		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+/* ==========================================================================
+   The reading room (Modern and 24Six): archive-written_shiur.php,
+   single-written_shiur.php, search-written.php, markup in
+   inc/written-shiurim.php. Warm paper and ink, a serif for titles, and an
+   accent colour per Sefer.
+   ========================================================================== */
+
+.nm-reading-room {
+	--rr-canvas: #f5f0e6;
+	--rr-paper: #fffdf8;
+	--rr-ink: #1f1b16;
+	--rr-ink-soft: #4a443b;
+	--rr-muted: #766e62;
+	--rr-rule: rgba(70, 52, 25, 0.14);
+	--rr-shadow: 0 1px 2px rgba(60, 45, 25, 0.07), 0 8px 20px rgba(60, 45, 25, 0.08);
+	--rr-shadow-lift: 0 3px 6px rgba(60, 45, 25, 0.08), 0 22px 44px rgba(60, 45, 25, 0.18);
+	--rr-serif: "Frank Ruhl Libre", Georgia, "Times New Roman", serif;
+	--sh-text: var(--rr-ink);
+	--sh-text-muted: var(--rr-muted);
+	--sh-border: var(--rr-rule);
+	--sh-surface-hover: #ebe3d3;
+
+	min-width: 0;
+	background: var(--rr-canvas);
+	color: var(--rr-ink);
+	padding: clamp(20px, 3.5vw, 44px) clamp(16px, 3.5vw, 44px) clamp(28px, 4vw, 56px);
+}
+
+/* Sefer accents: --accent for type and marks, --accent-deep for the
+   feature spread's background, --accent-soft for tints. */
+.nm-reading-room,
+.nm-accent--other {
+	--accent: #5d5a52;
+	--accent-deep: #3d3b35;
+	--accent-soft: #ecebe6;
+}
+.nm-accent--bereishis { --accent: #2c6e68; --accent-deep: #1b4744; --accent-soft: #e1eeec; }
+.nm-accent--shemos    { --accent: #8c3a37; --accent-deep: #5c2422; --accent-soft: #f3e3e1; }
+.nm-accent--vayikra   { --accent: #4b4a8f; --accent-deep: #2f2e60; --accent-soft: #e6e5f3; }
+.nm-accent--bamidbar  { --accent: #5a6b2a; --accent-deep: #3a4619; --accent-soft: #eaeedb; }
+.nm-accent--devarim   { --accent: #96621a; --accent-deep: #5f3c0d; --accent-soft: #f4e9d6; }
+.nm-accent--moadim    { --accent: #6d3d8b; --accent-deep: #45245a; --accent-soft: #eee2f4; }
+.nm-accent--gemara    { --accent: #2f5577; --accent-deep: #1c364d; --accent-soft: #e1e9f1; }
+
+.nm-reading-room [hidden] {
+	display: none !important;
+}
+
+/* Masthead ---------------------------------------------------------------- */
+
+.nm-masthead {
+	margin: 4px auto 30px;
+	text-align: center;
+}
+
+.nm-masthead__eyebrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	margin: 0 0 10px;
+	color: var(--rr-muted);
+	font-size: 0.74rem;
+	font-weight: 700;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+}
+
+.nm-masthead__eyebrow::before,
+.nm-masthead__eyebrow::after {
+	content: "";
+	width: 34px;
+	height: 1px;
+	background: currentColor;
+	opacity: 0.5;
+}
+
+.nm-masthead__title {
+	margin: 0;
+	color: var(--rr-ink);
+	font-family: var(--rr-serif);
+	font-size: clamp(2.4rem, 5.4vw, 3.8rem);
+	font-weight: 500;
+	letter-spacing: -0.015em;
+	line-height: 1.05;
+}
+
+.nm-masthead--compact .nm-masthead__title {
+	font-size: clamp(1.8rem, 4vw, 2.6rem);
+}
+
+.nm-masthead__lede {
+	max-width: 38ch;
+	margin: 12px auto 0;
+	color: var(--rr-ink-soft);
+	font-family: var(--rr-serif);
+	font-size: 1.15rem;
+	font-style: italic;
+	line-height: 1.5;
+}
+
+.nm-masthead__stats {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 6px 18px;
+	margin: 18px 0 0;
+	padding: 0;
+	list-style: none;
+	color: var(--rr-muted);
+	font-size: 0.9rem;
+}
+
+.nm-masthead__stats strong {
+	color: var(--rr-ink);
+	font-weight: 700;
+}
+
+/* Filter bar --------------------------------------------------------------- */
+
+.nm-filters {
+	position: sticky;
+	top: var(--wp-admin--admin-bar--height, 0px);
+	z-index: 30;
+	display: grid;
+	/* minmax(0, …): the swipeable chip rows must never widen the page. */
+	grid-template-columns: minmax(0, 1fr);
+	gap: 10px;
+	margin: 0 0 30px;
+	padding: 14px 16px 10px;
+	border: 1px solid var(--rr-rule);
+	border-radius: 18px;
+	background: rgba(250, 246, 238, 0.92);
+	-webkit-backdrop-filter: saturate(1.4) blur(12px);
+	backdrop-filter: saturate(1.4) blur(12px);
+	box-shadow: var(--rr-shadow);
+}
+
+.nm-filters__sentinel {
+	height: 1px;
+	margin-bottom: -1px;
+}
+
+.nm-filters__top {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 8px;
+}
+
+.nm-filters__rows {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 10px;
+}
+
+/* Stuck to the top while scrolling the library, the bar folds to one row:
+   search, and a Filters button that opens the chip rows again. */
+.nm-filters.is-stuck {
+	padding-bottom: 14px;
+	border-radius: 0 0 18px 18px;
+}
+
+.nm-filters.is-stuck:not(.is-open) .nm-filters__rows {
+	display: none;
+}
+
+/* Opened while stuck, the bar sits above the site's floating layout
+   switch (custom.css, z-index 10000) so no chip is covered. */
+.nm-filters.is-stuck.is-open {
+	z-index: 10001;
+}
+
+.nm-filters__toggle {
+	padding: 10px 16px;
+}
+
+.nm-filters__toggle[aria-expanded="true"] {
+	border-color: var(--rr-ink);
+}
+
+.nm-filters__badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 20px;
+	height: 20px;
+	padding: 0 6px;
+	border-radius: 999px;
+	background: var(--rr-ink);
+	color: var(--rr-paper);
+	font-size: 0.72rem;
+	font-weight: 800;
+}
+
+.nm-filters__search {
+	position: relative;
+	margin: 0;
+}
+
+.nm-filters__search .nm-icon {
+	position: absolute;
+	top: 50%;
+	left: 16px;
+	width: 18px;
+	height: 18px;
+	color: var(--rr-muted);
+	transform: translateY(-50%);
+	pointer-events: none;
+}
+
+.nm-filters__search input[type="search"] {
+	width: 100%;
+	margin: 0;
+	padding: 12px 18px 12px 44px;
+	border: 1px solid var(--rr-rule);
+	border-radius: 999px;
+	background: var(--rr-paper);
+	color: var(--rr-ink);
+	font: inherit;
+	font-size: 1rem;
+	box-shadow: inset 0 1px 2px rgba(60, 45, 25, 0.05);
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.nm-filters__search input[type="search"]:focus {
+	border-color: var(--rr-ink-soft);
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(31, 27, 22, 0.1);
+}
+
+.nm-filters__row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.nm-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	margin: 0;
+	padding: 6px 13px;
+	border: 1px solid var(--rr-rule);
+	border-radius: 999px;
+	background: var(--rr-paper);
+	color: var(--rr-ink-soft);
+	font: inherit;
+	font-size: 0.85rem;
+	font-weight: 600;
+	line-height: 1.2;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.nm-chip:hover,
+.nm-chip:focus {
+	border-color: var(--rr-ink-soft);
+	background: var(--rr-paper);
+	color: var(--rr-ink);
+}
+
+.nm-chip:focus-visible {
+	outline: 2px solid var(--rr-ink);
+	outline-offset: 2px;
+}
+
+.nm-chip:active {
+	transform: scale(0.97);
+}
+
+.nm-chip.is-on,
+.nm-chip.is-on:hover,
+.nm-chip.is-on:focus {
+	border-color: var(--rr-ink);
+	background: var(--rr-ink);
+	color: var(--rr-paper);
+}
+
+.nm-chip[class*="nm-accent--"].is-on,
+.nm-chip[class*="nm-accent--"].is-on:hover,
+.nm-chip[class*="nm-accent--"].is-on:focus {
+	border-color: var(--accent);
+	background: var(--accent);
+}
+
+.nm-chip__dot {
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: var(--accent);
+	box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+.nm-chip__count {
+	color: inherit;
+	font-size: 0.75rem;
+	font-weight: 600;
+	opacity: 0.6;
+}
+
+.nm-filters__status {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 12px;
+	margin: 2px 4px 0;
+	color: var(--rr-muted);
+	font-size: 0.82rem;
+}
+
+.nm-filters__years {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-left: auto;
+}
+
+.nm-chip--small {
+	padding: 3px 10px;
+	font-size: 0.78rem;
+}
+
+.nm-filters__clear,
+.nm-filters__clear:hover,
+.nm-filters__clear:focus {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--rr-ink);
+	font: inherit;
+	font-weight: 700;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	cursor: pointer;
+}
+
+/* The library: week by week ------------------------------------------------ */
+
+.nm-library {
+	position: relative;
+	--nm-head-top: calc(var(--wp-admin--admin-bar--height, 0px) + var(--nm-filters-height, 0px) + 20px);
+}
+
+.nm-week {
+	display: grid;
+	grid-template-columns: minmax(150px, 210px) minmax(0, 1fr);
+	gap: 32px;
+	padding: 30px 0 34px;
+	border-top: 1px solid var(--rr-rule);
+}
+
+.nm-week__head {
+	position: sticky;
+	top: var(--nm-head-top);
+	align-self: start;
+	padding-left: 18px;
+	border-left: 3px solid var(--accent);
+}
+
+.nm-week__eyebrow,
+.nm-week__sefer {
+	display: block;
+	color: var(--accent);
+	font-size: 0.7rem;
+	font-weight: 800;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+.nm-week__title {
+	margin: 4px 0 2px;
+	color: var(--rr-ink);
+	font-family: var(--rr-serif);
+	font-size: 1.75rem;
+	font-weight: 500;
+	line-height: 1.1;
+}
+
+.nm-week__year {
+	display: block;
+	margin-top: 2px;
+	color: var(--rr-muted);
+	font-size: 1.05rem;
+	font-weight: 400;
+}
+
+.nm-week__dates {
+	margin: 6px 0 0;
+	color: var(--rr-muted);
+	font-size: 0.82rem;
+}
+
+.nm-week__sheets,
+.nm-related__sheets {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+	gap: 26px 24px;
+	padding: 0 10px 10px 0;
+}
+
+/* A sheet of paper ----------------------------------------------------------- */
+
+.nm-sheet {
+	position: relative;
+	isolation: isolate;
+}
+
+/* The pages underneath: the top sheet lifts off the pile on hover. */
+.nm-sheet::before,
+.nm-sheet::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	border: 1px solid rgba(70, 52, 25, 0.1);
+	border-radius: 5px;
+	background: var(--rr-paper);
+	box-shadow: 0 1px 2px rgba(60, 45, 25, 0.06);
+}
+
+.nm-sheet::before {
+	transform: translate(5px, 5px) rotate(0.8deg);
+}
+
+.nm-sheet::after {
+	opacity: 0.65;
+	transform: translate(10px, 9px) rotate(1.7deg);
+}
+
+.nm-sheet__paper {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 236px;
+	border: 1px solid rgba(70, 52, 25, 0.12);
+	border-top: 4px solid var(--accent);
+	border-radius: 5px;
+	background:
+		radial-gradient(120% 70% at 0% 0%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 60%),
+		var(--rr-paper);
+	box-shadow: var(--rr-shadow);
+	transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.nm-sheet:hover .nm-sheet__paper,
+.nm-sheet:focus-within .nm-sheet__paper {
+	box-shadow: var(--rr-shadow-lift);
+	transform: translate(-3px, -7px) rotate(-0.6deg);
+}
+
+.nm-sheet__band {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 11px 16px 9px;
+	border-bottom: 1px dashed var(--rr-rule);
+	color: var(--accent);
+	font-size: 0.66rem;
+	font-weight: 800;
+	letter-spacing: 0.14em;
+	line-height: 1.3;
+	text-transform: uppercase;
+}
+
+.nm-sheet__sefer {
+	flex: 0 0 auto;
+}
+
+.nm-sheet__topic {
+	min-width: 0;
+	overflow: hidden;
+	color: var(--rr-muted);
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-align: right;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Faint rules at the foot of the body read as the first lines of text. */
+.nm-sheet__body {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	padding: 16px 18px 46px;
+	background-image:
+		linear-gradient(var(--rr-rule), var(--rr-rule)),
+		linear-gradient(var(--rr-rule), var(--rr-rule)),
+		linear-gradient(var(--rr-rule), var(--rr-rule));
+	background-position: 18px calc(100% - 30px), 18px calc(100% - 21px), 18px calc(100% - 12px);
+	background-repeat: no-repeat;
+	background-size: 62% 2px, 48% 2px, 30% 2px;
+}
+
+.nm-sheet__new {
+	align-self: flex-start;
+	margin: 0 0 8px;
+	padding: 2px 9px;
+	border-radius: 999px;
+	background: var(--accent);
+	color: #fff;
+	font-size: 0.66rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.nm-sheet__title {
+	display: -webkit-box;
+	margin: 0;
+	overflow: hidden;
+	color: var(--rr-ink);
+	font-family: var(--rr-serif);
+	font-size: 1.32rem;
+	font-weight: 500;
+	line-height: 1.22;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 4;
+}
+
+.nm-sheet__link,
+.nm-sheet__link:hover,
+.nm-sheet__link:focus {
+	color: inherit;
+	text-decoration: none;
+}
+
+/* The whole sheet is the link. */
+.nm-sheet__link::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	border-radius: 5px;
+}
+
+.nm-sheet__link:focus-visible {
+	outline: none;
+}
+
+.nm-sheet__link:focus-visible::after {
+	outline: 3px solid var(--accent);
+	outline-offset: 3px;
+}
+
+.nm-sheet__note {
+	margin: 6px 0 0;
+	color: var(--rr-ink-soft);
+	font-family: var(--rr-serif);
+	font-size: 0.98rem;
+	font-style: italic;
+}
+
+/* The piece's opening line (the Summary), when it has one. It replaces the
+   faint placeholder rules. */
+.nm-sheet__summary {
+	display: -webkit-box;
+	margin: 12px 0 0;
+	padding-left: 10px;
+	overflow: hidden;
+	border-left: 2px solid var(--accent-soft);
+	color: var(--rr-ink-soft);
+	font-family: var(--rr-serif);
+	font-size: 0.97rem;
+	line-height: 1.45;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+}
+
+.nm-sheet.has-summary .nm-sheet__body {
+	padding-bottom: 16px;
+	background-image: none;
+}
+
+.nm-sheet__by {
+	margin: 10px 0 0;
+	color: var(--rr-muted);
+	font-size: 0.82rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+}
+
+.nm-sheet__foot {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 48px;
+	padding: 6px 10px 6px 18px;
+	border-top: 1px solid var(--rr-rule);
+	color: var(--rr-muted);
+	font-size: 0.78rem;
+}
+
+.nm-sheet__read {
+	display: none;
+	align-items: center;
+	gap: 4px;
+	color: var(--accent);
+	font-weight: 800;
+}
+
+.nm-sheet__read .nm-icon {
+	width: 14px;
+	height: 14px;
+	stroke-width: 3;
+}
+
+.nm-sheet.is-read .nm-sheet__read {
+	display: inline-flex;
+}
+
+.nm-sheet__actions {
+	position: relative;
+	z-index: 2;
+	display: inline-flex;
+	gap: 2px;
+	margin-left: auto;
+}
+
+.nm-sheet__icon,
+.nm-reading-room .nm-sheet__icon.sh-save {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--rr-muted);
+	text-decoration: none;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nm-sheet__icon:hover,
+.nm-sheet__icon:focus-visible,
+.nm-reading-room .nm-sheet__icon.sh-save:hover {
+	background: var(--accent-soft);
+	color: var(--accent);
+}
+
+.nm-sheet__icon svg,
+.nm-sheet__icon .nm-icon {
+	width: 17px;
+	height: 17px;
+}
+
+.nm-reading-room .nm-sheet__icon.sh-save.is-saved {
+	color: #c2410c;
+}
+
+.nm-sheet.is-entering .nm-sheet__paper {
+	animation: nm-sheet-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes nm-sheet-in {
+	from {
+		opacity: 0;
+		transform: translateY(10px) scale(0.98);
+	}
+}
+
+/* The latest week: a spread in its Sefer colour, its sheets laid down at
+   slight angles. While filtering it is just another week. */
+.nm-library:not(.is-filtering) .nm-week--feature {
+	position: relative;
+	grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.7fr);
+	align-items: center;
+	gap: clamp(24px, 4vw, 56px);
+	margin: 0 0 14px;
+	padding: clamp(26px, 4vw, 52px);
+	overflow: hidden;
+	border: 0;
+	border-radius: 24px;
+	background:
+		radial-gradient(90% 120% at 100% 0%, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 55%),
+		radial-gradient(70% 90% at 0% 100%, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0) 60%),
+		var(--accent-deep);
+	color: #fff;
+	box-shadow: 0 24px 60px rgba(40, 28, 10, 0.25);
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature::before {
+	content: "";
+	position: absolute;
+	inset: 14px;
+	border: 1px solid rgba(255, 255, 255, 0.16);
+	border-radius: 16px;
+	pointer-events: none;
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature .nm-week__head {
+	position: relative;
+	top: auto;
+	border-left-color: rgba(255, 255, 255, 0.55);
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature .nm-week__eyebrow {
+	display: inline-block;
+	margin-bottom: 14px;
+	padding: 4px 11px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.16);
+	color: #fff;
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature .nm-week__sefer {
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature .nm-week__title {
+	color: #fff;
+	font-size: clamp(2.3rem, 4.6vw, 3.5rem);
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature .nm-week__year,
+.nm-library:not(.is-filtering) .nm-week--feature .nm-week__dates {
+	color: rgba(255, 255, 255, 0.78);
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature .nm-week__sheets {
+	position: relative;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 34px 30px;
+	padding: 10px 14px 14px 0;
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature .nm-sheet__paper {
+	min-height: 290px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 22px 40px rgba(0, 0, 0, 0.28);
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature .nm-sheet:nth-child(odd) .nm-sheet__paper {
+	transform: rotate(-1.8deg);
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature .nm-sheet:nth-child(even) .nm-sheet__paper {
+	transform: rotate(1.4deg) translateY(12px);
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature .nm-sheet:hover .nm-sheet__paper,
+.nm-library:not(.is-filtering) .nm-week--feature .nm-sheet:focus-within .nm-sheet__paper {
+	transform: rotate(0) translateY(-10px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14), 0 34px 60px rgba(0, 0, 0, 0.34);
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature .nm-sheet__title {
+	font-size: 1.55rem;
+}
+
+.nm-library:not(.is-filtering) .nm-week--feature + .nm-week {
+	border-top: 0;
+}
+
+/* Filtering shows a subset, so "Latest · 2 pieces" no longer describes it. */
+.nm-library.is-filtering .nm-week__eyebrow,
+.nm-library.is-filtering .nm-week__count {
+	display: none;
+}
+
+.nm-library__more {
+	display: flex;
+	justify-content: center;
+	padding: 18px 0 6px;
+}
+
+.nm-library__empty {
+	padding: 48px 20px;
+	text-align: center;
+	color: var(--rr-ink-soft);
+	font-family: var(--rr-serif);
+	font-size: 1.2rem;
+}
+
+/* Buttons --------------------------------------------------------------------- */
+
+.nm-btn,
+.nm-reading-room .nm-doc__actions .sh-save {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 42px;
+	margin: 0;
+	padding: 9px 18px;
+	border: 1px solid var(--rr-rule);
+	border-radius: 999px;
+	background: var(--rr-paper);
+	color: var(--rr-ink);
+	font: inherit;
+	font-size: 0.92rem;
+	font-weight: 700;
+	line-height: 1.1;
+	text-decoration: none;
+	cursor: pointer;
+	box-shadow: 0 1px 2px rgba(60, 45, 25, 0.06);
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.nm-btn:hover,
+.nm-btn:focus,
+.nm-reading-room .nm-doc__actions .sh-save:hover {
+	border-color: var(--rr-ink-soft);
+	background: var(--rr-paper);
+	color: var(--rr-ink);
+	box-shadow: 0 4px 12px rgba(60, 45, 25, 0.12);
+	transform: translateY(-1px);
+}
+
+.nm-btn:focus-visible,
+.nm-reading-room .nm-doc__actions .sh-save:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.nm-btn .nm-icon,
+.nm-reading-room .nm-doc__actions .sh-save svg {
+	width: 18px;
+	height: 18px;
+}
+
+/* Scoped under .nm-reading-room: custom.css's `body.is-nm-app a
+   { color: inherit }` would otherwise turn the link versions dark. */
+.nm-btn--primary,
+.nm-reading-room .nm-btn--primary,
+.nm-reading-room .nm-btn--primary:focus,
+.nm-reading-room .nm-btn--primary:visited {
+	border-color: var(--accent);
+	background: var(--accent);
+	color: #fff;
+}
+
+.nm-reading-room .nm-btn--primary:hover {
+	border-color: var(--accent-deep);
+	background: var(--accent-deep);
+	color: #fff;
+}
+
+.nm-reading-room .nm-doc__actions .sh-save.is-saved {
+	border-color: #f3c3ad;
+	background: #fff4ee;
+	color: #c2410c;
+}
+
+.nm-btn.is-done {
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
+/* Single page: the reading view ----------------------------------------------- */
+
+.nm-crumbs {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 8px;
+	margin: 6px 0 18px;
+	color: var(--rr-muted);
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.nm-crumbs a {
+	color: var(--rr-muted);
+	text-decoration: none;
+}
+
+.nm-crumbs a:hover,
+.nm-crumbs a:last-child {
+	color: var(--accent);
+}
+
+.nm-doc {
+	max-width: 860px;
+	margin: 0 auto 34px;
+	text-align: center;
+}
+
+.nm-doc__kicker {
+	margin: 0 0 8px;
+	color: var(--accent);
+	font-family: var(--rr-serif);
+	font-size: 1.15rem;
+	font-style: italic;
+}
+
+.nm-doc__title {
+	margin: 0;
+	color: var(--rr-ink);
+	font-family: var(--rr-serif);
+	font-size: clamp(2.1rem, 5vw, 3.5rem);
+	font-weight: 500;
+	letter-spacing: -0.015em;
+	line-height: 1.08;
+}
+
+.nm-doc__lede {
+	max-width: 42ch;
+	margin: 16px auto 0;
+	color: var(--rr-ink-soft);
+	font-family: var(--rr-serif);
+	font-size: 1.25rem;
+	font-style: italic;
+	line-height: 1.5;
+}
+
+.nm-doc__byline {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 4px 14px;
+	margin: 16px 0 0;
+	color: var(--rr-muted);
+	font-size: 0.95rem;
+}
+
+.nm-doc__byline > * + *::before {
+	content: "·";
+	margin-right: 14px;
+	color: var(--rr-muted);
+	font-weight: 700;
+}
+
+.nm-reading-room .nm-doc__byline a {
+	border-bottom: 1px solid var(--rr-rule);
+	color: var(--rr-ink);
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.nm-reading-room .nm-doc__byline a:hover {
+	border-bottom-color: var(--accent);
+	color: var(--accent);
+}
+
+.nm-doc__actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
+	margin: 24px 0 0;
+}
+
+.nm-only-narrow {
+	display: none !important;
+}
+
+/* The desk the PDF lies on. */
+.nm-desk {
+	position: relative;
+	padding: clamp(14px, 3vw, 38px);
+	border-radius: 24px;
+	background:
+		radial-gradient(80% 60% at 50% 0%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 70%),
+		linear-gradient(180deg, #e9e0cf, #e2d7c3);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(70, 52, 25, 0.08);
+}
+
+.nm-desk__bar {
+	display: none;
+}
+
+.nm-desk__stage {
+	position: relative;
+}
+
+.nm-desk__paper {
+	position: relative;
+	display: none;
+	height: min(86vh, 1100px);
+	min-height: 520px;
+	max-width: 980px;
+	margin: 0 auto;
+	overflow: hidden;
+	border-radius: 6px;
+	background: #fff;
+	box-shadow: 0 2px 4px rgba(40, 28, 10, 0.08), 0 30px 60px rgba(40, 28, 10, 0.22);
+}
+
+.nm-desk__paper iframe {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	opacity: 0;
+	transition: opacity 0.4s ease;
+}
+
+.nm-desk__paper.is-loaded iframe {
+	opacity: 1;
+}
+
+.nm-desk__loading {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+	background:
+		linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(245, 240, 230, 0.9), rgba(255, 255, 255, 0)) -100% 0 / 60% 100% no-repeat,
+		#fff;
+	color: var(--rr-muted);
+	font-family: var(--rr-serif);
+	font-size: 1.1rem;
+	font-style: italic;
+	animation: nm-shimmer 1.4s ease-in-out infinite;
+}
+
+.nm-desk__paper.is-loaded .nm-desk__loading {
+	display: none;
+}
+
+@keyframes nm-shimmer {
+	to {
+		background-position: 200% 0, 0 0;
+	}
+}
+
+/* Wide screens with script show the PDF itself; otherwise the cover. */
+.nm-desk.is-enhanced .nm-desk__paper {
+	display: block;
+}
+
+.nm-desk.is-enhanced .nm-cover {
+	display: none;
+}
+
+/* The cover: a designed first page that opens the PDF in the device's
+   own reader. */
+.nm-cover {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	width: min(100%, 380px);
+	aspect-ratio: 3 / 4;
+	margin: 6px auto 14px;
+	padding: 26px 26px 22px;
+	border: 1px solid rgba(70, 52, 25, 0.12);
+	border-top: 6px solid var(--accent);
+	border-radius: 6px;
+	background: var(--rr-paper);
+	color: var(--rr-ink);
+	text-decoration: none;
+	box-shadow:
+		0 2px 4px rgba(40, 28, 10, 0.08),
+		0 24px 48px rgba(40, 28, 10, 0.2),
+		6px 6px 0 -1px #f4eee2,
+		6px 6px 0 0 rgba(70, 52, 25, 0.1),
+		12px 12px 0 -1px #efe7d8,
+		12px 12px 0 0 rgba(70, 52, 25, 0.08);
+	transform: rotate(-1.2deg);
+	transition: transform 0.25s ease;
+}
+
+.nm-cover:hover,
+.nm-cover:focus,
+.nm-cover:focus-visible {
+	color: var(--rr-ink);
+	transform: rotate(0) translateY(-4px);
+}
+
+.nm-cover__band {
+	color: var(--accent);
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.nm-cover__title {
+	margin: 22px 0 0;
+	font-family: var(--rr-serif);
+	font-size: clamp(1.6rem, 7vw, 2.1rem);
+	font-weight: 500;
+	line-height: 1.15;
+}
+
+.nm-cover__note {
+	margin: 10px 0 0;
+	color: var(--rr-ink-soft);
+	font-family: var(--rr-serif);
+	font-style: italic;
+}
+
+.nm-cover__by {
+	margin: 14px 0 0;
+	color: var(--rr-muted);
+	font-size: 0.85rem;
+	font-weight: 700;
+}
+
+.nm-cover__summary {
+	display: -webkit-box;
+	margin: auto 0 18px;
+	overflow: hidden;
+	color: var(--rr-ink-soft);
+	font-family: var(--rr-serif);
+	font-size: 1rem;
+	line-height: 1.55;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 5;
+}
+
+.nm-cover__lines {
+	display: grid;
+	gap: 9px;
+	margin: auto 0 18px;
+}
+
+.nm-cover__lines i {
+	display: block;
+	height: 3px;
+	border-radius: 2px;
+	background: var(--rr-rule);
+}
+
+.nm-cover__lines i:nth-child(2) { width: 92%; }
+.nm-cover__lines i:nth-child(3) { width: 84%; }
+.nm-cover__lines i:nth-child(4) { width: 95%; }
+.nm-cover__lines i:nth-child(5) { width: 58%; }
+
+.nm-cover__cta {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 11px 16px;
+	border-radius: 999px;
+	background: var(--accent);
+	color: #fff;
+	font-size: 0.92rem;
+	font-weight: 700;
+}
+
+.nm-cover__cta .nm-icon {
+	width: 18px;
+	height: 18px;
+}
+
+/* Full screen: the desk takes the whole window and the room goes dark. */
+html.nm-reader-open,
+html.nm-reader-open body {
+	overflow: hidden;
+}
+
+.nm-desk.is-focus {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	flex-direction: column;
+	padding: 0;
+	border-radius: 0;
+	background: #1c1915;
+	box-shadow: none;
+	animation: nm-focus-in 0.25s ease;
+}
+
+@keyframes nm-focus-in {
+	from {
+		opacity: 0;
+	}
+}
+
+.nm-desk.is-focus .nm-desk__bar {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px 22px;
+	color: #f5f0e6;
+}
+
+.nm-desk__bar-title {
+	flex: 1 1 auto;
+	overflow: hidden;
+	font-family: var(--rr-serif);
+	font-size: 1.1rem;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.nm-desk__tool,
+.nm-desk__tool:hover,
+.nm-desk__tool:focus {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 42px;
+	height: 42px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: #f5f0e6;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+}
+
+.nm-desk__tool:hover,
+.nm-desk__tool:focus-visible {
+	background: rgba(255, 255, 255, 0.12);
+	color: #fff;
+}
+
+.nm-desk__tool .nm-icon {
+	width: 20px;
+	height: 20px;
+}
+
+.nm-desk.is-focus .nm-desk__stage {
+	flex: 1 1 auto;
+	min-height: 0;
+	padding: 0 clamp(0px, 3vw, 40px) clamp(0px, 3vw, 28px);
+}
+
+.nm-desk.is-focus .nm-desk__paper {
+	height: 100%;
+	min-height: 0;
+	max-width: 1100px;
+}
+
+/* Below the reader --------------------------------------------------------------- */
+
+.nm-doc__content {
+	max-width: 760px;
+	margin: 36px auto 0;
+	color: var(--rr-ink-soft);
+	font-family: var(--rr-serif);
+	font-size: 1.1rem;
+	line-height: 1.7;
+}
+
+.nm-related {
+	margin: 52px 0 0;
+}
+
+.nm-related__title {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin: 0 0 22px;
+	color: var(--rr-ink);
+	font-family: var(--rr-serif);
+	font-size: 1.6rem;
+	font-weight: 500;
+}
+
+.nm-related__title::after {
+	content: "";
+	flex: 1 1 auto;
+	height: 1px;
+	background: var(--rr-rule);
+}
+
+.nm-pager {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 18px;
+	margin: 52px 0 0;
+}
+
+.nm-pager__link {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 20px 24px;
+	border: 1px solid var(--rr-rule);
+	border-radius: 16px;
+	background: var(--rr-paper);
+	color: var(--rr-ink);
+	text-decoration: none;
+	box-shadow: var(--rr-shadow);
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nm-pager__link:hover,
+.nm-pager__link:focus,
+.nm-pager__link:focus-visible {
+	color: var(--rr-ink);
+	box-shadow: var(--rr-shadow-lift);
+	transform: translateY(-3px);
+}
+
+.nm-pager__link--older {
+	grid-column: 2;
+	align-items: flex-end;
+	text-align: right;
+}
+
+.nm-pager__dir {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--accent);
+	font-size: 0.75rem;
+	font-weight: 800;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.nm-pager__dir .nm-icon {
+	width: 16px;
+	height: 16px;
+}
+
+.nm-pager__title {
+	font-family: var(--rr-serif);
+	font-size: 1.25rem;
+	line-height: 1.25;
+}
+
+.nm-reading-room .sh-empty {
+	color: var(--rr-muted);
+}
+
+.nm-reading-room .sh-written-search {
+	max-width: 640px;
+	margin: 0 auto 10px;
+}
+
+/* Narrow screens ----------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+	.nm-library:not(.is-filtering) .nm-week--feature {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+@media (max-width: 760px) {
+	.nm-filters {
+		margin-bottom: 22px;
+		padding: 10px 10px 8px;
+		border-radius: 14px;
+	}
+
+	.nm-filters__row {
+		flex-wrap: nowrap;
+		margin: 0 -10px;
+		padding: 0 10px 2px;
+		overflow-x: auto;
+		scrollbar-width: none;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.nm-filters__row::-webkit-scrollbar {
+		display: none;
+	}
+
+	.nm-week {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 18px;
+		padding: 24px 0 28px;
+	}
+
+	.nm-week__head {
+		position: static;
+	}
+
+	.nm-week__sheets,
+	.nm-related__sheets {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 22px;
+	}
+
+	.nm-library:not(.is-filtering) .nm-week--feature {
+		margin: 0 -6px 10px;
+		border-radius: 20px;
+	}
+
+	.nm-library:not(.is-filtering) .nm-week--feature .nm-week__sheets {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 24px;
+	}
+
+	.nm-library:not(.is-filtering) .nm-week--feature .nm-sheet:nth-child(even) .nm-sheet__paper {
+		transform: rotate(1deg);
+	}
+
+	.nm-library:not(.is-filtering) .nm-week--feature .nm-sheet:nth-child(odd) .nm-sheet__paper {
+		transform: rotate(-1deg);
+	}
+
+	.nm-sheet__paper,
+	.nm-library:not(.is-filtering) .nm-week--feature .nm-sheet__paper {
+		min-height: 0;
+	}
+
+	.nm-only-wide {
+		display: none !important;
+	}
+
+	.nm-only-narrow {
+		display: inline-flex !important;
+	}
+
+	.nm-desk {
+		padding: 22px 14px 18px;
+		border-radius: 18px;
+	}
+
+	.nm-desk.is-enhanced .nm-desk__paper {
+		display: none;
+	}
+
+	.nm-desk.is-enhanced .nm-cover {
+		display: flex;
+	}
+
+	.nm-pager {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.nm-pager__link--older {
+		grid-column: auto;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.nm-sheet__paper,
+	.nm-library:not(.is-filtering) .nm-week--feature .nm-sheet .nm-sheet__paper,
+	.nm-library:not(.is-filtering) .nm-week--feature .nm-sheet:hover .nm-sheet__paper,
+	.nm-sheet:hover .nm-sheet__paper,
+	.nm-cover,
+	.nm-pager__link,
+	.nm-btn,
+	.nm-chip {
+		transform: none !important;
+		transition: none !important;
+	}
+
+	.nm-sheet.is-entering .nm-sheet__paper,
+	.nm-desk.is-focus,
+	.nm-desk__loading {
+		animation: none;
 	}
 }
