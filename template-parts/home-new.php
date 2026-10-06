@@ -62,12 +62,17 @@ $sparkle = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" 
 
 		<div class="hn-hero__media" data-hn-photos data-interval="<?php echo esc_attr( $home['interval'] ); ?>">
 			<?php if ( $home['slides'] ) : ?>
-				<?php foreach ( $home['slides'] as $index => $slide ) : ?>
+				<?php
+				// The slide's own URL only, as the current slider uses it. Its srcset
+				// lists the uploads folder's copies, and with the media on the CDN
+				// those are gone, so a browser that picked one showed a broken image.
+				foreach ( $home['slides'] as $index => $slide ) :
+					?>
 					<?php if ( 0 === $index ) : ?>
-						<img class="hn-hero__photo is-active" src="<?php echo esc_url( $slide['url'] ); ?>"<?php if ( ! empty( $slide['srcset'] ) ) : ?> srcset="<?php echo esc_attr( $slide['srcset'] ); ?>" sizes="(max-width: 900px) 100vw, 560px"<?php endif; ?> alt="" decoding="async" fetchpriority="high" />
+						<img class="hn-hero__photo is-active" src="<?php echo esc_url( $slide['url'] ); ?>" alt="" decoding="async" fetchpriority="high" />
 					<?php else : ?>
 						<?php // Fetched by home.js just before it fades in, so the page doesn't load every photo up front. ?>
-						<img class="hn-hero__photo" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="<?php echo esc_url( $slide['url'] ); ?>"<?php if ( ! empty( $slide['srcset'] ) ) : ?> data-srcset="<?php echo esc_attr( $slide['srcset'] ); ?>" sizes="(max-width: 900px) 100vw, 560px"<?php endif; ?> alt="" decoding="async" />
+						<img class="hn-hero__photo" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="<?php echo esc_url( $slide['url'] ); ?>" alt="" decoding="async" />
 					<?php endif; ?>
 				<?php endforeach; ?>
 			<?php else : ?>
