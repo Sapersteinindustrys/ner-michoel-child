@@ -7,8 +7,10 @@
  *   Search and the author/Sefer/year chips filter that index; matching weeks
  *   are rendered from <template>s (ner_michoel_render_written_templates()),
  *   more as you scroll, so the page stays light however big the library is.
- * - Filters live in the URL (?q=, ?author=, ?sefer=, ?year=), so a filtered
- *   view can be shared and survives Back. "/" focuses the search.
+ * - Filters live in the URL (?q=, ?by=, ?sefer=, ?yr=), so a filtered view
+ *   can be shared and survives Back. Not "author" or "year": those are
+ *   WordPress's own query vars and would filter the page's query itself.
+ *   "/" focuses the search.
  * - The filter bar folds to one row once it sticks to the top.
  */
 ( function () {
@@ -333,7 +335,7 @@
 			return;
 		}
 		var params = new URLSearchParams( window.location.search );
-		[ [ 'q', state.q ], [ 'author', state.speaker ], [ 'sefer', state.sefer ], [ 'year', state.year ] ].forEach( function ( pair ) {
+		[ [ 'q', state.q ], [ 'by', state.speaker ], [ 'sefer', state.sefer ], [ 'yr', state.year ] ].forEach( function ( pair ) {
 			if ( pair[ 1 ] ) {
 				params.set( pair[ 0 ], pair[ 1 ] );
 			} else {
@@ -369,9 +371,9 @@
 	// Start from the URL, so shared and Back-button views come back filtered.
 	var initial = new URLSearchParams( window.location.search );
 	state.q       = initial.get( 'q' ) || '';
-	state.speaker = initial.get( 'author' ) || '';
+	state.speaker = initial.get( 'by' ) || '';
 	state.sefer   = initial.get( 'sefer' ) || '';
-	state.year    = initial.get( 'year' ) || '';
+	state.year    = initial.get( 'yr' ) || '';
 	if ( input ) {
 		input.value = state.q;
 	}
