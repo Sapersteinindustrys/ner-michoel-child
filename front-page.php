@@ -41,16 +41,6 @@ $recent_shiurim = get_posts(
 	)
 );
 
-$recent_news = get_posts(
-	array(
-		'post_type'      => 'post',
-		'category_name'  => 'news',
-		'posts_per_page' => 2,
-		'orderby'        => 'date',
-		'order'          => 'DESC',
-	)
-);
-
 $recent_mazal_tovs = post_type_exists( 'mazal_tov' ) ? get_posts(
 	array(
 		'post_type'      => 'mazal_tov',
@@ -199,8 +189,6 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 	$index_links = array(
 		array( 'headphones', __( 'Shiurim', 'ner-michoel-child' ), __( 'Audio, video & written lectures', 'ner-michoel-child' ), $shiurim_url ? $shiurim_url : '#' ),
 		array( 'image', __( 'Galleries', 'ner-michoel-child' ), __( 'Photos & videos from events', 'ner-michoel-child' ), $gallery_url ? $gallery_url : '#' ),
-		array( 'newspaper', __( 'News & Events', 'ner-michoel-child' ), __( 'Updates & Mazal Tovs', 'ner-michoel-child' ), home_url( '/news-events/' ) ),
-		array( 'book-open', __( 'Connections', 'ner-michoel-child' ), __( 'Magazine archive', 'ner-michoel-child' ), home_url( '/connections/' ) ),
 		array( 'heart', __( 'Contribute', 'ner-michoel-child' ), __( 'Support the Yeshiva', 'ner-michoel-child' ), home_url( '/contribute/' ) ),
 		array( 'mail', __( 'Contact', 'ner-michoel-child' ), __( 'We\'d love to hear from you', 'ner-michoel-child' ), home_url( '/contact/' ) ),
 	);
@@ -256,45 +244,24 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 	</section>
 	<?php endif; ?>
 
-	<?php if ( $recent_news || $recent_mazal_tovs ) : ?>
-	<section class="nm-home-section nm-home-section--split">
-		<?php if ( $recent_news ) : ?>
-		<div>
-			<div class="nm-home-section__head">
-				<h2><?php esc_html_e( 'What\'s New', 'ner-michoel-child' ); ?></h2>
-				<a class="nm-home-more" href="<?php echo esc_url( home_url( '/news-events/' ) ); ?>"><?php esc_html_e( 'See all', 'ner-michoel-child' ); ?> &rarr;</a>
-			</div>
-			<div class="nm-home-news-list">
-				<?php foreach ( $recent_news as $news_post ) : ?>
-					<a class="nm-home-news-item" href="<?php echo esc_url( get_permalink( $news_post ) ); ?>">
-						<span class="nm-home-news-item__date"><?php echo esc_html( get_the_date( '', $news_post ) ); ?></span>
-						<span class="nm-home-news-item__title"><?php echo esc_html( get_the_title( $news_post ) ); ?></span>
-					</a>
-				<?php endforeach; ?>
-			</div>
+	<?php if ( $recent_mazal_tovs ) : ?>
+	<section class="nm-home-section">
+		<div class="nm-home-section__head">
+			<h2><?php esc_html_e( 'Mazal Tov', 'ner-michoel-child' ); ?></h2>
 		</div>
-		<?php endif; ?>
-
-		<?php if ( $recent_mazal_tovs ) : ?>
-		<div>
-			<div class="nm-home-section__head">
-				<h2><?php esc_html_e( 'Mazal Tov', 'ner-michoel-child' ); ?></h2>
-			</div>
-			<div class="nm-home-mazaltov-banner">
-				<?php foreach ( $recent_mazal_tovs as $mt ) : ?>
-					<?php $relationship = function_exists( 'ner_michoel_get_mazal_tov_relationship' ) ? ner_michoel_get_mazal_tov_relationship( $mt->ID ) : ''; ?>
-					<p>
-						<?php if ( $relationship ) : ?><?php echo esc_html( $relationship ); ?> <?php endif; ?>
-						<strong><?php echo esc_html( get_the_title( $mt ) ); ?></strong>
-					</p>
-				<?php endforeach; ?>
-			</div>
+		<div class="nm-home-mazaltov-banner">
+			<?php foreach ( $recent_mazal_tovs as $mt ) : ?>
+				<?php $relationship = function_exists( 'ner_michoel_get_mazal_tov_relationship' ) ? ner_michoel_get_mazal_tov_relationship( $mt->ID ) : ''; ?>
+				<p>
+					<?php if ( $relationship ) : ?><?php echo esc_html( $relationship ); ?> <?php endif; ?>
+					<strong><?php echo esc_html( get_the_title( $mt ) ); ?></strong>
+				</p>
+			<?php endforeach; ?>
 		</div>
-		<?php endif; ?>
 	</section>
 	<?php endif; ?>
 
-			<?php if ( $recent_written ) : ?>
+	<?php if ( $recent_written ) : ?>
 		<section class="nm-home-section nm-home-written-section">
 			<div class="nm-home-section__head">
 				<h2><?php esc_html_e( 'Written Shiurim', 'ner-michoel-child' ); ?></h2>
