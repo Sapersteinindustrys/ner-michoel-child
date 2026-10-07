@@ -27,6 +27,7 @@
 	var input     = root.querySelector( '[data-live-query]' );
 	var speakerEl = root.querySelector( '[data-live-speaker]' );
 	var seriesEl  = root.querySelector( '[data-live-series]' );
+	var topicEl   = root.querySelector( '[data-live-topic]' );
 	var yearEl    = root.querySelector( '[data-live-year]' );
 	var countEl   = root.querySelector( '[data-live-count]' );
 	var list      = root.querySelector( '[data-live-results]' );
@@ -103,6 +104,7 @@
 		index          = data;
 		index.speakers = index.speakers || {};
 		index.series   = index.series || {};
+		index.topics   = index.topics || {};
 
 		var years = {};
 		index.items.forEach( function ( it ) {
@@ -114,6 +116,14 @@
 
 		addOptions( speakerEl, sortedNames( index.speakers ) );
 		addOptions( seriesEl, sortedNames( index.series ) );
+		// Topics come with core v0.9.19. With an older index there are none, so the filter stays hidden.
+		if ( topicEl ) {
+			addOptions( topicEl, sortedNames( index.topics ) );
+			var topicLabel = topicEl.closest( 'label' );
+			if ( topicLabel ) {
+				topicLabel.hidden = ! Object.keys( index.topics ).length;
+			}
+		}
 		addOptions(
 			yearEl,
 			Object.keys( years )
@@ -128,7 +138,8 @@
 
 	/*
 	 * The filters and search text live in the URL, so a link or Back returns to
-	 * the same results. The names are by, sr and yr on purpose: speaker and series
+	 * the same results. tp (topic) is named the same way: topic is the topic taxonomy's.
+	 * The names are by, sr and yr on purpose: speaker and series
 	 * are WordPress query vars for the taxonomies and year is the date archive's,
 	 * so using those would filter or redirect the page on the server. s is always
 	 * kept, even empty: without it, ?post_type=shiur is the Shiurim archive, not
@@ -139,10 +150,13 @@
 		input.value     = params.get( 's' ) || '';
 		speakerEl.value = params.get( 'by' ) || '';
 		seriesEl.value  = params.get( 'sr' ) || '';
+		if ( topicEl ) {
+			topicEl.value = params.get( 'tp' ) || '';
+		}
 		yearEl.value    = params.get( 'yr' ) || '';
 		// An option that isn't in the index (an old link) falls back to "All".
-		[ speakerEl, seriesEl, yearEl ].forEach( function ( select ) {
-			if ( select.selectedIndex < 0 ) {
+		[ speakerEl, seriesEl, topicEl, yearEl ].forEach( function ( select ) {
+			if ( select && select.selectedIndex < 0 ) {
 				select.value = '';
 			}
 		} );
@@ -153,7 +167,7 @@
 		params.set( 's', input.value );
 		params.set( 'post_type', 'shiur' );
 		params.delete( 'nm_plain' );
-		[ [ 'by', speakerEl.value ], [ 'sr', seriesEl.value ], [ 'yr', yearEl.value ] ].forEach( function ( pair ) {
+		[ [ 'by', speakerEl.value ], [ 'sr', seriesEl.value ], [ 'tp', topicEl ? topicEl.value : '' ], [ 'yr', yearEl.value ] ].forEach( function ( pair ) {
 			if ( pair[ 1 ] ) {
 				params.set( pair[ 0 ], pair[ 1 ] );
 			} else {
@@ -230,6 +244,7 @@
 		var phrase  = words.join( ' ' );
 		var speaker = speakerEl.value;
 		var series  = seriesEl.value;
+		var topic   = topicEl ? topicEl.value : '';
 		var year    = yearEl.value;
 
 		matches = [];
@@ -237,6 +252,11 @@
 		for ( var i = 0; i < items.length; i++ ) {
 			var it = items[ i ];
 			if ( ( speaker && String( it.a ) !== speaker ) || ( series && String( it.s ) !== series ) || ( year && it._year !== year ) ) {
+				continue;
+			}
+			if ( topic && ! ( it.g && it.g.some( function ( id ) {
+				return String( id ) === topic;
+			} ) ) ) {
 				continue;
 			}
 
@@ -305,6 +325,9 @@
 			input.addEventListener( 'input', schedule );
 			speakerEl.addEventListener( 'change', run );
 			seriesEl.addEventListener( 'change', run );
+			if ( topicEl ) {
+				topicEl.addEventListener( 'change', run );
+			}
 			yearEl.addEventListener( 'change', run );
 			moreBtn.addEventListener( 'click', showMore );
 		} )

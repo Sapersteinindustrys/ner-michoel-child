@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * only Shiurim pages get the audio player bar chrome.
  */
 function ner_michoel_is_shiurim_context() {
-	return is_post_type_archive( 'shiur' ) || is_tax( array( 'speaker', 'series' ) ) || is_singular( 'shiur' )
+	return is_post_type_archive( 'shiur' ) || is_tax( array( 'speaker', 'series', 'topic' ) ) || is_singular( 'shiur' )
 		|| ( function_exists( 'ner_michoel_is_shiur_search' ) && ner_michoel_is_shiur_search() );
 }
 
@@ -26,6 +26,27 @@ function ner_michoel_is_shiurim_context() {
  */
 function ner_michoel_is_written_context() {
 	return is_post_type_archive( 'written_shiur' ) || is_singular( 'written_shiur' );
+}
+
+/**
+ * A shiur's topics (ner-michoel-core includes/topics.php) as links to their pages.
+ * Nothing when it has none, or when the core plugin is older than topics.
+ */
+function ner_michoel_render_topic_chips( $post_id ) {
+	if ( ! taxonomy_exists( 'topic' ) ) {
+		return;
+	}
+	$topics = get_the_terms( $post_id, 'topic' );
+	if ( ! $topics || is_wp_error( $topics ) ) {
+		return;
+	}
+	?>
+	<ul class="sh-topic-chips" aria-label="<?php esc_attr_e( 'Topics', 'ner-michoel-child' ); ?>">
+		<?php foreach ( $topics as $topic ) : ?>
+			<li><a class="sh-topic-chip" href="<?php echo esc_url( get_term_link( $topic ) ); ?>"><?php echo esc_html( $topic->name ); ?></a></li>
+		<?php endforeach; ?>
+	</ul>
+	<?php
 }
 
 /**

@@ -57,3 +57,44 @@
 	text-transform: uppercase;
 	margin-bottom: 2px;
 }
+
+/* A shiur's topics, under its title (ner_michoel_render_topic_chips()). */
+.sh-topic-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 10px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* Two classes, to beat body.is-nm-app a { color: inherit } in custom.css. */
+.sh-topic-chips .sh-topic-chip {
+	display: inline-block;
+	padding: 4px 12px;
+	border: 1px solid var(--sh-border, rgba(255, 255, 255, 0.12));
+	border-radius: 999px;
+	color: var(--sh-text-muted, rgba(255, 255, 255, 0.7));
+	font-size: 0.8rem;
+	font-weight: 600;
+	text-decoration: none;
+	transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.sh-topic-chips .sh-topic-chip:hover,
+.sh-topic-chips .sh-topic-chip:focus-visible {
+	border-color: var(--sh-accent, #2f8f5b);
+	color: var(--sh-text, #fff);
+}
+
+/* Page links under a long track list (a topic page), on the dark layouts. */
+.shiurim-app:not(.shiurim-app--classic) .sh-classic-pagination {
+	margin-top: 20px;
+}
+
+.shiurim-app:not(.shiurim-app--classic) .sh-classic-pagination a,
+.shiurim-app:not(.shiurim-app--classic) .sh-classic-pagination span {
+	border-color: var(--sh-border, rgba(255, 255, 255, 0.12));
+	color: var(--sh-text, #fff);
+	text-decoration: none;
+}

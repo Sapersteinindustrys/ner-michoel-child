@@ -54,6 +54,10 @@ $title_empty    = __( 'Search shiurim', 'ner-michoel-child' );
 						<span class="screen-reader-text"><?php esc_html_e( 'Series', 'ner-michoel-child' ); ?></span>
 						<select data-live-series><option value=""><?php esc_html_e( 'All series', 'ner-michoel-child' ); ?></option></select>
 					</label>
+					<label hidden>
+						<span class="screen-reader-text"><?php esc_html_e( 'Topic', 'ner-michoel-child' ); ?></span>
+						<select data-live-topic><option value=""><?php esc_html_e( 'All topics', 'ner-michoel-child' ); ?></option></select>
+					</label>
 					<label>
 						<span class="screen-reader-text"><?php esc_html_e( 'Year', 'ner-michoel-child' ); ?></span>
 						<select data-live-year><option value=""><?php esc_html_e( 'All years', 'ner-michoel-child' ); ?></option></select>

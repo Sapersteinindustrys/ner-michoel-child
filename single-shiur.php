@@ -138,6 +138,7 @@ while ( have_posts() ) :
 						&middot; <a href="<?php echo esc_url( get_term_link( $series_terms[0] ) ); ?>"><?php echo esc_html( $series_terms[0]->name ); ?></a>
 					<?php endif; ?>
 				</p>
+				<?php ner_michoel_render_topic_chips( get_the_ID() ); ?>
 				<?php ner_michoel_render_save_button( get_the_ID() ); ?>
 			</header>
 			<?php if ( $is_embed && $vimeo_id ) : ?>
@@ -174,6 +175,7 @@ while ( have_posts() ) :
 							&middot; <a href="<?php echo esc_url( get_term_link( $series_terms[0] ) ); ?>"><?php echo esc_html( $series_terms[0]->name ); ?></a>
 						<?php endif; ?>
 					</p>
+					<?php ner_michoel_render_topic_chips( get_the_ID() ); ?>
 					<?php if ( $queue || $queue_url ) : ?>
 						<div class="sh-hero__actions">
 							<button
