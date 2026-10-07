@@ -817,7 +817,8 @@ function nerMichoelRecordHistory( postId ) {
 
 	// Cards and "Play All" buttons. The first track is in the page, so playback starts inside
 	// the tap. The full queue comes from data-queue-url and replaces the rest of the list behind
-	// the track that is playing (upgradeQueue). With no first track, the full queue plays when it arrives.
+	// the track that is playing (upgradeQueue). With no first track, the full queue plays when it
+	// arrives. If there is nothing to play at all, the card's own page opens instead.
 	var queueRequest = 0;
 	document.addEventListener( 'click', function ( e ) {
 		var trigger = e.target.closest( '[data-play-queue], [data-queue-url]' );
@@ -829,25 +830,40 @@ function nerMichoelRecordHistory( postId ) {
 		var url     = trigger.getAttribute( 'data-queue-url' );
 		var head    = trigger.hasAttribute( 'data-play-queue' ) ? parseQueue( trigger ) : null;
 		var request = ++queueRequest;
-		if ( head && head.length ) {
+		var hasHead = !! ( head && head.length );
+		if ( hasHead ) {
 			playQueue( head, index );
 		}
-		if ( url ) {
-			fetchQueue( url, function ( full ) {
-				// A later click has made this one out of date.
-				if ( request !== queueRequest ) {
-					return;
-				}
-				if ( head && head.length ) {
-					upgradeQueue( full );
-				} else {
-					playQueue( full, index );
-				}
-			} );
+		if ( ! url ) {
+			return;
 		}
+		fetchQueue( url, function ( full ) {
+			// A later click has made this one out of date.
+			if ( request !== queueRequest ) {
+				return;
+			}
+			if ( hasHead ) {
+				if ( full.length ) {
+					upgradeQueue( full );
+				}
+			} else if ( full.length ) {
+				playQueue( full, index );
+			} else {
+				openPage( trigger );
+			}
+		} );
 	} );
 
-	// Loads a queue from the queue endpoint. If the request fails, the first track keeps playing.
+	// Opens the page the card links to, for a card with nothing to play.
+	function openPage( trigger ) {
+		var link = trigger.closest( 'a[href]' );
+		if ( link ) {
+			window.location.href = link.href;
+		}
+	}
+
+	// Loads a queue from the queue endpoint. An empty list and a failed request both come back as
+	// an empty list, so the caller always gets an array.
 	function fetchQueue( url, done ) {
 		fetch( url, { credentials: 'same-origin' } )
 			.then( function ( response ) {
@@ -857,11 +873,11 @@ function nerMichoelRecordHistory( postId ) {
 				return response.json();
 			} )
 			.then( function ( list ) {
-				if ( Array.isArray( list ) && list.length ) {
-					done( list );
-				}
+				done( Array.isArray( list ) ? list : [] );
 			} )
-			.catch( function () {} );
+			.catch( function () {
+				done( [] );
+			} );
 	}
 
 	// Puts the full queue in place of the first track's queue. The track that is playing keeps

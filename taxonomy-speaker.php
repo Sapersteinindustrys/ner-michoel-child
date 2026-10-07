@@ -33,10 +33,12 @@ $image       = ner_michoel_get_speaker_photo_url( $term->term_id );
 $is_carousel = '24six' === ner_michoel_get_layout();
 
 // The series cards: each one's count and first track come in one query for all of them,
-// and its full queue loads when its play button is pressed (see archive-shiur.php).
-$lazy_queues   = function_exists( 'ner_michoel_queue_url' );
-$series_counts = $lazy_queues && $series ? ner_michoel_term_shiur_counts( 'series' ) : array();
-$series_first  = $lazy_queues && $series ? ner_michoel_first_track_by_term( 'series', wp_list_pluck( $series, 'term_id' ), false ) : array();
+// and its full queue loads when its play button is pressed (see archive-shiur.php). A card
+// for a series with no audio gets no play button.
+$lazy_queues      = function_exists( 'ner_michoel_queue_url' );
+$series_counts    = $lazy_queues && $series ? ner_michoel_term_shiur_counts( 'series' ) : array();
+$series_first     = $lazy_queues && $series ? ner_michoel_first_track_by_term( 'series', wp_list_pluck( $series, 'term_id' ), false ) : array();
+$series_playable  = $lazy_queues && $series && function_exists( 'ner_michoel_term_playable_counts' ) ? ner_michoel_term_playable_counts( 'series' ) : null;
 ?>
 
 <div class="shiurim-app">
@@ -64,10 +66,11 @@ $series_first  = $lazy_queues && $series ? ner_michoel_first_track_by_term( 'ser
 		<?php ner_michoel_render_card_collection_start( $is_carousel ); ?>
 			<?php foreach ( $series as $s ) :
 				if ( $lazy_queues ) {
-					$s_count    = isset( $series_counts[ $s->term_id ] ) ? $series_counts[ $s->term_id ] : 0;
-					$queue_args = array(
+					$s_count          = isset( $series_counts[ $s->term_id ] ) ? $series_counts[ $s->term_id ] : 0;
+					$s_has_audio      = null === $series_playable || ! empty( $series_playable[ $s->term_id ] );
+					$queue_args       = array(
 						'queue'     => isset( $series_first[ $s->term_id ] ) ? $series_first[ $s->term_id ] : array(),
-						'queue_url' => ner_michoel_queue_url( array( 'series' => $s->term_id ) ),
+						'queue_url' => $s_has_audio ? ner_michoel_queue_url( array( 'series' => $s->term_id ) ) : '',
 					);
 				} else {
 					$s_shiurim  = ner_michoel_get_series_shiurim( $s->term_id );
