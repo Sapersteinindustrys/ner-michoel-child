@@ -2671,15 +2671,48 @@ body.sh-layout-classic.is-nm-app a {
 	border-radius: 4px;
 }
 
-.nm-office-grid {
+/* Contact page — a wide desktop spread (office info beside the form)
+   rather than the single narrow column the other static pages use; a
+   form has room to use the width, where a paragraph of reading text
+   wouldn't. Narrows to one column under 900px (see the breakpoint
+   below). */
+
+.nm-page--contact {
+	/* Astra's own page wrapper (.ast-container) is a flex row, so a child
+	   with no explicit width shrinks to fit its content instead of
+	   stretching to max-width — invisible on the single-column static
+	   pages (About, Contribute), since their content is already narrow,
+	   but this page's two-column grid needs the real width to lay out
+	   against. */
+	width: 100%;
+	max-width: 1120px;
+}
+
+.nm-contact-hero {
+	max-width: 620px;
+	margin: 0 auto 48px;
+	text-align: center;
+}
+
+.nm-contact-hero .nm-page__intro {
+	margin-top: 10px;
+	font-size: 1.05rem;
+}
+
+.nm-contact-layout {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-	gap: 24px;
-	margin: 32px 0;
+	grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+	gap: 40px;
+	align-items: start;
+}
+
+.nm-contact-info {
+	display: grid;
+	gap: 20px;
 }
 
 .nm-office-card {
-	padding: 20px 24px;
+	padding: 24px 26px;
 	background: var(--nm-surface);
 	border-radius: var(--nm-radius);
 	border: 1px solid var(--nm-border);
@@ -2691,23 +2724,117 @@ body.sh-layout-classic.is-nm-app a {
 }
 
 .nm-office-card h2 {
-	margin-top: 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 14px;
 	font-size: 1.1rem;
+}
+
+.nm-office-card h2 .nm-icon {
+	flex: none;
+	width: 18px;
+	height: 18px;
+	color: var(--nm-primary);
+}
+
+.nm-office-card__org {
+	color: var(--nm-text-muted);
 }
 
 .nm-office-card p {
 	margin: 0 0 10px;
 }
 
-.nm-contact-form-wrap {
+.nm-office-card__row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.nm-office-card__row .nm-icon {
+	flex: none;
+	width: 15px;
+	height: 15px;
+	color: var(--nm-text-muted);
+}
+
+.nm-office-card__spacer {
+	display: inline-block;
+	width: 15px;
+	flex: none;
+}
+
+.nm-office-card__label {
+	color: var(--nm-text-muted);
+	font-size: 0.82rem;
+}
+
+.nm-contact-card {
+	padding: 32px 36px;
+	background: var(--nm-surface);
+	border-radius: 16px;
+	border: 1px solid var(--nm-border);
+	box-shadow: var(--nm-shadow);
+}
+
+.nm-contact-card h2 {
+	margin: 0 0 6px;
+	font-size: 1.35rem;
+}
+
+.nm-contact-card--magid {
 	margin-top: 40px;
+}
+
+.nm-contact-card__head {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+.nm-contact-card__badge {
+	display: flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	background: color-mix(in srgb, var(--nm-primary) 12%, transparent);
+	color: var(--nm-primary);
+}
+
+.nm-contact-card__badge .nm-icon {
+	width: 22px;
+	height: 22px;
+}
+
+.nm-contact-card .nm-page__intro {
+	margin: 0;
 }
 
 .nm-contact-form {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: 18px;
+	/* account.css builds its login/signup/profile forms on this rule as-is
+	   (no .nm-contact-card wrapper there to size them), so this stays —
+	   .nm-contact-form--grid below overrides it for the Contact page's
+	   wider, card-wrapped forms. */
 	max-width: 480px;
+}
+
+.nm-contact-form--grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 18px 20px;
+	max-width: none;
+}
+
+.nm-contact-form__field--full {
+	grid-column: 1 / -1;
 }
 
 .nm-contact-form__field {
@@ -2719,35 +2846,51 @@ body.sh-layout-classic.is-nm-app a {
 }
 
 .nm-contact-form__field input,
+.nm-contact-form__field select,
 .nm-contact-form__field textarea {
 	font-weight: 400;
-	padding: 10px 12px;
+	padding: 11px 14px;
 	border: 1px solid var(--nm-border);
-	border-radius: var(--nm-radius);
+	border-radius: 10px;
+	background: #fff;
 	font-family: inherit;
 	font-size: 1rem;
-	transition: border-color 0.15s ease;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.nm-contact-form__field textarea {
+	resize: vertical;
 }
 
 .nm-contact-form__field input:focus,
+.nm-contact-form__field select:focus,
 .nm-contact-form__field textarea:focus {
 	border-color: var(--nm-primary);
 	outline: none;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--nm-primary) 18%, transparent);
 }
 
 .nm-contact-form__submit {
-	align-self: start;
+	justify-self: start;
 	display: inline-flex;
 	align-items: center;
-	padding: 11px 28px;
+	gap: 8px;
+	margin-top: 4px;
+	padding: 12px 30px;
 	border: none;
 	border-radius: var(--nm-radius-pill);
 	background: var(--nm-primary);
 	color: #fff;
 	font-weight: 700;
+	font-size: 1rem;
 	cursor: pointer;
 	box-shadow: var(--nm-shadow);
 	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.nm-contact-form__submit .nm-icon {
+	width: 16px;
+	height: 16px;
 }
 
 .nm-contact-form__submit:hover {
@@ -2760,7 +2903,14 @@ body.sh-layout-classic.is-nm-app a {
 	padding: 12px 16px;
 	border-radius: 6px;
 	margin-bottom: 20px;
+	/* Matches .nm-contact-form's own default width (account.css's narrow
+	   forms); the Contact page's cards are wider, so its notices fill
+	   them instead — see .nm-contact-card .nm-form-notice below. */
 	max-width: 480px;
+}
+
+.nm-contact-card .nm-form-notice {
+	max-width: none;
 }
 
 .nm-form-notice--success {
@@ -2773,6 +2923,40 @@ body.sh-layout-classic.is-nm-app a {
 	background: #fbeaea;
 	border: 1px solid #eebcbc;
 	color: #7a2222;
+}
+
+@media (max-width: 900px) {
+	.nm-contact-layout {
+		grid-template-columns: 1fr;
+		gap: 28px;
+	}
+
+	.nm-contact-card {
+		padding: 26px 24px;
+	}
+
+	.nm-contact-form--grid {
+		grid-template-columns: 1fr;
+	}
+
+	.nm-contact-form__field--full {
+		grid-column: auto;
+	}
+}
+
+@media (max-width: 480px) {
+	.nm-contact-card {
+		padding: 22px 18px;
+	}
+
+	.nm-contact-card__head {
+		align-items: center;
+	}
+
+	.nm-contact-form__submit {
+		justify-self: stretch;
+		justify-content: center;
+	}
 }
 
 /* Off-screen honeypot — invisible and untabbable for real visitors,
