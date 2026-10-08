@@ -95,6 +95,10 @@ function ner_michoel_is_app_context() {
  * Which layout to render:
  * - 'stream'  — the Spotify/app-style visual language (grid browsing)
  * - 'classic' — the plain filterable/sortable library style
+ * - 'studio'  — the new homepage's light look on the Shiurim pages, with
+ *   Modern's lists and 24Six's swipeable rows (inc/shiurim-studio.php,
+ *   assets/css/shiurim-studio.css). The Shiurim home has its own page;
+ *   the other pages keep their markup and take the look from the CSS.
  * - '24six'   — carousel/swimlane browsing (horizontal-scrolling rows
  *   of Series/Speakers instead of a wrapping grid), inspired by
  *   24six.app's layout specifically, not its color scheme — reuses
@@ -114,7 +118,7 @@ function ner_michoel_is_app_context() {
  */
 function ner_michoel_get_layout() {
 	$layout = isset( $_COOKIE['nm_layout'] ) ? sanitize_key( wp_unslash( $_COOKIE['nm_layout'] ) ) : 'stream';
-	return in_array( $layout, array( 'classic', '24six' ), true ) ? $layout : 'stream';
+	return in_array( $layout, array( 'classic', '24six', 'studio' ), true ) ? $layout : 'stream';
 }
 
 /**
@@ -136,7 +140,7 @@ function ner_michoel_app_body_class( $classes ) {
 add_filter( 'body_class', 'ner_michoel_app_body_class' );
 
 /**
- * Top-right switch between the three layouts. Flipping it sets the
+ * Top-right switch between the four layouts. Flipping it sets the
  * layout cookie and reloads, since each layout is a genuinely
  * different template (not a client-side CSS skin) — see the branches
  * at the top of each app-context template.
@@ -153,6 +157,7 @@ function ner_michoel_render_layout_toggle() {
 		<button type="button" class="sh-layout-toggle__option<?php echo 'stream' === $layout ? ' is-active' : ''; ?>" data-layout="stream"><?php esc_html_e( 'Modern', 'ner-michoel-child' ); ?></button>
 		<button type="button" class="sh-layout-toggle__option<?php echo 'classic' === $layout ? ' is-active' : ''; ?>" data-layout="classic"><?php esc_html_e( 'Classic', 'ner-michoel-child' ); ?></button>
 		<button type="button" class="sh-layout-toggle__option<?php echo '24six' === $layout ? ' is-active' : ''; ?>" data-layout="24six"><?php esc_html_e( '24Six', 'ner-michoel-child' ); ?></button>
+		<button type="button" class="sh-layout-toggle__option<?php echo 'studio' === $layout ? ' is-active' : ''; ?>" data-layout="studio"><?php esc_html_e( 'Studio', 'ner-michoel-child' ); ?></button>
 	</div>
 	<?php
 }

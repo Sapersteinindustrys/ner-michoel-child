@@ -30,7 +30,8 @@ endif;
 $series      = ner_michoel_get_speaker_series( $term->term_id );
 $standalone  = ner_michoel_get_speaker_standalone_shiurim( $term->term_id );
 $image       = ner_michoel_get_speaker_photo_url( $term->term_id );
-$is_carousel = '24six' === ner_michoel_get_layout();
+// Swipeable rows in 24Six, and in Studio, which takes them from 24Six.
+$is_carousel = in_array( ner_michoel_get_layout(), array( '24six', 'studio' ), true );
 
 // The series cards: each one's count and first track come in one query for all of them,
 // and its full queue loads when its play button is pressed (see archive-shiur.php). A card

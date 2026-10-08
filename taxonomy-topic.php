@@ -34,7 +34,8 @@ if ( $shiurim && function_exists( 'ner_michoel_prime_shiur_caches' ) ) {
 	ner_michoel_prime_shiur_caches( wp_list_pluck( $shiurim, 'ID' ) );
 }
 $is_first    = max( 1, (int) get_query_var( 'paged' ) ) === 1;
-$is_carousel = '24six' === ner_michoel_get_layout();
+// Swipeable rows in 24Six, and in Studio, which takes them from 24Six.
+$is_carousel = in_array( ner_michoel_get_layout(), array( '24six', 'studio' ), true );
 $label       = function_exists( 'ner_michoel_topic_season_label' ) ? ner_michoel_topic_season_label( $term->term_id ) : '';
 $found       = (int) $wp_query->found_posts;
 

@@ -1,0 +1,1478 @@
+/*
+ * Studio: the Shiurim pages in the new homepage's look (inc/shiurim-studio.php).
+ *
+ *   1. The light theme. Every Shiurim page in Studio (body.sh-layout-studio
+ *      .is-shiurim): the app's colour variables (custom.css) set light, the few
+ *      colours custom.css fixes in place adjusted, and the player bar and its
+ *      sheet kept dark.
+ *   2. The Shiurim home (template-parts/shiurim-studio.php, the .st-* classes).
+ *   3. The other Shiurim pages: hero, track list, cards, search.
+ *
+ * Tokens follow home.css (.hn): ink, navy, gold, green, the serif face. Astra
+ * styles bare elements (a:hover, button, h2, ul, input[type=search]), so
+ * every rule here is at least two classes deep. The few !important ones answer
+ * !important rules in custom.css.
+ */
+
+/* 1. The light theme --------------------------------------------------------- */
+
+body.sh-layout-studio.is-shiurim {
+	--st-ink: #0f172a;
+	--st-ink-2: #334155;
+	--st-muted: #5b6678;
+	--st-faint: #8a94a6;
+	--st-line: #e3e8f0;
+	--st-line-soft: #eef2f7;
+	--st-surface: #fff;
+	--st-soft: #f6f8fb;
+	--st-navy: #1b2f52;
+	--st-navy-2: #24406f;
+	--st-gold: #a87a26;
+	--st-gold-bright: #e4be6c;
+	--st-green: #2f8f5b;
+	--st-radius-xl: 28px;
+	--st-radius-lg: 20px;
+	--st-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+	--st-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px -14px rgba(15, 23, 42, 0.18);
+	--st-shadow-lg: 0 2px 6px rgba(15, 23, 42, 0.06), 0 32px 64px -28px rgba(15, 23, 42, 0.42);
+	--st-serif: "Frank Ruhl Libre", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+	--st-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--st-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+	--st-hero-bg:
+		radial-gradient(110% 130% at 100% 0%, rgba(214, 165, 71, 0.2), rgba(214, 165, 71, 0) 50%),
+		radial-gradient(80% 110% at 0% 100%, rgba(47, 143, 91, 0.16), rgba(47, 143, 91, 0) 55%),
+		linear-gradient(140deg, #1d3358 0%, #132443 55%, #0e1b33 100%);
+
+	/* The app's own variables (custom.css, body.is-nm-app), light. */
+	--sh-bg: #f5f7fb;
+	--sh-surface: #fff;
+	--sh-surface-hover: #eef2f7;
+	--sh-text: #0f172a;
+	--sh-text-muted: #5b6678;
+	--sh-border: #e3e8f0;
+	--sh-accent: #2f8f5b;
+	--sh-accent-hover: #267a4c;
+	--sh-player-bg: #0e1b33;
+	--sh-radius: 16px;
+	--sh-font: var(--st-sans);
+
+	background: var(--sh-bg);
+	color: var(--sh-text);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* The player bar, its queue sheet and the speed menu stay dark: navy, to sit
+   with the hero. Custom properties inherit, so setting them here is enough. */
+body.sh-layout-studio .sh-player,
+body.sh-layout-studio .sh-sheet,
+body.sh-layout-studio .sh-sheet-backdrop {
+	--sh-surface: #16233d;
+	--sh-surface-hover: #22324f;
+	--sh-text: #fff;
+	--sh-text-muted: rgba(255, 255, 255, 0.64);
+	--sh-border: rgba(255, 255, 255, 0.1);
+	color: #fff;
+}
+
+/* Bottom placements of the layout switch go above the player bar, as in Modern
+   (custom.css) and 24Six (shiurim-navigation.css). */
+body.is-shiurim.sh-layout-studio .sh-layout-toggle--bottom-left,
+body.is-shiurim.sh-layout-studio .sh-layout-toggle--bottom-center,
+body.is-shiurim.sh-layout-studio .sh-layout-toggle--bottom-right {
+	bottom: calc(var(--sh-player-height) + var(--nm-toggle-offset));
+}
+
+/* Artwork with no picture: navy, with the serif initial. */
+body.sh-layout-studio .sh-placeholder-art {
+	background: linear-gradient(150deg, var(--st-navy-2), #0e1b33);
+	color: rgba(255, 255, 255, 0.92);
+	font-family: var(--st-serif);
+	font-weight: 500;
+}
+
+body.sh-layout-studio .shiurim-app a:focus-visible,
+body.sh-layout-studio .shiurim-app button:focus-visible {
+	outline: 2px solid var(--st-navy);
+	outline-offset: 2px;
+}
+
+/* 2. The Shiurim home ---------------------------------------------------------- */
+
+.shiurim-app.st {
+	display: grid;
+	gap: clamp(28px, 4vw, 48px);
+	padding-bottom: clamp(32px, 5vw, 64px);
+	color: var(--st-ink);
+	font-family: var(--st-sans);
+}
+
+.st *,
+.st *::before,
+.st *::after {
+	box-sizing: border-box;
+}
+
+.st > * {
+	min-width: 0;
+	animation: st-rise 0.55s var(--st-ease) both;
+}
+
+.st > :nth-child(3) {
+	animation-delay: 0.05s;
+}
+
+.st > :nth-child(4) {
+	animation-delay: 0.1s;
+}
+
+@keyframes st-rise {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.st > *,
+	.st .st-card,
+	.st .st-play,
+	.st .st-row::after {
+		animation: none;
+		transition: none;
+	}
+}
+
+/* Small shared pieces. */
+
+.st .st-kicker {
+	margin: 0 0 6px;
+	color: var(--st-green);
+	font-size: 0.72rem;
+	font-weight: 800;
+	line-height: 1.3;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+.st .st-kicker--gold {
+	color: var(--st-gold);
+}
+
+.st .st-more {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--st-navy);
+	font-size: 0.92rem;
+	font-weight: 650;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.st .st-more:hover,
+.st .st-more:focus {
+	color: var(--st-navy-2);
+}
+
+.st .st-more span {
+	transition: transform 0.2s var(--st-ease);
+}
+
+.st .st-more:hover span,
+.st .st-more:focus span {
+	transform: translateX(3px);
+}
+
+.st .st-empty {
+	margin: 0;
+	padding: 8px 24px 20px;
+	color: var(--st-muted);
+}
+
+.st .st-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 9px;
+	border-radius: 999px;
+	background: var(--st-line-soft);
+	color: var(--st-muted);
+	font-size: 0.66rem;
+	font-weight: 750;
+	line-height: 1.4;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.st .st-pill--new {
+	background: #e5f4eb;
+	color: #1f7046;
+}
+
+.st .st-pill--written {
+	background: #f7efdc;
+	color: #8a6420;
+}
+
+/* Artwork: a picture, or initials on the name's own colour. */
+
+.st .st-art {
+	position: relative;
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	border-radius: 14px;
+	background: hsl(var(--hue, 215) 42% 92%);
+	color: hsl(var(--hue, 215) 38% 30%);
+}
+
+.st .st-art img {
+	width: 100%;
+	height: 100%;
+	max-width: none;
+	object-fit: cover;
+}
+
+.st .st-initials {
+	font-family: var(--st-serif);
+	font-size: 1.15rem;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+}
+
+.st .st-art--person {
+	border-radius: 50%;
+}
+
+/* Play buttons. Plain <button>s, so Astra's button look is cleared first. */
+
+.st .st-play {
+	display: grid;
+	place-items: center;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	box-shadow: none;
+	cursor: pointer;
+	transition: opacity 0.18s var(--st-ease), transform 0.18s var(--st-ease), background-color 0.18s var(--st-ease);
+}
+
+.st .st-play svg {
+	width: 18px;
+	height: 18px;
+	margin-left: 2px;
+}
+
+/* The hero ------------------------------------------------------------------- */
+
+.st .st-hero {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+	align-items: center;
+	gap: clamp(24px, 4vw, 56px);
+	padding: clamp(26px, 4.6vw, 60px);
+	overflow: hidden;
+	border-radius: var(--st-radius-xl);
+	background: var(--st-hero-bg);
+	color: #fff;
+	box-shadow: var(--st-shadow-lg);
+}
+
+/* A faint grid, fading out from the top left (as on the homepage). */
+.st .st-hero::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+	background-size: 44px 44px;
+	-webkit-mask-image: radial-gradient(120% 90% at 15% 0%, #000 0%, transparent 72%);
+	mask-image: radial-gradient(120% 90% at 15% 0%, #000 0%, transparent 72%);
+	pointer-events: none;
+}
+
+.st .st-eyebrow {
+	margin: 0 0 14px;
+	color: var(--st-gold-bright);
+	font-size: 0.74rem;
+	font-weight: 700;
+	line-height: 1.4;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+}
+
+.st .st-hero__title {
+	margin: 0;
+	color: #fff;
+	font-family: var(--st-serif);
+	font-size: clamp(2.2rem, 4.4vw, 3.4rem);
+	font-weight: 500;
+	line-height: 1.05;
+	letter-spacing: -0.015em;
+	text-wrap: balance;
+}
+
+.st .st-hero__lede {
+	max-width: 32em;
+	margin: 16px 0 0;
+	color: rgba(255, 255, 255, 0.78);
+	font-size: clamp(1rem, 1.25vw, 1.08rem);
+	line-height: 1.6;
+}
+
+.st .st-search {
+	display: flex;
+	align-items: center;
+	max-width: 540px;
+	margin: 28px 0 0;
+	padding: 6px;
+	border-radius: 999px;
+	background: #fff;
+	box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.55);
+	transition: box-shadow 0.2s var(--st-ease);
+}
+
+.st .st-search:focus-within {
+	box-shadow: 0 0 0 3px rgba(228, 190, 108, 0.7), 0 12px 30px -12px rgba(0, 0, 0, 0.55);
+}
+
+.st .st-search__icon {
+	display: flex;
+	flex: none;
+	padding: 0 2px 0 14px;
+	color: var(--st-faint);
+}
+
+.st .st-search__icon svg {
+	width: 20px;
+	height: 20px;
+}
+
+.st .st-search .st-search__input {
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 46px;
+	margin: 0;
+	padding: 0 10px;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+	color: var(--st-ink);
+	font-family: var(--st-sans);
+	font-size: 1rem;
+	line-height: 1.2;
+}
+
+.st .st-search .st-search__input:focus {
+	outline: none;
+	border: 0;
+	box-shadow: none;
+}
+
+.st .st-search .st-search__input::placeholder {
+	color: var(--st-faint);
+	opacity: 1;
+}
+
+.st .st-search .st-search__go {
+	flex: none;
+	height: 46px;
+	margin: 0;
+	padding: 0 24px;
+	border: 0;
+	border-radius: 999px;
+	background: var(--st-navy);
+	box-shadow: none;
+	color: #fff;
+	font-family: var(--st-sans);
+	font-size: 0.95rem;
+	font-weight: 650;
+	line-height: 1;
+	cursor: pointer;
+	transition: background-color 0.2s var(--st-ease);
+}
+
+.st .st-search .st-search__go:hover,
+.st .st-search .st-search__go:focus {
+	background: var(--st-navy-2);
+	color: #fff;
+}
+
+.st .st-stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 0;
+	margin: 22px 0 0;
+	padding: 0;
+	list-style: none;
+	color: rgba(255, 255, 255, 0.68);
+	font-size: 0.92rem;
+}
+
+.st .st-stats li {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	margin: 0;
+}
+
+.st .st-stats li + li::before {
+	content: "";
+	align-self: center;
+	width: 4px;
+	height: 4px;
+	margin: 0 14px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.32);
+}
+
+.st .st-stats strong {
+	color: #fff;
+	font-size: 1.05rem;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+/* The hero's right side: "Just added", then "Pick up where you left off" or
+   what's in season. Frosted glass on the navy, as on the homepage. */
+
+.st .st-hero__side {
+	display: grid;
+	align-content: center;
+	gap: 14px;
+	min-width: 0;
+}
+
+.st .st-feature {
+	display: grid;
+	gap: 10px;
+	padding: 16px 18px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 18px;
+	background: rgba(255, 255, 255, 0.11);
+	color: #fff;
+	-webkit-backdrop-filter: blur(14px) saturate(140%);
+	backdrop-filter: blur(14px) saturate(140%);
+}
+
+.st .st-feature--quiet {
+	background: rgba(255, 255, 255, 0.06);
+	border-color: rgba(255, 255, 255, 0.14);
+}
+
+.st .st-feature--link {
+	text-decoration: none;
+	transition: background-color 0.2s var(--st-ease), transform 0.2s var(--st-ease);
+}
+
+.st .st-feature--link:hover,
+.st .st-feature--link:focus {
+	background: rgba(255, 255, 255, 0.14);
+	color: #fff;
+	transform: translateY(-2px);
+}
+
+.st .st-feature__label {
+	margin: 0;
+	color: #f1d595;
+	font-size: 0.68rem;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.st .st-feature__body {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	min-width: 0;
+}
+
+.st .st-feature__art {
+	flex: none;
+	width: 64px;
+	height: 64px;
+}
+
+.st .st-art--feature {
+	border-radius: 14px;
+	box-shadow: 0 10px 22px -10px rgba(0, 0, 0, 0.6);
+}
+
+.st .st-feature__text {
+	display: grid;
+	flex: 1 1 auto;
+	gap: 3px;
+	min-width: 0;
+}
+
+.st .st-feature .st-feature__title {
+	display: -webkit-box;
+	overflow: hidden;
+	color: #fff;
+	font-size: 1.02rem;
+	font-weight: 650;
+	line-height: 1.32;
+	text-decoration: none;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.st .st-feature a.st-feature__title:hover,
+.st .st-feature a.st-feature__title:focus {
+	color: #fff;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.st .st-feature__meta {
+	color: rgba(255, 255, 255, 0.74);
+	font-size: 0.85rem;
+}
+
+.st .st-play--feature {
+	flex: none;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: #fff;
+	color: var(--st-navy);
+	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+}
+
+.st .st-play--feature:hover,
+.st .st-play--feature:focus {
+	background: #fff;
+	color: var(--st-navy);
+	transform: scale(1.06);
+}
+
+/* In season -------------------------------------------------------------------- */
+
+.st .st-season {
+	padding: clamp(20px, 2.6vw, 28px);
+	border: 1px solid #efe1bf;
+	border-radius: var(--st-radius-lg);
+	background:
+		radial-gradient(90% 140% at 100% 0%, rgba(228, 190, 108, 0.22), rgba(228, 190, 108, 0) 60%),
+		#fffdf8;
+	box-shadow: var(--st-shadow);
+}
+
+.st .st-season__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 12px 20px;
+	margin-bottom: 10px;
+}
+
+.st .st-season__title {
+	margin: 0;
+	color: var(--st-ink);
+	font-family: var(--st-serif);
+	font-size: clamp(1.6rem, 2.4vw, 2rem);
+	font-weight: 500;
+	line-height: 1.1;
+}
+
+/* New shiurim and Speakers, side by side ------------------------------------ */
+
+.st .st-main {
+	display: grid;
+	grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr);
+	align-items: start;
+	gap: clamp(20px, 2.6vw, 32px);
+}
+
+.st .st-panel {
+	min-width: 0;
+	border: 1px solid var(--st-line);
+	border-radius: var(--st-radius-lg);
+	background: var(--st-surface);
+	box-shadow: var(--st-shadow);
+}
+
+.st .st-panel__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 12px 20px;
+	padding: 24px 26px 10px;
+}
+
+.st .st-panel__title {
+	margin: 0;
+	color: var(--st-ink);
+	font-family: var(--st-serif);
+	font-size: clamp(1.55rem, 2.2vw, 1.95rem);
+	font-weight: 500;
+	line-height: 1.1;
+	letter-spacing: -0.01em;
+}
+
+/* Lists of shiurim and people. */
+
+.st .st-list {
+	margin: 0;
+	padding: 2px 10px 10px;
+	list-style: none;
+}
+
+.st .st-season .st-list {
+	padding: 0;
+}
+
+.st .st-list--grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0 18px;
+}
+
+.st .st-row {
+	position: relative;
+	display: grid;
+	grid-template-columns: 56px minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 16px;
+	margin: 0;
+	padding: 10px 14px;
+	border-radius: 14px;
+	transition: background-color 0.18s var(--st-ease);
+}
+
+/* Hairlines between rows, inset so they don't run under the hover fill. */
+.st .st-list > .st-row + .st-row::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 14px;
+	left: 14px;
+	height: 1px;
+	background: var(--st-line-soft);
+}
+
+.st .st-list--grid > .st-row + .st-row::before {
+	display: none;
+}
+
+.st .st-row:hover,
+.st .st-row:focus-within {
+	background: var(--st-soft);
+}
+
+.st .st-season .st-row:hover,
+.st .st-season .st-row:focus-within {
+	background: rgba(255, 255, 255, 0.8);
+}
+
+/* Above the row's stretched link, so its Play button takes the click; the
+   artwork itself lets clicks through to the link. */
+.st .st-row__art {
+	position: relative;
+	z-index: 2;
+	width: 56px;
+	height: 56px;
+	pointer-events: none;
+}
+
+.st .st-row__art .st-play {
+	pointer-events: auto;
+}
+
+/* The play button covers the artwork and shows on hover. */
+.st .st-play--row {
+	position: absolute;
+	inset: 0;
+	border-radius: 14px;
+	background: rgba(15, 29, 54, 0.6);
+	color: #fff;
+	opacity: 0;
+}
+
+.st .st-row--person .st-play--row {
+	border-radius: 50%;
+}
+
+.st .st-row:hover .st-play--row,
+.st .st-play--row:focus-visible {
+	opacity: 1;
+}
+
+.st .st-play--row:hover,
+.st .st-play--row:focus {
+	background: rgba(15, 29, 54, 0.75);
+	color: #fff;
+}
+
+/* The whole row opens the shiur: the title link stretches over it, under the
+   artwork's play button. */
+.st .st-row__link {
+	display: grid;
+	gap: 4px;
+	min-width: 0;
+	color: inherit;
+	text-decoration: none;
+}
+
+.st .st-row__link::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	border-radius: 14px;
+}
+
+.st .st-row__link:focus-visible {
+	outline: none;
+}
+
+.st .st-row__link:focus-visible::after {
+	outline: 2px solid var(--st-navy);
+	outline-offset: -2px;
+}
+
+.st .st-row__title {
+	display: -webkit-box;
+	overflow: hidden;
+	color: var(--st-ink);
+	font-size: 1rem;
+	font-weight: 650;
+	line-height: 1.35;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.st .st-row__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 8px;
+	min-width: 0;
+	color: var(--st-muted);
+	font-size: 0.86rem;
+	line-height: 1.45;
+}
+
+.st .st-row__meta > span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 100%;
+}
+
+.st .st-row__meta > span + span::before {
+	content: "·";
+	margin-right: 8px;
+	color: var(--st-faint);
+}
+
+.st .st-row__side {
+	display: grid;
+	justify-items: end;
+	gap: 6px;
+}
+
+.st .st-row__facts {
+	display: flex;
+	gap: 10px;
+	color: var(--st-faint);
+	font-size: 0.8rem;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+}
+
+.st .st-row--person {
+	grid-template-columns: 48px minmax(0, 1fr) auto;
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+.st .st-row--person .st-row__art {
+	width: 48px;
+	height: 48px;
+}
+
+.st .st-row__go {
+	color: var(--st-faint);
+	transition: transform 0.2s var(--st-ease), color 0.2s var(--st-ease);
+}
+
+.st .st-row--person:hover .st-row__go {
+	color: var(--st-navy);
+	transform: translateX(3px);
+}
+
+/* Rows of series, by category -------------------------------------------------- */
+
+.st .st-lane,
+.st .st-topics {
+	min-width: 0;
+}
+
+.st .st-lane__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 6px 14px;
+	margin: 0 0 14px;
+	padding-right: 96px;
+}
+
+.st .st-lane__title {
+	margin: 0;
+	color: var(--st-ink);
+	font-family: var(--st-serif);
+	font-size: clamp(1.45rem, 2.2vw, 1.85rem);
+	font-weight: 500;
+	line-height: 1.15;
+	letter-spacing: -0.01em;
+}
+
+.st .st-lane__count {
+	color: var(--st-faint);
+	font-size: 0.86rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.st .st-lane__rail {
+	position: relative;
+	display: block;
+}
+
+/* The arrows sit at the end of the row's heading (custom.js scrolls the track
+   beside them). Hidden on phones, where a swipe does it. */
+.st .st-lane__rail .sh-carousel__nav {
+	position: absolute;
+	top: -50px;
+	right: 0;
+	z-index: 3;
+	display: grid;
+	place-items: center;
+	width: 38px;
+	height: 38px;
+	margin: 0;
+	padding: 0;
+	border: 1px solid var(--st-line);
+	border-radius: 50%;
+	background: var(--st-surface);
+	box-shadow: var(--st-shadow-sm);
+	color: var(--st-navy);
+	cursor: pointer;
+	transition: background-color 0.18s var(--st-ease), color 0.18s var(--st-ease), border-color 0.18s var(--st-ease);
+}
+
+.st .st-lane__rail .sh-carousel__nav--prev {
+	right: 46px;
+}
+
+.st .st-lane__rail .sh-carousel__nav:hover,
+.st .st-lane__rail .sh-carousel__nav:focus {
+	border-color: var(--st-navy);
+	background: var(--st-navy);
+	color: #fff;
+}
+
+.st .st-lane__rail .sh-carousel__track {
+	display: flex;
+	gap: 18px;
+	margin: 0 -6px;
+	padding: 6px 6px 16px;
+	overflow-x: auto;
+	scroll-snap-type: x proximity;
+	scroll-padding: 0 6px;
+	scrollbar-width: thin;
+	scrollbar-color: var(--st-line) transparent;
+}
+
+.st .st-lane__rail .sh-carousel__track::-webkit-scrollbar {
+	height: 6px;
+}
+
+.st .st-lane__rail .sh-carousel__track::-webkit-scrollbar-thumb {
+	border-radius: 3px;
+	background: var(--st-line);
+}
+
+/* A series card: square artwork, then the name and how many shiurim. */
+
+.st .st-card {
+	position: relative;
+	flex: 0 0 188px;
+	min-width: 0;
+	margin: 0;
+	scroll-snap-align: start;
+}
+
+.st .st-card__art {
+	position: relative;
+	z-index: 2;
+	aspect-ratio: 1 / 1;
+	pointer-events: none;
+	transition: transform 0.25s var(--st-ease);
+}
+
+.st .st-art--card {
+	border-radius: 18px;
+	background:
+		radial-gradient(90% 90% at 85% 10%, rgba(228, 190, 108, 0.32), rgba(228, 190, 108, 0) 60%),
+		linear-gradient(150deg, hsl(var(--hue, 215) 46% 34%), hsl(calc(var(--hue, 215) + 28) 50% 15%));
+	color: rgba(255, 255, 255, 0.94);
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 16px 30px -18px rgba(15, 23, 42, 0.55);
+	transition: box-shadow 0.25s var(--st-ease);
+}
+
+/* A drawn cover: the series' name in the serif, its perek or part under it. */
+.st .st-cover {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	align-items: flex-start;
+	gap: 6px;
+	padding: 16px;
+	text-align: left;
+}
+
+/* A gold rule in the top corner, like a book's spine stamp. */
+.st .st-cover::before {
+	content: "";
+	position: absolute;
+	top: 16px;
+	left: 16px;
+	width: 26px;
+	height: 2px;
+	border-radius: 2px;
+	background: rgba(241, 213, 149, 0.85);
+}
+
+.st .st-cover__title {
+	display: -webkit-box;
+	overflow: hidden;
+	color: #fff;
+	font-family: var(--st-serif);
+	font-size: clamp(1.2rem, 2vw, 1.45rem);
+	font-weight: 500;
+	line-height: 1.12;
+	letter-spacing: -0.005em;
+	overflow-wrap: anywhere;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+}
+
+.st .st-cover__sub {
+	display: -webkit-box;
+	overflow: hidden;
+	color: rgba(255, 255, 255, 0.78);
+	font-size: 0.74rem;
+	font-weight: 700;
+	line-height: 1.35;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+/* Six cover colours, all from the site's palette (the tone in inc/shiurim-studio.php). */
+.st .st-tone-0 {
+	background:
+		radial-gradient(90% 90% at 85% 10%, rgba(228, 190, 108, 0.3), rgba(228, 190, 108, 0) 60%),
+		linear-gradient(155deg, #2a4a7f, #12223f);
+}
+
+.st .st-tone-1 {
+	background:
+		radial-gradient(90% 90% at 85% 10%, rgba(228, 190, 108, 0.26), rgba(228, 190, 108, 0) 60%),
+		linear-gradient(155deg, #2f8f5b, #144a31);
+}
+
+.st .st-tone-2 {
+	background:
+		radial-gradient(90% 90% at 85% 10%, rgba(255, 238, 200, 0.32), rgba(255, 238, 200, 0) 60%),
+		linear-gradient(155deg, #b88a35, #6b4a14);
+}
+
+.st .st-tone-3 {
+	background:
+		radial-gradient(90% 90% at 85% 10%, rgba(228, 190, 108, 0.26), rgba(228, 190, 108, 0) 60%),
+		linear-gradient(155deg, #8c3a4b, #4a1a26);
+}
+
+.st .st-tone-4 {
+	background:
+		radial-gradient(90% 90% at 85% 10%, rgba(228, 190, 108, 0.26), rgba(228, 190, 108, 0) 60%),
+		linear-gradient(155deg, #2b7d86, #123f47);
+}
+
+.st .st-tone-5 {
+	background:
+		radial-gradient(90% 90% at 85% 10%, rgba(228, 190, 108, 0.26), rgba(228, 190, 108, 0) 60%),
+		linear-gradient(155deg, #5c4a8a, #2a2047);
+}
+
+.st .st-play--card {
+	position: absolute;
+	right: 10px;
+	bottom: 10px;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	background: #fff;
+	color: var(--st-navy);
+	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+	opacity: 0;
+	transform: translateY(6px);
+	pointer-events: auto;
+}
+
+.st .st-play--card:hover,
+.st .st-play--card:focus {
+	background: #fff;
+	color: var(--st-navy);
+}
+
+.st .st-card:hover .st-card__art {
+	transform: translateY(-3px);
+}
+
+.st .st-card:hover .st-art--card {
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 22px 38px -18px rgba(15, 23, 42, 0.6);
+}
+
+.st .st-card:hover .st-play--card,
+.st .st-card:focus-within .st-play--card {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.st .st-card__kicker {
+	margin: 12px 0 0;
+	color: var(--st-green);
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.st .st-card__title {
+	display: -webkit-box;
+	margin: 12px 0 2px;
+	overflow: hidden;
+	color: var(--st-ink);
+	font-family: var(--st-sans);
+	font-size: 0.98rem;
+	font-weight: 650;
+	line-height: 1.32;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.st .st-card__kicker + .st-card__title {
+	margin-top: 3px;
+}
+
+.st .st-card .st-card__link {
+	color: inherit;
+	text-decoration: none;
+}
+
+/* The whole card opens the series. */
+.st .st-card .st-card__link::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	border-radius: 18px;
+}
+
+.st .st-card .st-card__link:focus-visible {
+	outline: none;
+}
+
+.st .st-card .st-card__link:focus-visible::after {
+	outline: 2px solid var(--st-navy);
+	outline-offset: 4px;
+}
+
+.st .st-card__meta {
+	margin: 0;
+	color: var(--st-muted);
+	font-size: 0.85rem;
+}
+
+/* Topics ------------------------------------------------------------------------ */
+
+.st .st-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.st .st-chips li {
+	margin: 0;
+}
+
+.st .st-chips .st-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 8px 8px 14px;
+	border: 1px solid var(--st-line);
+	border-radius: 999px;
+	background: var(--st-surface);
+	box-shadow: var(--st-shadow-sm);
+	color: var(--st-ink-2);
+	font-size: 0.9rem;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	transition: border-color 0.18s var(--st-ease), color 0.18s var(--st-ease), transform 0.18s var(--st-ease);
+}
+
+.st .st-chips .st-chip:hover,
+.st .st-chips .st-chip:focus {
+	border-color: var(--st-navy);
+	color: var(--st-navy);
+	transform: translateY(-1px);
+}
+
+.st .st-chip__count {
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: var(--st-line-soft);
+	color: var(--st-muted);
+	font-size: 0.74rem;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Touch screens have no hover: the play buttons show all the time. */
+@media (hover: none) {
+	.st .st-play--row {
+		opacity: 1;
+		inset: auto 4px 4px auto;
+		width: 26px;
+		height: 26px;
+		border-radius: 50%;
+		background: rgba(15, 29, 54, 0.78);
+	}
+
+	.st .st-play--row svg {
+		width: 12px;
+		height: 12px;
+	}
+
+	.st .st-play--card {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* Narrower screens --------------------------------------------------------------- */
+
+@media (max-width: 980px) {
+	.st .st-hero,
+	.st .st-main {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+}
+
+@media (max-width: 680px) {
+	.shiurim-app.st {
+		padding-right: 16px;
+		padding-left: 16px;
+	}
+
+	.st .st-hero {
+		border-radius: 22px;
+	}
+
+	.st .st-search .st-search__go {
+		padding: 0 16px;
+	}
+
+	.st .st-list--grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.st .st-row {
+		grid-template-columns: 48px minmax(0, 1fr);
+		gap: 12px;
+		padding: 10px;
+	}
+
+	.st .st-row__art {
+		width: 48px;
+		height: 48px;
+	}
+
+	/* When / how long move under the title. */
+	.st .st-row__side {
+		grid-column: 2;
+		justify-items: start;
+		grid-auto-flow: column;
+		justify-content: start;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.st .st-row--person .st-row__go {
+		display: none;
+	}
+
+	.st .st-panel__head {
+		padding: 20px 18px 8px;
+	}
+
+	.st .st-card {
+		flex-basis: 152px;
+	}
+
+	.st .st-lane__head {
+		padding-right: 0;
+	}
+}
+
+/* 3. The other Shiurim pages ----------------------------------------------------- */
+
+body.sh-layout-studio .sh-page-header h1,
+body.sh-layout-studio .sh-section .sh-section__title {
+	color: var(--st-ink);
+	font-family: var(--st-serif);
+	font-weight: 500;
+	letter-spacing: -0.01em;
+}
+
+body.sh-layout-studio .sh-page-header h1 {
+	font-size: clamp(2rem, 3.6vw, 2.8rem);
+	line-height: 1.08;
+}
+
+body.sh-layout-studio .sh-section .sh-section__title {
+	font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+}
+
+/* The hero of a series, speaker, topic or shiur: the navy panel. Its own colour
+   variables make everything inside it white. */
+body.sh-layout-studio .shiurim-app .sh-hero {
+	--sh-text: #fff;
+	--sh-text-muted: rgba(255, 255, 255, 0.74);
+	--sh-border: rgba(255, 255, 255, 0.22);
+	--sh-surface: rgba(255, 255, 255, 0.1);
+	--sh-surface-hover: rgba(255, 255, 255, 0.16);
+	position: relative;
+	isolation: isolate;
+	align-items: center;
+	gap: clamp(20px, 3vw, 36px);
+	margin-bottom: 32px;
+	padding: clamp(22px, 4vw, 44px);
+	overflow: hidden;
+	border-radius: var(--st-radius-xl);
+	background: var(--st-hero-bg);
+	color: #fff;
+	box-shadow: var(--st-shadow-lg);
+}
+
+body.sh-layout-studio .shiurim-app .sh-hero::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+	background-size: 44px 44px;
+	-webkit-mask-image: radial-gradient(120% 90% at 15% 0%, #000 0%, transparent 72%);
+	mask-image: radial-gradient(120% 90% at 15% 0%, #000 0%, transparent 72%);
+	pointer-events: none;
+}
+
+body.sh-layout-studio .shiurim-app .sh-hero__art {
+	border-radius: 20px;
+	background: rgba(255, 255, 255, 0.08);
+	box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+body.sh-layout-studio .shiurim-app .sh-hero--round .sh-hero__art {
+	border-radius: 50%;
+}
+
+body.sh-layout-studio .shiurim-app .sh-hero__kicker {
+	color: var(--st-gold-bright);
+	letter-spacing: 0.18em;
+}
+
+body.sh-layout-studio .shiurim-app .sh-hero__info h1 {
+	color: #fff;
+	font-family: var(--st-serif);
+	font-size: clamp(2rem, 4vw, 3rem);
+	font-weight: 500;
+	letter-spacing: -0.015em;
+	text-wrap: balance;
+}
+
+body.sh-layout-studio .shiurim-app .sh-hero__meta a {
+	color: #fff;
+	text-decoration: none;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+body.sh-layout-studio .shiurim-app .sh-hero__meta a:hover,
+body.sh-layout-studio .shiurim-app .sh-hero__meta a:focus {
+	border-bottom-color: var(--st-gold-bright);
+}
+
+body.sh-layout-studio .shiurim-app .sh-hero a:focus-visible,
+body.sh-layout-studio .shiurim-app .sh-hero button:focus-visible {
+	outline-color: #fff;
+}
+
+/* Play All: the homepage hero's gold button. */
+body.sh-layout-studio .shiurim-app .sh-play-all {
+	min-height: 46px;
+	padding: 0 24px;
+	border: 0;
+	background: linear-gradient(145deg, #d9ab4f, #b4842c);
+	box-shadow: 0 10px 20px -12px rgba(168, 122, 38, 0.9);
+	color: #fff;
+}
+
+body.sh-layout-studio .shiurim-app .sh-play-all:hover,
+body.sh-layout-studio .shiurim-app .sh-play-all:focus {
+	background: linear-gradient(145deg, #e0b45a, #bb8b31);
+	color: #fff;
+	transform: translateY(-1px);
+}
+
+/* The track list in a white panel. */
+body.sh-layout-studio .shiurim-app .sh-tracklist {
+	padding: 8px;
+	border: 1px solid var(--st-line);
+	border-radius: var(--st-radius-lg);
+	background: var(--st-surface);
+	box-shadow: var(--st-shadow);
+}
+
+body.sh-layout-studio .shiurim-app .sh-track {
+	border-radius: 12px;
+	transition: background-color 0.18s var(--st-ease);
+}
+
+body.sh-layout-studio .shiurim-app .sh-track:hover {
+	background: var(--st-soft);
+}
+
+body.sh-layout-studio .shiurim-app .sh-track.is-active {
+	background: #edf6f0;
+}
+
+body.sh-layout-studio .shiurim-app .sh-track__art {
+	overflow: hidden;
+	border-radius: 10px;
+	background: var(--st-line-soft);
+}
+
+body.sh-layout-studio .shiurim-app .sh-track__title {
+	color: var(--st-ink);
+	font-weight: 600;
+}
+
+/* Cards: white, with a soft lift on hover. */
+body.sh-layout-studio .shiurim-app .sh-card {
+	padding: 12px;
+	border: 1px solid var(--st-line) !important;
+	border-radius: 18px;
+	background: var(--st-surface) !important;
+	box-shadow: var(--st-shadow-sm);
+	transition: transform 0.22s var(--st-ease), box-shadow 0.22s var(--st-ease), border-color 0.22s var(--st-ease);
+}
+
+body.sh-layout-studio .shiurim-app .sh-card:hover,
+body.sh-layout-studio .shiurim-app .sh-card:focus-visible {
+	border-color: #d2dae7 !important;
+	box-shadow: var(--st-shadow);
+	transform: translateY(-2px);
+}
+
+body.sh-layout-studio .shiurim-app .sh-card__art {
+	border-radius: 12px;
+	background: var(--st-line-soft);
+}
+
+body.sh-layout-studio .shiurim-app .sh-card--round .sh-card__art {
+	border-radius: 50%;
+}
+
+body.sh-layout-studio .shiurim-app .sh-card__title {
+	color: var(--st-ink);
+	font-weight: 650;
+}
+
+body.sh-layout-studio .shiurim-app .sh-carousel__track {
+	gap: 18px;
+	padding: 4px 2px 14px;
+	scrollbar-color: var(--st-line) transparent;
+}
+
+body.sh-layout-studio .shiurim-app .sh-carousel__track .sh-card {
+	flex: 0 0 188px;
+	width: 188px;
+}
+
+body.sh-layout-studio .shiurim-app .sh-carousel__nav {
+	border: 1px solid var(--st-line);
+	background: var(--st-surface);
+	box-shadow: var(--st-shadow-sm);
+	color: var(--st-navy);
+}
+
+body.sh-layout-studio .shiurim-app .sh-carousel__nav:hover {
+	background: var(--st-navy);
+	color: #fff;
+}
+
+/* The search page: results in a white panel. */
+body.sh-layout-studio .nm-live-search .nm-live-results {
+	padding: 6px 16px;
+	border: 1px solid var(--st-line);
+	border-radius: var(--st-radius-lg);
+	background: var(--st-surface);
+	box-shadow: var(--st-shadow);
+}
+
+body.sh-layout-studio .nm-live-search .nm-live-results:empty {
+	display: none;
+}
+
+body.sh-layout-studio .nm-live-search .nm-live-results__item:last-child {
+	border-bottom: 0;
+}
+
+body.sh-layout-studio .nm-live-search .nm-live-search__query {
+	border-radius: 999px;
+	padding-right: 18px;
+	padding-left: 18px;
+	box-shadow: var(--st-shadow-sm);
+}
+
+@media (max-width: 600px) {
+	body.sh-layout-studio .shiurim-app .sh-carousel__track .sh-card {
+		flex-basis: 152px;
+		width: 152px;
+	}
+
+	body.sh-layout-studio .shiurim-app .sh-hero {
+		border-radius: 22px;
+	}
+}

@@ -40,6 +40,14 @@ $has_speakers  = ! is_wp_error( $speaker_terms ) && $speaker_terms;
 $is_carousel   = '24six' === $layout;
 $is_recent     = isset( $_GET['sh_view'] ) && 'recent' === $_GET['sh_view']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
+// Studio has a Shiurim home of its own (template-parts/shiurim-studio.php). Its
+// "All recent" view is the list below, in Studio's colours.
+if ( 'studio' === $layout && ! $is_recent ) {
+	get_template_part( 'template-parts/shiurim-studio' );
+	get_footer();
+	return;
+}
+
 // Lazy queues need the core helpers. Without them (an older ner-michoel-core) the
 // cards fall back to carrying their queues in the page, as before.
 $lazy_queues      = function_exists( 'ner_michoel_queue_url' );
