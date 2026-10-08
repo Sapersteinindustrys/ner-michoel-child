@@ -60,6 +60,26 @@
 		} );
 	}
 
+	/**
+	 * The bot check's fields (ner-michoel-core assets/form-guard.js) added to
+	 * what a logged-out form sends. Nothing to add when the check isn't on
+	 * the page (an older plugin).
+	 */
+	function withGuard( form, data ) {
+		var extra = window.nmFormGuard ? window.nmFormGuard.fields( form ) : {};
+		Object.keys( extra ).forEach( function ( key ) {
+			data[ key ] = extra[ key ];
+		} );
+		return data;
+	}
+
+	/** Each check works once: get a new one ready for the next try. */
+	function renewGuard( form ) {
+		if ( window.nmFormGuard ) {
+			window.nmFormGuard.reset( form );
+		}
+	}
+
 	function init() {
 
 	/* ---- Logged-out: tabs ---- */
@@ -96,14 +116,15 @@
 		loginForm.addEventListener( 'submit', function ( e ) {
 			e.preventDefault();
 			var noticeEl = document.getElementById( 'nm-account-notice' );
-			postAccount( 'account-login', {
+			postAccount( 'account-login', withGuard( loginForm, {
 				email: loginForm.email.value,
 				password: loginForm.password.value
-			} ).then( function ( result ) {
+			} ) ).then( function ( result ) {
 				if ( result.ok && result.data.success ) {
 					window.location.reload();
 					return;
 				}
+				renewGuard( loginForm );
 				notice( noticeEl, result.data.message || 'Something went wrong.', true );
 			} );
 		} );
@@ -122,18 +143,19 @@
 				return;
 			}
 
-			postAccount( 'account-register', {
+			postAccount( 'account-register', withGuard( signupForm, {
 				name: signupForm.name.value,
 				email: signupForm.email.value,
 				password: signupForm.password.value,
 				pref_updates: signupForm.pref_updates.checked,
 				pref_new_shiur_alerts: signupForm.pref_new_shiur_alerts.checked,
 				website: signupForm.website.value // honeypot — always blank for real visitors
-			} ).then( function ( result ) {
+			} ) ).then( function ( result ) {
 				if ( result.ok && result.data.success ) {
 					window.location.reload();
 					return;
 				}
+				renewGuard( signupForm );
 				notice( noticeEl, result.data.message || 'Something went wrong.', true );
 			} );
 		} );
@@ -146,7 +168,8 @@
 		forgotForm.addEventListener( 'submit', function ( e ) {
 			e.preventDefault();
 			var noticeEl = document.getElementById( 'nm-account-notice' );
-			postAccount( 'account-forgot-password', { email: forgotForm.email.value } ).then( function ( result ) {
+			postAccount( 'account-forgot-password', withGuard( forgotForm, { email: forgotForm.email.value } ) ).then( function ( result ) {
+				renewGuard( forgotForm );
 				notice( noticeEl, result.data.message, ! result.ok );
 				if ( result.ok ) {
 					forgotForm.reset();

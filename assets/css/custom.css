@@ -648,6 +648,13 @@ body.is-nm-app .ast-article-single {
 		flex-direction: column;
 	}
 
+	/* In a column the main block would size to its content, and a row of cards that
+	   scrolls sideways is very wide: it fills the screen instead. */
+	.sh-layout-with-sidebar .sh-main {
+		align-self: stretch;
+		width: 100%;
+	}
+
 	.sh-sidebar {
 		position: static;
 		width: 100%;
@@ -733,6 +740,8 @@ body.is-nm-app .ast-article-single {
 	flex-shrink: 0;
 	width: 32px;
 	height: 32px;
+	/* Astra pads every button 30px a side, which pushed the arrow out of its circle. */
+	padding: 0;
 	border: none;
 	border-radius: 50%;
 	background: var(--sh-surface-hover);
@@ -2967,6 +2976,45 @@ body.sh-layout-classic.is-nm-app a {
 	width: 1px;
 	height: 1px;
 	overflow: hidden;
+}
+
+/* The bot check inside a form (ner-michoel-core's ner_michoel_form_guard_fields()).
+   The wrapper takes no space: in the Contact form's two-column grid its
+   pieces sit in the grid themselves, full width, and only when there's
+   something to show (Turnstile asking for a click, the status line, the
+   no-JavaScript note). */
+.nm-guard {
+	display: contents;
+}
+
+.nm-guard__turnstile,
+.nm-guard__status,
+.nm-guard__noscript {
+	grid-column: 1 / -1;
+}
+
+.nm-guard__turnstile:empty {
+	display: none;
+}
+
+/* Turnstile with nothing to show (form-guard.js marks it): out of the layout,
+   but still rendered, so it can appear the moment Cloudflare asks for a click. */
+.nm-guard__turnstile.is-idle {
+	position: absolute;
+}
+
+.nm-guard__status {
+	margin: 0;
+	color: var(--nm-text-muted);
+	font-size: 0.9rem;
+}
+
+.nm-guard__status.is-error {
+	color: #7a2222;
+}
+
+.nm-guard__noscript {
+	margin: 0;
 }
 
 /* Homepage — deliberately warm/friendly, distinct from both the dark

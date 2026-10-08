@@ -83,6 +83,13 @@ $search = home_url( '/' );
 		</div>
 	</section>
 
+	<?php
+	// A signed-in listener's own shelf (inc/for-you.php).
+	if ( function_exists( 'ner_michoel_render_for_you_studio' ) ) {
+		ner_michoel_render_for_you_studio();
+	}
+	?>
+
 	<?php foreach ( $data['seasons'] as $season ) : ?>
 		<section class="st-season" aria-label="<?php echo esc_attr( $season['name'] ); ?>">
 			<header class="st-season__head">

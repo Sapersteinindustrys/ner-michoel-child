@@ -178,6 +178,12 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 					<?php esc_html_e( 'Password', 'ner-michoel-child' ); ?>
 					<input type="password" name="password" autocomplete="current-password" required />
 				</label>
+				<?php
+				// ner-michoel-core's bot check (includes/form-guard.php); account.js sends its fields.
+				if ( function_exists( 'ner_michoel_form_guard_fields' ) ) {
+					ner_michoel_form_guard_fields( 'login' );
+				}
+				?>
 				<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Log In', 'ner-michoel-child' ); ?></button>
 				<a href="#" class="nm-account-link" data-show-panel="forgot"><?php esc_html_e( 'Forgot password?', 'ner-michoel-child' ); ?></a>
 			</form>
@@ -212,6 +218,11 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 					<input type="checkbox" name="pref_new_shiur_alerts" value="1" />
 					<span><?php esc_html_e( 'Alert me when new shiurim are posted', 'ner-michoel-child' ); ?></span>
 				</label>
+				<?php
+				if ( function_exists( 'ner_michoel_form_guard_fields' ) ) {
+					ner_michoel_form_guard_fields( 'signup' );
+				}
+				?>
 				<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Create Account', 'ner-michoel-child' ); ?></button>
 			</form>
 
@@ -221,6 +232,11 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 					<?php esc_html_e( 'Email', 'ner-michoel-child' ); ?>
 					<input type="email" name="email" required />
 				</label>
+				<?php
+				if ( function_exists( 'ner_michoel_form_guard_fields' ) ) {
+					ner_michoel_form_guard_fields( 'forgot' );
+				}
+				?>
 				<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Send Reset Link', 'ner-michoel-child' ); ?></button>
 				<a href="#" class="nm-account-link" data-show-panel="login"><?php esc_html_e( 'Back to Log In', 'ner-michoel-child' ); ?></a>
 			</form>

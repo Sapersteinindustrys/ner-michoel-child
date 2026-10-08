@@ -14,9 +14,25 @@
 
 get_header();
 
-$layout = ner_michoel_get_layout();
+$layout    = ner_michoel_get_layout();
+$is_foryou = ner_michoel_is_for_you_view(); // ?sh_view=foryou: the signed-in listener's own page (inc/for-you.php).
 
 if ( 'classic' === $layout ) :
+	// For you is a page of its own in Classic too: a plain list, not the table.
+	if ( $is_foryou ) :
+		?>
+		<div class="shiurim-app shiurim-app--classic">
+			<?php ner_michoel_render_back_button(); ?>
+			<header class="sh-page-header">
+				<h1><?php esc_html_e( 'For you', 'ner-michoel-child' ); ?></h1>
+			</header>
+			<?php ner_michoel_render_for_you_classic_page(); ?>
+		</div>
+		<?php
+		get_footer();
+		return;
+	endif;
+
 	$classic_query = ner_michoel_get_classic_query();
 	?>
 	<div class="shiurim-app shiurim-app--classic">
@@ -24,6 +40,7 @@ if ( 'classic' === $layout ) :
 		<header class="sh-page-header">
 			<h1><?php post_type_archive_title(); ?></h1>
 		</header>
+		<?php ner_michoel_render_for_you_classic(); ?>
 		<?php ner_michoel_render_classic_toolbar(); ?>
 		<?php ner_michoel_render_classic_table( $classic_query ); ?>
 		<?php ner_michoel_render_classic_pagination( $classic_query ); ?>
@@ -41,8 +58,8 @@ $is_carousel   = '24six' === $layout;
 $is_recent     = isset( $_GET['sh_view'] ) && 'recent' === $_GET['sh_view']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 // Studio has a Shiurim home of its own (template-parts/shiurim-studio.php). Its
-// "All recent" view is the list below, in Studio's colours.
-if ( 'studio' === $layout && ! $is_recent ) {
+// "All recent" and "For you" views are the pages below, in Studio's colours.
+if ( 'studio' === $layout && ! $is_recent && ! $is_foryou ) {
 	get_template_part( 'template-parts/shiurim-studio' );
 	get_footer();
 	return;
@@ -66,10 +83,21 @@ $speaker_playable = $lazy_queues && $has_speakers && function_exists( 'ner_micho
 	<div class="shiurim-app sh-main">
 			<?php ner_michoel_render_back_button(); ?>
 		<header class="sh-page-header">
-			<h1><?php echo $is_recent ? esc_html__( 'Recent Shiurim', 'ner-michoel-child' ) : post_type_archive_title( '', false ); ?></h1>
+			<?php
+			if ( $is_foryou ) {
+				$page_heading = __( 'For you', 'ner-michoel-child' );
+			} elseif ( $is_recent ) {
+				$page_heading = __( 'Recent Shiurim', 'ner-michoel-child' );
+			} else {
+				$page_heading = post_type_archive_title( '', false );
+			}
+			?>
+			<h1><?php echo esc_html( $page_heading ); ?></h1>
 		</header>
 
-		<?php if ( $is_recent ) : ?>
+		<?php if ( $is_foryou ) : ?>
+			<?php ner_michoel_render_for_you_page( $is_carousel ); ?>
+		<?php elseif ( $is_recent ) : ?>
 			<?php $recent = function_exists( 'ner_michoel_get_recent_shiurim' ) ? ner_michoel_get_recent_shiurim( 24 ) : array(); ?>
 			<?php
 			if ( $lazy_queues && $recent ) {
@@ -120,6 +148,8 @@ $speaker_playable = $lazy_queues && $has_speakers && function_exists( 'ner_micho
 				<p class="sh-empty"><?php esc_html_e( 'No shiurim yet.', 'ner-michoel-child' ); ?></p>
 			<?php endif; ?>
 		<?php else : ?>
+
+			<?php ner_michoel_render_for_you_shelf(); ?>
 
 			<?php if ( $has_series ) : ?>
 			<section class="sh-section">

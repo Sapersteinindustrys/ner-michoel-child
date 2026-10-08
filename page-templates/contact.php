@@ -19,12 +19,17 @@
  * 'nm_contact_submit'-action nonce in 'nm_contact_nonce', and a
  * honeypot field ('nm_contact_hp') that must arrive empty — real
  * visitors never see or fill it (off-screen + aria-hidden), so any
- * value in it means a bot filled every field it found.
+ * value in it means a bot filled every field it found. Each form also
+ * carries ner-michoel-core's bot check (ner_michoel_form_guard_fields(),
+ * includes/form-guard.php): a browser check, Cloudflare Turnstile when it's
+ * set up, rate limits and message checks.
  *
  * The handler is expected to redirect back to wp_get_referer() (the
  * nonce field's default referer input covers this) with
  * ?nm_contact=sent on success or ?nm_contact=error on failure, which
- * this template turns into the notice below.
+ * this template turns into the notice below. Also ?nm_contact=verify (the
+ * bot check didn't pass) and ?nm_contact=slow (too many messages from one
+ * address); the Magid Shiur form uses the same values in ?nm_magid.
  */
 
 get_header();
@@ -86,6 +91,10 @@ $all_shiurim  = get_posts(
 						<p class="nm-form-notice nm-form-notice--success"><?php esc_html_e( 'Thanks — your message has been sent. We\'ll be in touch soon.', 'ner-michoel-child' ); ?></p>
 					<?php elseif ( 'error' === $notice ) : ?>
 						<p class="nm-form-notice nm-form-notice--error"><?php esc_html_e( 'Something went wrong sending your message — please try again, or reach us directly using the details above.', 'ner-michoel-child' ); ?></p>
+					<?php elseif ( 'verify' === $notice ) : ?>
+						<p class="nm-form-notice nm-form-notice--error"><?php esc_html_e( 'We couldn’t confirm this came from a person, so it wasn’t sent. Please try again, or reach us directly using the details above.', 'ner-michoel-child' ); ?></p>
+					<?php elseif ( 'slow' === $notice ) : ?>
+						<p class="nm-form-notice nm-form-notice--error"><?php esc_html_e( 'Several messages have come from your network in the last hour, so this one wasn’t sent. Please try again later, or reach us directly using the details above.', 'ner-michoel-child' ); ?></p>
 					<?php endif; ?>
 
 					<form class="nm-contact-form nm-contact-form--grid" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -113,6 +122,11 @@ $all_shiurim  = get_posts(
 							<?php esc_html_e( 'Message', 'ner-michoel-child' ); ?>
 							<textarea name="nm_message" rows="5" required></textarea>
 						</label>
+						<?php
+						if ( function_exists( 'ner_michoel_form_guard_fields' ) ) {
+							ner_michoel_form_guard_fields( 'contact' );
+						}
+						?>
 						<button type="submit" class="nm-contact-form__submit nm-contact-form__field--full"><?php echo ner_michoel_line_icon( 'send' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?> <?php esc_html_e( 'Send', 'ner-michoel-child' ); ?></button>
 					</form>
 				</div>
@@ -136,6 +150,10 @@ $all_shiurim  = get_posts(
 					<p class="nm-form-notice nm-form-notice--success"><?php esc_html_e( 'Thanks — your message has been sent.', 'ner-michoel-child' ); ?></p>
 				<?php elseif ( 'error' === $magid_notice ) : ?>
 					<p class="nm-form-notice nm-form-notice--error"><?php esc_html_e( 'Something went wrong sending your message — please try again.', 'ner-michoel-child' ); ?></p>
+				<?php elseif ( 'verify' === $magid_notice ) : ?>
+					<p class="nm-form-notice nm-form-notice--error"><?php esc_html_e( 'We couldn’t confirm this came from a person, so it wasn’t sent. Please try again.', 'ner-michoel-child' ); ?></p>
+				<?php elseif ( 'slow' === $magid_notice ) : ?>
+					<p class="nm-form-notice nm-form-notice--error"><?php esc_html_e( 'Several messages have come from your network in the last hour, so this one wasn’t sent. Please try again later.', 'ner-michoel-child' ); ?></p>
 				<?php endif; ?>
 
 				<form class="nm-contact-form nm-contact-form--grid" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -177,6 +195,11 @@ $all_shiurim  = get_posts(
 						<?php esc_html_e( 'Message', 'ner-michoel-child' ); ?>
 						<textarea name="nm_message" rows="5" required></textarea>
 					</label>
+					<?php
+					if ( function_exists( 'ner_michoel_form_guard_fields' ) ) {
+						ner_michoel_form_guard_fields( 'magid' );
+					}
+					?>
 					<button type="submit" class="nm-contact-form__submit nm-contact-form__field--full"><?php echo ner_michoel_line_icon( 'send' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?> <?php esc_html_e( 'Send', 'ner-michoel-child' ); ?></button>
 				</form>
 			<?php endif; ?>

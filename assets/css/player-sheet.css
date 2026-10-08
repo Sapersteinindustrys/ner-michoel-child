@@ -284,18 +284,28 @@
 	font-variant-numeric: tabular-nums;
 }
 
-/* Up-arrow button on the bar that opens the sheet. */
+/* Up-arrow button on the bar that opens the sheet. Padding is pinned, like
+   the other bar buttons in custom.css: Astra's sitewide button padding
+   (30px a side) made it 60px wide and squeezed the arrow to nothing. */
 .sh-player__open {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+	flex-shrink: 0;
 	width: 30px;
 	height: 30px;
+	padding: 0 !important;
+	margin: 0;
+	box-sizing: border-box;
 	border: 0;
 	border-radius: 50%;
 	background: transparent;
 	color: var(--sh-text, #fff);
 	cursor: pointer;
+}
+
+.sh-player__open svg {
+	flex: none;
 }
 
 .sh-player__open:hover,

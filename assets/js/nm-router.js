@@ -84,6 +84,11 @@
 		if ( form.hasAttribute( 'data-no-pjax' ) ) {
 			return false;
 		}
+		// Never a password in a web address: it would end up in the browser's
+		// history, the server's logs and the site's own page-view statistics.
+		if ( form.querySelector( 'input[type="password"]' ) ) {
+			return false;
+		}
 		var method = ( form.getAttribute( 'method' ) || 'get' ).toLowerCase();
 		if ( 'get' !== method ) {
 			return false;
@@ -95,6 +100,69 @@
 			return false;
 		}
 		return ! isExcludedUrl( url );
+	}
+
+	/**
+	 * Adds the stylesheets the destination page has that this page doesn't yet (a layout's own,
+	 * the live search's), each in the destination's order, and waits for them so the new content
+	 * never shows unstyled. A slow or failed stylesheet doesn't hold the visitor for more than a
+	 * few seconds.
+	 */
+	function loadMissingStyles( doc ) {
+		var absolute = function ( link ) {
+			return new URL( link.getAttribute( 'href' ), window.location.href ).href;
+		};
+		var existing = {};
+		Array.prototype.forEach.call( document.querySelectorAll( 'link[rel="stylesheet"]' ), function ( link ) {
+			existing[ link.href ] = link;
+		} );
+
+		var wanted  = Array.prototype.slice.call( doc.querySelectorAll( 'link[rel="stylesheet"][href]' ) );
+		var waiting = [];
+
+		wanted.forEach( function ( link, i ) {
+			var href = absolute( link );
+			if ( existing[ href ] ) {
+				return;
+			}
+
+			var el  = document.createElement( 'link' );
+			el.rel  = 'stylesheet';
+			el.href = href;
+			if ( link.media ) {
+				el.media = link.media;
+			}
+
+			// Before the next of the destination's stylesheets this page already has, so the
+			// cascade runs in the same order as on a direct load.
+			var before = null;
+			for ( var j = i + 1; j < wanted.length && ! before; j++ ) {
+				before = existing[ absolute( wanted[ j ] ) ] || null;
+			}
+
+			waiting.push(
+				new Promise( function ( resolve ) {
+					el.onload  = resolve;
+					el.onerror = resolve;
+				} )
+			);
+			if ( before ) {
+				before.parentNode.insertBefore( el, before );
+			} else {
+				document.head.appendChild( el );
+			}
+			existing[ href ] = el;
+		} );
+
+		if ( ! waiting.length ) {
+			return Promise.resolve();
+		}
+		return Promise.race( [
+			Promise.all( waiting ),
+			new Promise( function ( resolve ) {
+				setTimeout( resolve, 4000 );
+			} )
+		] );
 	}
 
 	/**
@@ -140,6 +208,18 @@
 					}
 				}
 				return res.text();
+			} )
+			.then( function ( html ) {
+				var next = new DOMParser().parseFromString( html, 'text/html' );
+				return loadMissingStyles( next ).then( function () {
+					// A newer click has taken over while the styles loaded: drop this one quietly.
+					if ( controller && inFlight !== controller ) {
+						var superseded = new Error( 'nm-router: superseded' );
+						superseded.name = 'AbortError';
+						throw superseded;
+					}
+					return html;
+				} );
 			} )
 			.then( function ( html ) {
 				var doc        = new DOMParser().parseFromString( html, 'text/html' );
@@ -195,7 +275,9 @@
 
 	document.addEventListener( 'submit', function ( e ) {
 		var form = e.target;
-		if ( ! shouldInterceptForm( form ) ) {
+		// A form the page's own script has already taken over (the Account page
+		// sends its forms through the REST API) isn't a navigation.
+		if ( e.defaultPrevented || ! shouldInterceptForm( form ) ) {
 			return;
 		}
 		var url = new URL( form.getAttribute( 'action' ) || window.location.pathname, window.location.href );

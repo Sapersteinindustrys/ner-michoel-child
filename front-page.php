@@ -154,6 +154,13 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 
 	<?php get_template_part( 'template-parts/live-shiur' ); ?>
 
+	<?php
+	// A signed-in listener's own shelf (inc/for-you.php).
+	if ( function_exists( 'ner_michoel_render_for_you_home_current' ) ) {
+		ner_michoel_render_for_you_home_current();
+	}
+	?>
+
 	<?php if ( $recent_galleries ) : ?>
 	<section class="nm-home-section nm-home-gallery-section">
 		<div class="nm-home-section__head">

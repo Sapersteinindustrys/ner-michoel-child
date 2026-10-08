@@ -1,0 +1,1214 @@
+/*
+ * Modern: the Shiurim pages in a light, high-contrast theme
+ * (ner_michoel_enqueue_modern_styles() in inc/template-tags.php).
+ *
+ * The markup and navigation are Modern's own (the sidebar, Back and Home,
+ * the layout switch, the card grid, the hero, the track list, the player
+ * bar); only the look changes. Every rule is scoped to
+ * body.sh-layout-stream.is-shiurim, so Galleries, Written Shiurim and the
+ * other layouts are untouched.
+ *
+ *   1. Tokens: the app's colour variables (custom.css, body.is-nm-app) set
+ *      light. Two classes on body, so they win over the Appearance
+ *      overrides (inc/appearance.php), which print on body.is-nm-app.
+ *   2. Navigation: sidebar, Back and Home, the layout switch.
+ *   3. Page content: headings, cards, the hero, the track list, search.
+ *   4. The player bar, its speed menu and its queue sheet.
+ *   5. Touch screens, reduced motion, narrow screens.
+ *
+ * Astra styles bare elements (button, button:hover, input[type=search],
+ * a:hover), so rules here are at least three classes deep. The !important
+ * ones answer !important rules in custom.css.
+ */
+
+/* 1. Tokens ------------------------------------------------------------------ */
+
+body.sh-layout-stream.is-shiurim {
+	--md-ink: #0f172a;
+	--md-ink-2: #334155;
+	--md-muted: #5b6678;
+	--md-faint: #94a3b8;
+	--md-line: #e3e8ef;
+	--md-line-2: #cfd8e3;
+	--md-bg: #f4f6f9;
+	--md-surface: #fff;
+	--md-soft: #f1f4f8;
+	--md-primary: #1b2f52;
+	--md-primary-2: #24406d;
+	--md-tint: #e9eff8;
+	--md-tint-2: #d8e3f2;
+	--md-new: #1f7046;
+	--md-new-bg: #e3f3e9;
+	--md-heart: #e0445a;
+	--md-radius: 14px;
+	--md-radius-lg: 18px;
+	--md-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+	--md-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 28px -14px rgba(15, 23, 42, 0.22);
+	--md-shadow-lg: 0 2px 4px rgba(15, 23, 42, 0.06), 0 22px 44px -20px rgba(15, 23, 42, 0.32);
+	--md-ring: 0 0 0 3px rgba(27, 47, 82, 0.2);
+	--md-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+	/* The app's own variables, light. */
+	--sh-bg: var(--md-bg);
+	--sh-surface: var(--md-surface);
+	--sh-surface-hover: var(--md-soft);
+	--sh-text: var(--md-ink);
+	--sh-text-muted: var(--md-muted);
+	--sh-border: var(--md-line);
+	--sh-accent: var(--md-primary);
+	--sh-accent-hover: var(--md-primary-2);
+	--sh-player-bg: var(--md-surface);
+	--sh-radius: var(--md-radius);
+
+	color-scheme: light;
+	background: var(--sh-bg);
+	color: var(--sh-text);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* One focus ring for everything you can tab to. */
+body.sh-layout-stream.is-shiurim .shiurim-app a:focus-visible,
+body.sh-layout-stream.is-shiurim .shiurim-app button:focus-visible,
+body.sh-layout-stream.is-shiurim .sh-sidebar a:focus-visible,
+body.sh-layout-stream.is-shiurim .sh-layout-toggle button:focus-visible {
+	outline: 2px solid var(--md-primary);
+	outline-offset: 2px;
+}
+
+/* Astra gives every <button> a faint drop shadow. It never showed on the old
+   black; on white it rings each icon button. The buttons that want a shadow
+   set their own further down. */
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__buttons button,
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__open,
+body.sh-layout-stream.is-shiurim .sh-layout-toggle .sh-layout-toggle__option,
+body.sh-layout-stream.is-shiurim .sh-sheet button,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track button,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-save,
+body.sh-layout-stream.is-shiurim .nm-live-search button {
+	box-shadow: none;
+}
+
+/* 2. Navigation -------------------------------------------------------------- */
+
+/* The sidebar: a white panel that stays in view, its two long lists sharing
+   whatever height is left above the player bar. */
+body.sh-layout-stream.is-shiurim .sh-layout-with-sidebar {
+	gap: 8px;
+	padding: 0 16px;
+}
+
+body.sh-layout-stream.is-shiurim .sh-sidebar {
+	top: 16px;
+	max-height: calc(100vh - 32px - var(--sh-player-height));
+	margin: 24px 0;
+	padding: 16px 12px;
+	gap: 18px;
+	box-sizing: border-box;
+	border: 1px solid var(--md-line);
+	border-radius: var(--md-radius-lg);
+	background: var(--md-surface);
+	box-shadow: var(--md-shadow-sm);
+}
+
+body.admin-bar.sh-layout-stream.is-shiurim .sh-sidebar {
+	top: 48px;
+	max-height: calc(100vh - 64px - var(--sh-player-height));
+}
+
+body.sh-layout-stream.is-shiurim .sh-sidebar__search svg {
+	left: 14px;
+	color: var(--md-muted);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sidebar__search input[type="search"] {
+	height: 42px;
+	margin: 0;
+	padding: 0 14px 0 38px;
+	border: 1px solid var(--md-line);
+	border-radius: 999px;
+	background: var(--md-soft);
+	box-shadow: none;
+	color: var(--md-ink);
+	font-size: 0.9rem;
+	transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+body.sh-layout-stream.is-shiurim .sh-sidebar__search input[type="search"]::placeholder {
+	color: var(--md-muted);
+	opacity: 1;
+}
+
+body.sh-layout-stream.is-shiurim .sh-sidebar__search input[type="search"]:hover {
+	border-color: var(--md-line-2);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sidebar__search input[type="search"]:focus {
+	outline: none;
+	border-color: var(--md-primary);
+	background: var(--md-surface);
+	box-shadow: var(--md-ring);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sidebar__group {
+	display: flex;
+	flex-direction: column;
+	flex: 0 1 auto;
+	min-height: 120px;
+}
+
+body.sh-layout-stream.is-shiurim .sh-sidebar__group-title {
+	margin: 0 0 6px 12px;
+	color: var(--md-muted);
+	font-size: 0.7rem;
+	letter-spacing: 0.08em;
+}
+
+body.sh-layout-stream.is-shiurim .sh-sidebar__nav--scroll {
+	flex: 1 1 auto;
+	min-height: 0;
+	max-height: 260px;
+	scrollbar-color: var(--md-line-2) transparent;
+}
+
+body.sh-layout-stream.is-shiurim .sh-sidebar__nav--scroll::-webkit-scrollbar-thumb {
+	background: var(--md-line-2);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sidebar .sh-sidebar__link {
+	padding: 8px 12px;
+	border-radius: 10px;
+	color: var(--md-ink-2);
+	font-size: 0.9rem;
+	font-weight: 500;
+	line-height: 1.35;
+}
+
+body.sh-layout-stream.is-shiurim .sh-sidebar .sh-sidebar__link:hover {
+	background: var(--md-soft);
+	color: var(--md-ink);
+}
+
+/* Where you are: a tint and a bar on the left, not a solid block. */
+body.sh-layout-stream.is-shiurim .sh-sidebar .sh-sidebar__link.is-active {
+	background: var(--md-tint);
+	box-shadow: inset 3px 0 0 var(--md-primary);
+	color: var(--md-primary);
+	font-weight: 650;
+}
+
+/* Back and Home: quiet outlined pills. */
+body.sh-layout-stream.is-shiurim .sh-back-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0 0 18px;
+}
+
+body.sh-layout-stream.is-shiurim .sh-back-row .sh-back {
+	height: 36px;
+	margin: 0;
+	padding: 0 14px 0 10px;
+	border: 1px solid var(--md-line);
+	border-radius: 999px;
+	background: var(--md-surface);
+	box-shadow: var(--md-shadow-sm);
+	color: var(--md-ink-2);
+	font-size: 0.875rem;
+	font-weight: 600;
+	line-height: 1;
+}
+
+body.sh-layout-stream.is-shiurim .sh-back-row .sh-back svg {
+	width: 16px;
+	height: 16px;
+}
+
+body.sh-layout-stream.is-shiurim .sh-back-row .sh-back:not(:disabled):hover,
+body.sh-layout-stream.is-shiurim .sh-back-row .sh-back:not(:disabled):focus-visible {
+	border-color: var(--md-line-2);
+	background: var(--md-soft);
+	color: var(--md-ink);
+}
+
+body.sh-layout-stream.is-shiurim .sh-back-row .sh-back:disabled {
+	opacity: 0.5;
+	box-shadow: none;
+}
+
+/* The layout switch: the same pill, white, with the current layout in navy.
+   The admin's darkness setting still sets how solid it is. */
+body.sh-layout-stream.is-shiurim .sh-layout-toggle {
+	border-color: var(--md-line);
+	background: rgba(255, 255, 255, var(--nm-toggle-bg-alpha, 1));
+	box-shadow: 0 8px 24px -12px rgba(15, 23, 42, 0.35);
+	-webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(10px);
+}
+
+body.sh-layout-stream.is-shiurim .sh-layout-toggle .sh-layout-toggle__option {
+	color: var(--md-ink-2);
+}
+
+body.sh-layout-stream.is-shiurim .sh-layout-toggle .sh-layout-toggle__option:not(.is-active):hover {
+	background: var(--md-soft) !important;
+	color: var(--md-ink);
+}
+
+body.sh-layout-stream.is-shiurim .sh-layout-toggle .sh-layout-toggle__option.is-active {
+	background: var(--md-primary) !important;
+	color: #fff;
+}
+
+/* 3. Page content ------------------------------------------------------------ */
+
+body.sh-layout-stream.is-shiurim .shiurim-app {
+	padding-top: 24px;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-page-header h1 {
+	margin: 0 0 24px;
+	color: var(--md-ink);
+	font-family: var(--sh-font);
+	font-size: clamp(1.8rem, 3vw, 2.35rem);
+	font-weight: 750;
+	line-height: 1.15;
+	letter-spacing: -0.02em;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-section__title {
+	margin: 0 0 14px;
+	color: var(--md-ink);
+	font-family: var(--sh-font);
+	font-size: 1.2rem;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-empty {
+	color: var(--md-muted);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-grid {
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	gap: 18px;
+}
+
+/* Cards: white, with a soft lift on hover. */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card {
+	position: relative;
+	padding: 10px 10px 14px;
+	border: 1px solid var(--md-line);
+	border-radius: 16px;
+	background: var(--md-surface);
+	box-shadow: var(--md-shadow-sm);
+	transition: transform 0.2s var(--md-ease), box-shadow 0.2s var(--md-ease), border-color 0.2s var(--md-ease);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card:hover,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card:focus-visible {
+	border-color: var(--md-line-2);
+	background: var(--md-surface);
+	box-shadow: var(--md-shadow);
+	transform: translateY(-2px);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card__art {
+	margin-bottom: 12px;
+	border-radius: 12px;
+	background: var(--md-soft);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card__title {
+	color: var(--md-ink);
+	font-size: 0.95rem;
+	font-weight: 650;
+	line-height: 1.35;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card__subtitle {
+	color: var(--md-muted);
+	font-size: 0.84rem;
+}
+
+/* A speaker: a centred portrait, the name under it. */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card--round {
+	text-align: center;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card--round .sh-card__art {
+	width: 78%;
+	margin: 6px auto 14px;
+	border-radius: 50%;
+}
+
+/* A series: two pages stacked behind its cover, and a label over the title. */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card--series {
+	padding-top: 16px;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card--series .sh-card__art {
+	box-shadow:
+		0 -8px 0 -4px #d6deea,
+		0 -15px 0 -8px #e6ebf2;
+}
+
+/* The small label over a card's title: "Series", or "Written" on a topic's
+   written shiurim (shiurim-cards.css only styles the series one). */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card__kicker {
+	margin-bottom: 2px;
+	color: var(--md-primary-2);
+	font-size: 0.68rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+/* No picture: the name's first letter on its own soft tint (the --hue comes
+   from ner_michoel_placeholder_art()). */
+body.sh-layout-stream.is-shiurim .sh-placeholder-art {
+	background: linear-gradient(150deg, hsl(var(--hue, 216) 34% 95%), hsl(var(--hue, 216) 30% 87%));
+	color: hsl(var(--hue, 216) 36% 30%);
+	font-weight: 700;
+}
+
+/* Play on a card: navy, shown on hover (always on touch screens, below). */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card__play {
+	width: 42px !important;
+	height: 42px !important;
+	background: var(--md-primary) !important;
+	box-shadow: 0 8px 18px -6px rgba(27, 47, 82, 0.6);
+	color: #fff;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card__play:hover {
+	background: var(--md-primary-2) !important;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card__save {
+	background: rgba(255, 255, 255, 0.94) !important;
+	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+	color: var(--md-ink-2);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card__save:hover {
+	background: #fff !important;
+	color: var(--md-ink);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-card__save.is-saved {
+	color: var(--md-heart);
+}
+
+/* Badges: a soft pill rather than a solid one. */
+body.sh-layout-stream.is-shiurim .sh-badge--new {
+	background: var(--md-new-bg);
+	color: var(--md-new);
+}
+
+/* The hero of a series, speaker, topic or shiur: a white panel. */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero {
+	align-items: center;
+	gap: clamp(18px, 3vw, 32px);
+	margin-bottom: 28px;
+	padding: clamp(18px, 3vw, 32px);
+	border: 1px solid var(--md-line);
+	border-radius: 20px;
+	background: var(--md-surface);
+	box-shadow: var(--md-shadow);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__art {
+	width: 168px;
+	height: 168px;
+	border-radius: 16px;
+	background: var(--md-soft);
+	box-shadow: 0 14px 28px -16px rgba(15, 23, 42, 0.45);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero--round .sh-hero__art {
+	border-radius: 50%;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__info {
+	flex: 1 1 280px;
+	min-width: 0;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__kicker {
+	display: inline-flex;
+	margin-bottom: 10px;
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: var(--md-tint);
+	color: var(--md-primary);
+	font-size: 0.7rem;
+	letter-spacing: 0.1em;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__info h1 {
+	margin: 0 0 10px;
+	color: var(--md-ink);
+	font-family: var(--sh-font);
+	font-size: clamp(1.7rem, 3.2vw, 2.4rem);
+	font-weight: 750;
+	line-height: 1.15;
+	letter-spacing: -0.02em;
+	overflow-wrap: anywhere;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__desc,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__meta {
+	color: var(--md-muted);
+	font-size: 0.98rem;
+	line-height: 1.55;
+}
+
+/* The speaker and series links under a shiur's title. */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__meta a {
+	color: var(--md-primary);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__meta a:hover {
+	color: var(--md-primary-2);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__actions {
+	gap: 10px;
+	margin-top: 16px;
+}
+
+/* Play / Play All: the one solid button on the page. */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-play-all {
+	min-height: 44px;
+	margin-top: 14px;
+	padding: 0 22px 0 18px;
+	border: 0;
+	border-radius: 999px;
+	background: var(--md-primary);
+	box-shadow: 0 10px 20px -12px rgba(27, 47, 82, 0.9);
+	color: #fff;
+	font-size: 0.95rem;
+	font-weight: 650;
+	line-height: 1;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__actions .sh-play-all {
+	margin-top: 0;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-play-all:hover,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-play-all:focus {
+	background: var(--md-primary-2);
+	color: #fff;
+	transform: translateY(-1px);
+}
+
+/* Download and Save beside it: outlined. */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-download-link,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero .sh-save,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-page-header > .sh-save {
+	min-height: 44px;
+	margin: 0;
+	padding: 0 18px 0 16px;
+	box-sizing: border-box;
+	border: 1px solid var(--md-line-2);
+	border-radius: 999px;
+	background: var(--md-surface);
+	color: var(--md-ink-2);
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1;
+	transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-page-header > .sh-save {
+	margin-top: 12px;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-download-link:hover,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero .sh-save:hover,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-page-header > .sh-save:hover {
+	border-color: var(--md-primary);
+	background: var(--md-surface);
+	color: var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-save.is-saved {
+	color: var(--md-heart);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-save.is-saved:hover {
+	border-color: var(--md-heart);
+	color: var(--md-heart);
+}
+
+body.sh-layout-stream.is-shiurim .sh-topic-chips .sh-topic-chip {
+	border-color: var(--md-line-2);
+	background: var(--md-surface);
+	color: var(--md-ink-2);
+}
+
+body.sh-layout-stream.is-shiurim .sh-topic-chips .sh-topic-chip:hover,
+body.sh-layout-stream.is-shiurim .sh-topic-chips .sh-topic-chip:focus-visible {
+	border-color: var(--md-primary);
+	color: var(--md-primary);
+}
+
+/* A shiur's description and dedication. */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-content {
+	color: var(--md-ink-2);
+	font-size: 1.02rem;
+	line-height: 1.75;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-content a {
+	color: var(--md-primary);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-dedication {
+	padding: 14px 18px;
+	border: 1px solid var(--md-line);
+	border-radius: var(--md-radius);
+	background: var(--md-surface);
+	color: var(--md-ink-2);
+}
+
+/* The track list: one white panel, rows divided by hairlines. */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-tracklist {
+	padding: 6px;
+	border: 1px solid var(--md-line);
+	border-radius: var(--md-radius-lg);
+	background: var(--md-surface);
+	box-shadow: var(--md-shadow-sm);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track {
+	position: relative;
+	padding: 9px 12px;
+	border-radius: 12px;
+	color: var(--md-ink);
+	transition: background-color 0.15s ease;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track + .sh-track::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	right: 12px;
+	left: 12px;
+	height: 1px;
+	background: var(--md-line);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track:hover::before,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track:hover + .sh-track::before,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track.is-active::before,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track.is-active + .sh-track::before {
+	display: none;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track:hover {
+	background: var(--md-soft);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track.is-active {
+	background: var(--md-tint);
+	box-shadow: inset 3px 0 0 var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track__num {
+	color: var(--md-faint);
+	font-size: 0.85rem;
+	font-variant-numeric: tabular-nums;
+	text-align: center;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track .sh-track__play,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track .sh-track__play:hover,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track .sh-track__play:focus {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+	color: var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track.is-active .sh-track__index {
+	color: var(--md-primary);
+	font-weight: 700;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track__eq span {
+	background: var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track__art {
+	border-radius: 10px;
+	background: var(--md-soft);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track__title {
+	color: var(--md-ink);
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track.is-active .sh-track__title {
+	color: var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track__speaker {
+	color: var(--md-muted);
+	font-size: 0.84rem;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track__duration {
+	color: var(--md-muted);
+	font-size: 0.84rem;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track--video .sh-track__num,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track--video .sh-track__duration {
+	color: var(--md-primary);
+	font-weight: 600;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track__download {
+	color: var(--md-muted);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track__download:hover {
+	color: var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track .sh-track__save {
+	color: var(--md-faint);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track .sh-track__save:hover {
+	background: transparent;
+	color: var(--md-ink-2);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-track .sh-track__save.is-saved {
+	color: var(--md-heart);
+}
+
+/* Page links under a long track list (a topic). */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-classic-pagination a,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-classic-pagination span {
+	border-color: var(--md-line);
+	border-radius: 10px;
+	background: var(--md-surface);
+	color: var(--md-ink-2);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-classic-pagination a:hover {
+	border-color: var(--md-primary);
+	color: var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-classic-pagination .current {
+	border-color: var(--md-primary);
+	background: var(--md-primary);
+	color: #fff;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-video-player video,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-video-player--embed {
+	border-radius: var(--md-radius-lg);
+	box-shadow: var(--md-shadow);
+}
+
+/* The search page: a clear search box, filters, results in a white panel. */
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-search__query {
+	height: 50px;
+	max-width: none;
+	margin: 0;
+	padding: 0 18px;
+	border: 1px solid var(--md-line-2);
+	border-radius: var(--md-radius);
+	background: var(--md-surface);
+	box-shadow: var(--md-shadow-sm);
+	color: var(--md-ink);
+	font-size: 1.02rem;
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-search__filters select {
+	height: 42px;
+	margin: 0;
+	padding: 0 12px;
+	border: 1px solid var(--md-line-2);
+	border-radius: 10px;
+	background-color: var(--md-surface);
+	color: var(--md-ink-2);
+	font-size: 0.92rem;
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-search__query:focus,
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-search__filters select:focus {
+	outline: none;
+	border-color: var(--md-primary);
+	box-shadow: var(--md-ring);
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-search__filters {
+	margin: 12px 0;
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-search__count {
+	color: var(--md-muted);
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-results {
+	padding: 4px 18px;
+	border: 1px solid var(--md-line);
+	border-radius: var(--md-radius-lg);
+	background: var(--md-surface);
+	box-shadow: var(--md-shadow-sm);
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-results:empty {
+	display: none;
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-results__item {
+	padding: 12px 0;
+	border-bottom-color: var(--md-line);
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-results__item:last-child {
+	border-bottom: 0;
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-results__title {
+	color: var(--md-ink);
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-results__title:hover,
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-results__title:focus-visible {
+	color: var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-results__meta {
+	color: var(--md-muted);
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-search__more {
+	height: 42px;
+	padding: 0 22px;
+	border: 1px solid var(--md-line-2);
+	background: var(--md-surface);
+	color: var(--md-ink-2);
+	font-weight: 600;
+}
+
+body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-search__more:hover {
+	border-color: var(--md-primary);
+	background: var(--md-surface);
+	color: var(--md-primary);
+}
+
+/* 4. The player bar ---------------------------------------------------------- */
+
+body.sh-layout-stream.is-shiurim .sh-player {
+	border-top: 1px solid var(--md-line);
+	background: var(--md-surface);
+	box-shadow: 0 -12px 32px -20px rgba(15, 23, 42, 0.35);
+}
+
+/* The scrubber along the top edge and the volume: navy on a pale rail. */
+body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__seek,
+body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__volume-range {
+	--rail-fill: var(--md-primary);
+	--rail-empty: #dde3ec;
+}
+
+body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__seek::-webkit-slider-thumb,
+body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__volume-range::-webkit-slider-thumb {
+	background: var(--md-primary);
+	box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(15, 23, 42, 0.35);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__seek::-moz-range-thumb,
+body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__volume-range::-moz-range-thumb {
+	background: var(--md-primary);
+	box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(15, 23, 42, 0.35);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__seek:focus-visible::-webkit-slider-thumb,
+body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__volume-range:focus-visible::-webkit-slider-thumb {
+	box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgba(27, 47, 82, 0.3);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__seek:focus-visible::-moz-range-thumb,
+body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__volume-range:focus-visible::-moz-range-thumb {
+	box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgba(27, 47, 82, 0.3);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__cover {
+	border: 1px solid var(--md-line);
+	border-radius: 10px;
+	background: var(--md-soft);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__cover:empty::before {
+	color: var(--md-faint);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player.is-loading .sh-player__cover::after {
+	border-color: rgba(27, 47, 82, 0.2);
+	border-top-color: var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__title {
+	color: var(--md-ink);
+	font-weight: 650;
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__speaker {
+	color: var(--md-muted);
+}
+
+/* Prev / next: dark icons that turn navy. The play disc: solid navy. */
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__buttons button {
+	color: var(--md-ink-2);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__buttons button:hover:not(:disabled) {
+	color: var(--md-primary);
+	opacity: 1;
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__buttons button:focus-visible {
+	outline: 2px solid var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__buttons button.sh-player__toggle {
+	background: var(--md-primary) !important;
+	box-shadow: 0 10px 20px -10px rgba(27, 47, 82, 0.8);
+	color: #fff !important;
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__buttons button.sh-player__toggle:hover:not(:disabled) {
+	background: var(--md-primary-2) !important;
+	color: #fff !important;
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__time {
+	color: var(--md-ink);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__time-sep,
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__time--total {
+	color: var(--md-muted);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__open {
+	color: var(--md-ink-2);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__open:hover,
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__open:focus-visible,
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__open[aria-expanded="true"] {
+	background: var(--md-soft);
+	color: var(--md-ink);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__speed {
+	border-color: var(--md-line-2) !important;
+	background: var(--md-surface) !important;
+	color: var(--md-ink-2) !important;
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__speed:hover,
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__speed[aria-expanded="true"] {
+	border-color: var(--md-primary) !important;
+	background: var(--md-soft) !important;
+	color: var(--md-ink) !important;
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__speed.is-active {
+	border-color: var(--md-primary) !important;
+	color: var(--md-primary) !important;
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__speed:focus-visible {
+	outline-color: var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-speed-menu {
+	border-color: var(--md-line);
+	background: var(--md-surface);
+	box-shadow: var(--md-shadow-lg);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-speed-menu .sh-speed-menu__option {
+	color: var(--md-ink) !important;
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-speed-menu .sh-speed-menu__option:hover,
+body.sh-layout-stream.is-shiurim .sh-player .sh-speed-menu .sh-speed-menu__option:focus {
+	background: var(--md-soft) !important;
+	color: var(--md-ink) !important;
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-speed-menu .sh-speed-menu__option:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--md-primary) !important;
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__volume {
+	color: var(--md-muted);
+}
+
+body.sh-layout-stream.is-shiurim .sh-player .sh-player__volume:hover svg {
+	color: var(--md-ink);
+}
+
+/* The queue sheet: white, sliding up over a dimmed page. */
+body.sh-layout-stream.is-shiurim .sh-sheet-backdrop {
+	background: rgba(15, 23, 42, 0.35);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet {
+	border: 1px solid var(--md-line);
+	border-bottom: 0;
+	border-radius: 18px 18px 0 0;
+	box-shadow: 0 -18px 44px -16px rgba(15, 23, 42, 0.35);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__grip {
+	background: var(--md-line-2);
+	opacity: 1;
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__cover {
+	border-radius: 10px;
+	background: var(--md-soft);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__close {
+	color: var(--md-ink-2);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__close:hover,
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__close:focus-visible {
+	background: var(--md-soft);
+	color: var(--md-ink);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__autoplay {
+	border: 1px solid var(--md-line);
+	background: var(--md-soft);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__switch {
+	background: #c5cfdc;
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__switch::after {
+	box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__switch-input:checked + .sh-sheet__switch {
+	background: var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__switch-input:focus-visible + .sh-sheet__switch {
+	outline-color: var(--md-primary);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__item {
+	border-radius: 10px;
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__item:hover,
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__item:focus-visible {
+	background: var(--md-soft);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__item.is-current {
+	background: var(--md-tint);
+}
+
+body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__item.is-current .sh-sheet__item-title {
+	color: var(--md-primary);
+}
+
+/* Bottom placements of the layout switch go above the player bar. custom.css
+   already does this for Modern; kept here so the two stay together. */
+body.is-shiurim.sh-layout-stream .sh-layout-toggle--bottom-left,
+body.is-shiurim.sh-layout-stream .sh-layout-toggle--bottom-center,
+body.is-shiurim.sh-layout-stream .sh-layout-toggle--bottom-right {
+	bottom: calc(var(--sh-player-height) + var(--nm-toggle-offset));
+}
+
+/* 5. Touch screens, reduced motion, narrow screens --------------------------- */
+
+/* No hover on touch screens: Play on a card and Download on a row show all
+   the time, and cards don't lift. */
+@media (hover: none) {
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-card .sh-card__play {
+		opacity: 1;
+		transform: none;
+	}
+
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-track .sh-track__download {
+		opacity: 1;
+	}
+
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-card:hover {
+		transform: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-card,
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-play-all {
+		transition: none;
+	}
+
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-card:hover,
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-card:focus-visible,
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-play-all:hover {
+		transform: none;
+	}
+}
+
+/* The sidebar moves above the page (custom.css). Here it gets compact: the
+   three main links in a row, and Series and Speakers as rows of chips you
+   swipe sideways, so the page starts near the top instead of after every
+   name in both lists. */
+@media (max-width: 900px) {
+	body.sh-layout-stream.is-shiurim .sh-layout-with-sidebar {
+		gap: 0;
+		padding: 0;
+	}
+
+	body.sh-layout-stream.is-shiurim .sh-sidebar {
+		align-self: stretch;
+		width: auto;
+		max-height: none;
+		margin: 16px 16px 0;
+		padding: 12px;
+		gap: 14px;
+	}
+
+	body.sh-layout-stream.is-shiurim .sh-sidebar__nav:not(.sh-sidebar__nav--scroll) {
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 6px;
+	}
+
+	body.sh-layout-stream.is-shiurim .sh-sidebar__group {
+		min-height: 0;
+	}
+
+	body.sh-layout-stream.is-shiurim .sh-sidebar__group-title {
+		margin-left: 2px;
+	}
+
+	body.sh-layout-stream.is-shiurim .sh-sidebar__nav--scroll {
+		flex-direction: row;
+		gap: 6px;
+		max-height: none;
+		margin: 0 -12px;
+		padding: 0 12px 6px;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scroll-snap-type: x proximity;
+		scroll-padding: 0 12px;
+	}
+
+	body.sh-layout-stream.is-shiurim .sh-sidebar .sh-sidebar__link {
+		display: block;
+		padding: 7px 14px;
+		border: 1px solid var(--md-line);
+		border-radius: 999px;
+		background: var(--md-surface);
+		font-size: 0.86rem;
+		white-space: nowrap;
+		scroll-snap-align: start;
+	}
+
+	body.sh-layout-stream.is-shiurim .sh-sidebar .sh-sidebar__link.is-active {
+		border-color: var(--md-tint-2);
+		box-shadow: none;
+	}
+
+	/* Room for the layout switch, which floats at the top right, so it doesn't
+	   sit on the search box or the Back button when the page opens. */
+	body.sh-layout-stream.is-shiurim:has(.sh-layout-toggle--top-left, .sh-layout-toggle--top-center, .sh-layout-toggle--top-right) #content {
+		padding-top: 44px;
+	}
+}
+
+@media (max-width: 780px) {
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__art {
+		width: 120px;
+		height: 120px;
+	}
+}
+
+@media (max-width: 600px) {
+	body.sh-layout-stream.is-shiurim .shiurim-app {
+		padding-right: 16px;
+		padding-left: 16px;
+	}
+
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
+	}
+
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero {
+		align-items: flex-start;
+		border-radius: 18px;
+	}
+
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__art {
+		width: 104px;
+		height: 104px;
+	}
+
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-hero__info {
+		flex-basis: 100%;
+	}
+
+	/* Rows: the number goes (tapping the row plays it), so the title gets the
+	   room, on two lines. */
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-tracklist {
+		padding: 4px;
+	}
+
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-track {
+		grid-template-columns: 44px minmax(0, 1fr) auto auto;
+		gap: 12px;
+		padding: 10px;
+	}
+
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-track .sh-track__num {
+		display: none;
+	}
+
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-track__title {
+		display: -webkit-box;
+		overflow: hidden;
+		white-space: normal;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+	}
+
+	body.sh-layout-stream.is-shiurim .shiurim-app .sh-track__duration {
+		font-size: 0.78rem;
+	}
+}

@@ -507,7 +507,7 @@ function ner_michoel_studio_series_card( $card ) {
 			<p class="st-card__kicker"><?php echo esc_html( $card['kicker'] ); ?></p>
 		<?php endif; ?>
 		<h3 class="st-card__title"><a class="st-card__link" href="<?php echo esc_url( is_wp_error( $link ) ? '#' : $link ); ?>"><?php echo esc_html( $card['title'] ); ?></a></h3>
-		<p class="st-card__meta"><?php echo esc_html( ner_michoel_studio_count_label( $card['count'] ) ); ?></p>
+		<p class="st-card__meta"><?php echo esc_html( ! empty( $card['meta'] ) ? $card['meta'] : ner_michoel_studio_count_label( $card['count'] ) ); ?></p>
 	</article>
 	<?php
 }

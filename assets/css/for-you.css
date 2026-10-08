@@ -1,0 +1,401 @@
+/*
+ * "For you" (inc/for-you.php): a signed-in listener's own shelf.
+ *
+ *   1. Modern, 24Six, and the pages that use Modern's markup (also Studio's
+ *      For you page): .sh-foryou
+ *   2. Studio's Shiurim home: .st-foryou
+ *   3. The New homepage: .hn-foryou
+ *   4. The Current homepage: .nm-home-foryou
+ *   5. Classic: .sh-classic-foryou
+ *
+ * Part 1 reads the app's own colour variables (--sh-text, --sh-accent, ...), so
+ * it follows whichever layout is on. Parts 2 and 3 use Studio's and the
+ * homepage's own tokens. Rules sit two or three classes deep, to outrank Astra's
+ * element styles (h2, ul, a:hover, button) and each layout's own skin.
+ */
+
+/* 1. Modern, 24Six and the generic Shiurim markup ------------------------------ */
+
+body.is-nm-app .shiurim-app .sh-foryou__bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 8px 20px;
+	margin: 0 0 14px;
+}
+
+body.is-nm-app .shiurim-app .sh-foryou .sh-foryou__bar .sh-section__title {
+	margin: 0;
+}
+
+body.is-nm-app .shiurim-app .sh-foryou__titles {
+	min-width: 0;
+}
+
+body.is-nm-app .shiurim-app .sh-foryou__lede {
+	max-width: 64ch;
+	margin: 4px 0 0;
+	color: var(--sh-text-muted);
+	font-size: 0.92rem;
+	line-height: 1.45;
+}
+
+body.is-nm-app .shiurim-app .sh-foryou__lede--page {
+	margin: 0 0 26px;
+}
+
+body.is-nm-app .shiurim-app .sh-foryou .sh-foryou__more {
+	flex: 0 0 auto;
+	color: var(--sh-accent);
+	font-size: 0.9rem;
+	font-weight: 650;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+body.is-nm-app .shiurim-app .sh-foryou .sh-foryou__more:hover,
+body.is-nm-app .shiurim-app .sh-foryou .sh-foryou__more:focus {
+	color: var(--sh-accent);
+	text-decoration: underline;
+}
+
+/* Play All sits beside its heading rather than under it. */
+body.is-nm-app .shiurim-app .sh-foryou__bar .sh-play-all {
+	margin: 0;
+}
+
+/* The row's arrows, on Modern's light page: white on the accent colour when pressed or focused. */
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-foryou .sh-carousel__nav {
+	box-shadow: none;
+}
+
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-foryou .sh-carousel__nav:hover,
+body.sh-layout-stream.is-shiurim .shiurim-app .sh-foryou .sh-carousel__nav:focus-visible {
+	background: var(--sh-accent);
+	color: #fff;
+}
+
+/* 2. Studio ----------------------------------------------------------------------- */
+
+.st .st-foryou {
+	display: grid;
+	gap: 22px;
+	min-width: 0;
+	padding: clamp(20px, 2.6vw, 28px);
+	border: 1px solid #d6e0f0;
+	border-radius: var(--st-radius-lg);
+	background:
+		radial-gradient(90% 140% at 100% 0%, rgba(36, 64, 111, 0.1), rgba(36, 64, 111, 0) 60%),
+		#f8fbff;
+	box-shadow: var(--st-shadow);
+}
+
+.st .st-foryou__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 12px 20px;
+}
+
+.st .st-foryou__title {
+	margin: 0;
+	color: var(--st-ink);
+	font-family: var(--st-serif);
+	font-size: clamp(1.6rem, 2.4vw, 2rem);
+	font-weight: 500;
+	line-height: 1.1;
+	letter-spacing: -0.01em;
+}
+
+.st .st-foryou__sub {
+	max-width: 56ch;
+	margin: 8px 0 0;
+	color: var(--st-muted);
+	font-size: 0.95rem;
+	line-height: 1.45;
+}
+
+.st .st-foryou__group {
+	display: grid;
+	gap: 8px;
+	min-width: 0;
+}
+
+.st .st-foryou__label {
+	margin: 0;
+	color: var(--st-muted);
+	font-family: var(--st-sans);
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+/* A row of cards that scrolls sideways (no arrows: the row is short). */
+.st .st-foryou__track {
+	display: flex;
+	gap: 18px;
+	margin: 0 -6px;
+	padding: 6px 6px 14px;
+	overflow-x: auto;
+	scroll-snap-type: x proximity;
+	scroll-padding: 0 6px;
+	scrollbar-width: thin;
+	scrollbar-color: var(--st-line) transparent;
+}
+
+.st .st-foryou__track::-webkit-scrollbar {
+	height: 6px;
+}
+
+.st .st-foryou__track::-webkit-scrollbar-thumb {
+	border-radius: 3px;
+	background: var(--st-line);
+}
+
+.st .st-foryou .st-list {
+	padding: 0;
+}
+
+.st .st-foryou .st-row:hover,
+.st .st-foryou .st-row:focus-within {
+	background: rgba(255, 255, 255, 0.85);
+}
+
+/* 3. The New homepage --------------------------------------------------------------- */
+
+.hn .hn-foryou {
+	padding-bottom: 18px;
+}
+
+.hn .hn-continue {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 12px;
+	margin: 0;
+	padding: 4px 28px 8px;
+	list-style: none;
+}
+
+.hn .hn-continue__item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0;
+	padding: 10px 12px;
+	border: 1px solid var(--hn-line);
+	border-radius: 16px;
+	background: var(--hn-surface-soft);
+	transition: border-color 0.18s var(--hn-ease), background-color 0.18s var(--hn-ease), box-shadow 0.18s var(--hn-ease);
+}
+
+.hn .hn-continue__item:hover,
+.hn .hn-continue__item:focus-within {
+	border-color: #cfd8e6;
+	background: var(--hn-surface);
+	box-shadow: var(--hn-shadow-sm);
+}
+
+.hn .hn-continue .hn-continue__link {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex: 1 1 auto;
+	min-width: 0;
+	color: inherit;
+	text-decoration: none;
+}
+
+.hn .hn-continue__art {
+	position: relative;
+	display: grid;
+	flex: 0 0 56px;
+	width: 56px;
+	height: 56px;
+	overflow: hidden;
+	place-items: center;
+	border-radius: 12px;
+	background: linear-gradient(150deg, hsl(var(--hue, 215) 46% 34%), hsl(calc(var(--hue, 215) + 28) 50% 15%));
+	color: rgba(255, 255, 255, 0.94);
+}
+
+.hn .hn-continue__art img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.hn .hn-continue__initial {
+	font-family: var(--hn-serif);
+	font-size: 1.3rem;
+	font-weight: 500;
+}
+
+.hn .hn-continue__text {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	min-width: 0;
+}
+
+.hn .hn-continue__kicker {
+	color: var(--hn-green);
+	font-size: 0.66rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.hn .hn-continue__title {
+	overflow: hidden;
+	color: var(--hn-ink);
+	font-size: 0.98rem;
+	font-weight: 650;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.hn .hn-continue__meta {
+	overflow: hidden;
+	color: var(--hn-muted);
+	font-size: 0.84rem;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.hn .hn-continue .hn-continue__play {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	flex: 0 0 auto;
+	margin: 0;
+	padding: 8px 14px;
+	border: 0;
+	border-radius: 999px;
+	background: var(--hn-navy);
+	box-shadow: none;
+	color: #fff;
+	font-family: var(--hn-sans);
+	font-size: 0.84rem;
+	font-weight: 650;
+	line-height: 1.2;
+	cursor: pointer;
+}
+
+.hn .hn-continue .hn-continue__play:hover,
+.hn .hn-continue .hn-continue__play:focus {
+	background: var(--hn-navy-2);
+	color: #fff;
+}
+
+.hn .hn-continue .hn-continue__play:focus-visible {
+	outline: 2px solid var(--hn-navy);
+	outline-offset: 2px;
+}
+
+.hn .hn-continue__play svg {
+	width: 14px;
+	height: 14px;
+}
+
+.hn .hn-foryou .hn-foryou__label {
+	margin: 18px 28px 0;
+	color: var(--hn-muted);
+	font-family: var(--hn-sans);
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.hn .hn-foryou .hn-continue + .hn-foryou__label {
+	margin-top: 20px;
+}
+
+@media (max-width: 640px) {
+	.hn .hn-continue {
+		grid-template-columns: minmax(0, 1fr);
+		padding: 4px 16px 8px;
+	}
+
+	.hn .hn-foryou .hn-foryou__label {
+		margin-right: 16px;
+		margin-left: 16px;
+	}
+}
+
+/* 4. The Current homepage -------------------------------------------------------- */
+
+.nm-home-foryou .nm-home-foryou__lede {
+	margin: -6px 0 18px;
+	color: var(--nm-text-muted, #666);
+}
+
+.nm-home-foryou .nm-continue-grid {
+	margin-bottom: 22px;
+}
+
+/* The series name wraps to two lines here, instead of being cut after a few letters. */
+.nm-home-foryou .nm-continue-card__title {
+	display: -webkit-box;
+	line-height: 1.3;
+	white-space: normal;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+/* 5. Classic ---------------------------------------------------------------------- */
+
+.shiurim-app--classic .sh-classic-foryou {
+	margin: 0 0 24px;
+	padding: 16px 20px 12px;
+	border: 1px solid var(--nm-border, rgba(0, 0, 0, 0.1));
+	border-radius: var(--nm-radius, 8px);
+	background: var(--nm-surface, #f7f7f7);
+}
+
+.shiurim-app--classic .sh-classic-foryou__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 4px 16px;
+}
+
+.shiurim-app--classic .sh-classic-foryou h2 {
+	margin: 0;
+	font-size: 1.15rem;
+}
+
+.shiurim-app--classic .sh-classic-foryou h3 {
+	margin: 14px 0 4px;
+	color: var(--nm-text-muted, #666);
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.shiurim-app--classic .sh-classic-foryou__lede {
+	margin: 4px 0 0;
+	color: var(--nm-text-muted, #666);
+	font-size: 0.92rem;
+}
+
+.shiurim-app--classic .sh-classic-foryou ul {
+	margin: 0 0 4px;
+	padding-left: 18px;
+}
+
+.shiurim-app--classic .sh-classic-foryou li {
+	margin: 3px 0;
+}
+
+.shiurim-app--classic .sh-classic-foryou .sh-classic-foryou__meta {
+	margin-left: 8px;
+	color: var(--nm-text-muted, #666);
+	font-size: 0.88rem;
+}

@@ -96,6 +96,13 @@ $sparkle = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" 
 
 	<?php get_template_part( 'template-parts/live-shiur' ); ?>
 
+	<?php
+	// A signed-in listener's own shelf (inc/for-you.php).
+	if ( function_exists( 'ner_michoel_render_for_you_home_new' ) ) {
+		ner_michoel_render_for_you_home_new();
+	}
+	?>
+
 	<div class="hn-main">
 
 		<section class="hn-panel hn-feed" aria-labelledby="hn-feed-title">

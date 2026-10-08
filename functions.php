@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.59' );
+define( 'NER_MICHOEL_VERSION', '0.2.60' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -186,6 +186,17 @@ function ner_michoel_custom_logo_support() {
 add_action( 'after_setup_theme', 'ner_michoel_custom_logo_support' );
 
 /**
+ * Tells ner-michoel-core that the forms render its bot check
+ * (ner_michoel_form_guard_fields(), in contact.php and account.php), so it
+ * can require the check on what they send. Until a theme says this, the
+ * plugin doesn't require it, so the two can be updated in either order.
+ */
+function ner_michoel_form_guard_support() {
+	add_theme_support( 'nm-form-guard' );
+}
+add_action( 'after_setup_theme', 'ner_michoel_form_guard_support' );
+
+/**
  * Additional includes, split by concern as the rebuild grows
  * (e.g. custom post types, ACF field registration, template tags).
  */
@@ -199,3 +210,4 @@ require_once NER_MICHOEL_PATH . '/inc/player-sheet.php';
 require_once NER_MICHOEL_PATH . '/inc/written-shiurim.php';
 require_once NER_MICHOEL_PATH . '/inc/home.php';
 require_once NER_MICHOEL_PATH . '/inc/shiurim-studio.php';
+require_once NER_MICHOEL_PATH . '/inc/for-you.php';

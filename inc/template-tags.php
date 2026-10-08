@@ -247,11 +247,15 @@ function ner_michoel_art_placeholder( $kind = 'audio' ) {
 
 /**
  * Fallback "cover art" for a speaker/series/shiur with no image set —
- * a tile showing its first letter, styled entirely in CSS.
+ * a tile showing its first letter, styled entirely in CSS. --hue gives
+ * each name its own tint where a layout uses it (Modern, in
+ * shiurim-modern.css); the same name always gets the same one, matching
+ * the homepage's initials (ner_michoel_home_hue()).
  */
 function ner_michoel_placeholder_art( $label = '' ) {
 	$initial = $label ? mb_substr( trim( $label ), 0, 1 ) : '♪';
-	return '<div class="sh-placeholder-art" aria-hidden="true">' . esc_html( $initial ) . '</div>';
+	$hue     = abs( crc32( (string) $label ) ) % 360;
+	return '<div class="sh-placeholder-art" style="--hue: ' . (int) $hue . ';" aria-hidden="true">' . esc_html( $initial ) . '</div>';
 }
 
 /**
@@ -566,7 +570,9 @@ function ner_michoel_render_shiurim_sidebar() {
 	$speaker_terms = get_terms( array( 'taxonomy' => 'speaker', 'hide_empty' => true ) );
 	$shiurim_url   = get_post_type_archive_link( 'shiur' );
 	$is_recent     = isset( $_GET['sh_view'] ) && 'recent' === $_GET['sh_view']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$is_all        = is_post_type_archive( 'shiur' ) && ! $is_recent;
+	$is_foryou     = function_exists( 'ner_michoel_is_for_you_view' ) && ner_michoel_is_for_you_view();
+	$show_foryou   = function_exists( 'ner_michoel_for_you_available' ) && ner_michoel_for_you_available();
+	$is_all        = is_post_type_archive( 'shiur' ) && ! $is_recent && ! $is_foryou;
 	?>
 	<aside class="sh-sidebar">
 		<form class="sh-sidebar__search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
@@ -577,6 +583,9 @@ function ner_michoel_render_shiurim_sidebar() {
 
 		<nav class="sh-sidebar__nav">
 			<a href="<?php echo esc_url( $shiurim_url ); ?>" class="sh-sidebar__link<?php echo $is_all ? ' is-active' : ''; ?>"><?php esc_html_e( 'All Shiurim', 'ner-michoel-child' ); ?></a>
+			<?php if ( $show_foryou ) : ?>
+				<a href="<?php echo esc_url( ner_michoel_for_you_url() ); ?>" class="sh-sidebar__link<?php echo $is_foryou ? ' is-active' : ''; ?>"><?php esc_html_e( 'For you', 'ner-michoel-child' ); ?></a>
+			<?php endif; ?>
 			<a href="<?php echo esc_url( add_query_arg( 'sh_view', 'recent', $shiurim_url ) ); ?>" class="sh-sidebar__link<?php echo $is_recent ? ' is-active' : ''; ?>"><?php esc_html_e( 'Recent', 'ner-michoel-child' ); ?></a>
 			<?php if ( post_type_exists( 'written_shiur' ) ) : ?>
 				<a href="<?php echo esc_url( get_post_type_archive_link( 'written_shiur' ) ); ?>" class="sh-sidebar__link<?php echo is_post_type_archive( 'written_shiur' ) ? ' is-active' : ''; ?>"><?php esc_html_e( 'Written Shiurim', 'ner-michoel-child' ); ?></a>
@@ -823,12 +832,44 @@ function ner_michoel_enqueue_shiurim_card_styles() {
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_shiurim_card_styles', 21 );
 
 /**
+ * Modern's look on the Shiurim pages (assets/css/shiurim-modern.css): the
+ * same markup and navigation, in a light theme. After the card, navigation
+ * and player-sheet styles, which it adjusts (and after the live search's,
+ * which is queued earlier at priority 22 on the search page).
+ */
+function ner_michoel_enqueue_modern_styles() {
+	if ( 'stream' !== ner_michoel_get_layout() || ! ner_michoel_is_shiurim_context() ) {
+		return;
+	}
+	wp_enqueue_style(
+		'ner-michoel-shiurim-modern',
+		NER_MICHOEL_URI . '/assets/css/shiurim-modern.css',
+		array( 'ner-michoel-shiurim-cards', 'ner-michoel-shiurim-navigation', 'ner-michoel-player-sheet' ),
+		NER_MICHOEL_VERSION
+	);
+}
+add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_modern_styles', 23 );
+
+/**
  * "Continue series" card for the Account page. It shows the series and the
  * shiur the listener last played in it. Play queues from that shiur through the
  * rest of the series (ner_michoel_series_rest_for_shiur()), then autoplay goes on.
  */
 function ner_michoel_render_continue_card( $term, $shiur ) {
-	$queue  = ner_michoel_build_track_queue( ner_michoel_series_rest_for_shiur( $shiur ) );
+	// Its own track now; the rest of its series loads when Continue is pressed. An older
+	// ner-michoel-core (no queue endpoint) gets the whole rest of the series in the page.
+	if ( function_exists( 'ner_michoel_queue_url' ) ) {
+		$queue     = ner_michoel_build_track_queue( array( $shiur ) );
+		$queue_url = $queue ? ner_michoel_queue_url(
+			array(
+				'shiur' => $shiur->ID,
+				'mode'  => 'series',
+			)
+		) : '';
+	} else {
+		$queue     = ner_michoel_build_track_queue( ner_michoel_series_rest_for_shiur( $shiur ) );
+		$queue_url = '';
+	}
 	$cover  = ner_michoel_get_series_cover_url( $term->term_id );
 	$link   = get_term_link( $term );
 	?>
@@ -853,7 +894,7 @@ function ner_michoel_render_continue_card( $term, $shiur ) {
 			</span>
 		</a>
 		<?php if ( $queue ) : ?>
-			<button type="button" class="nm-continue-card__play" data-play-queue="<?php echo esc_attr( wp_json_encode( $queue ) ); ?>" data-play-index="0">
+			<button type="button" class="nm-continue-card__play" data-play-queue="<?php echo esc_attr( wp_json_encode( $queue ) ); ?>"<?php if ( $queue_url ) : ?> data-queue-url="<?php echo esc_url( $queue_url ); ?>"<?php endif; ?> data-play-index="0">
 				<?php echo ner_michoel_icon( 'play' ); ?>
 				<span><?php esc_html_e( 'Continue', 'ner-michoel-child' ); ?></span>
 			</button>
