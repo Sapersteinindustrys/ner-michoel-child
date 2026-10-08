@@ -754,7 +754,7 @@ function ner_michoel_render_tracklist( $shiurim, $show_speaker = true ) {
  * Classic doesn't get it: its audio is plain links.
  */
 function ner_michoel_render_player_bar() {
-	if ( ! ner_michoel_is_shiurim_context() || 'classic' === ner_michoel_get_layout() ) {
+	if ( 'classic' === ner_michoel_get_layout() ) {
 		return;
 	}
 	?>

@@ -67,19 +67,18 @@ function ner_michoel_render_home_switch() {
 }
 
 /**
- * The switch's styles and script on the homepage (both designs), and the
- * serif face the new design's headings use (the same one as the Written
- * Shiurim pages, so a visitor's browser usually has it already).
+ * The switch's styles and script, and the serif face the new design's
+ * headings use (the same one as the Written Shiurim pages, so a visitor's
+ * browser usually has it already). Loaded site-wide, not just on the
+ * homepage, so the router (nm-router.js) always has them ready when it
+ * swaps a visitor onto the homepage without a real page load; home.js
+ * no-ops harmlessly on pages without its elements.
  */
 function ner_michoel_enqueue_home_assets() {
-	if ( ! is_front_page() ) {
-		return;
-	}
-
 	wp_enqueue_style( 'ner-michoel-home', NER_MICHOEL_URI . '/assets/css/home.css', array( 'ner-michoel-custom' ), NER_MICHOEL_VERSION );
 	wp_enqueue_script( 'ner-michoel-home', NER_MICHOEL_URI . '/assets/js/home.js', array(), NER_MICHOEL_VERSION, true );
 
-	if ( 'new' === ner_michoel_get_home_view() ) {
+	if ( is_front_page() && 'new' === ner_michoel_get_home_view() ) {
 		wp_enqueue_style(
 			'ner-michoel-written-serif',
 			'https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&display=swap',

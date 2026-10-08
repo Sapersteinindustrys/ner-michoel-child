@@ -7,9 +7,17 @@
  * If the index can't be loaded, the page reloads as the plain search
  * (?nm_plain=1), which the server ranks. Titles, speakers and series are set as
  * text, never as HTML. Strings come from wp_localize_script() (nmLiveSearch).
+ *
+ * Re-entrant: nm-router.js (site-wide) can swap #content without a real page
+ * load, so init() re-runs on its 'nm:content-swapped' event every time this
+ * page is routed to. Every element it binds lives inside #content, so a
+ * previous visit's listeners are destroyed along with that old markup — no
+ * teardown needed, just re-querying and re-fetching the index fresh.
  */
 ( function ( document, window ) {
 	'use strict';
+
+	function init() {
 
 	var root = document.querySelector( '[data-live-search]' );
 	if ( ! root ) {
@@ -332,4 +340,8 @@
 			moreBtn.addEventListener( 'click', showMore );
 		} )
 		.catch( goPlain );
+	}
+
+	init();
+	document.addEventListener( 'nm:content-swapped', init );
 } )( document, window );

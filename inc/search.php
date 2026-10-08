@@ -38,14 +38,13 @@ function ner_michoel_skip_server_ranking( $run, $query ) {
 add_filter( 'ner_michoel_shiur_search_server_ranking', 'ner_michoel_skip_server_ranking', 10, 2 );
 
 /**
- * Loads the live search (assets/js/shiur-live-search.js) on the Shiurim search
- * results page only, and not on the plain search.
+ * Loads the live search (assets/js/shiur-live-search.js) site-wide, not just
+ * on the Shiurim search results page, so the router (nm-router.js) always
+ * has it ready when it swaps a visitor onto that page without a real page
+ * load. The script itself no-ops where its root element doesn't exist —
+ * which is also still true on the plain search page.
  */
 function ner_michoel_enqueue_shiur_live_search() {
-	if ( ! ner_michoel_is_shiur_search() || ner_michoel_is_plain_shiur_search() ) {
-		return;
-	}
-
 	wp_enqueue_style( 'ner-michoel-shiur-live-search', NER_MICHOEL_URI . '/assets/css/shiur-live-search.css', array(), NER_MICHOEL_VERSION );
 	wp_enqueue_script( 'ner-michoel-shiur-live-search', NER_MICHOEL_URI . '/assets/js/shiur-live-search.js', array(), NER_MICHOEL_VERSION, true );
 	wp_localize_script(

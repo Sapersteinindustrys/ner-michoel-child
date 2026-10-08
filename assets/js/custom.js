@@ -104,21 +104,30 @@ function nerMichoelRecordHistory( postId ) {
 	// Layout toggle and Back button (Shiurim-section pages, plus the other
 	// pages with the toggle).
 	//
-	// The layout is a cookie the server reads, and each change reloads the
-	// page, so every layout is a "version" of the same page. Those versions
-	// are kept as a trail in sessionStorage, keyed to the page's path and
-	// query. Opening the page fresh clears the trail, so Back only steps
-	// through layouts tried on this page, and stops at the layout the page
-	// opened with. It never leaves the page. The browser's own back button
-	// is unaffected.
+	// The layout is a cookie the server reads. Switching re-fetches the
+	// current page through nm-router.js (so anything playing in #sh-player
+	// isn't interrupted) rather than a real page.reload() — falling back to
+	// reload() only if the router isn't present. Every layout fetched for one
+	// page is a "version" of it, kept as a trail in sessionStorage, keyed to
+	// the page's path and query — recomputed on every use (pageKey(), not a
+	// fixed value) since nm-router.js can change the current URL without a
+	// real navigation. Opening a page fresh clears its trail, so Back only
+	// steps through layouts tried on that page, and stops at the layout it
+	// opened with. It never leaves the page. The browser's own back button is
+	// unaffected. syncTrailState() re-runs on every router swap (initial load
+	// counts as one too), so a page reached via the router starts with the
+	// right trail/Back-button state instead of whatever the previous page left.
 	var TRAIL_KEY  = 'nm_layout_trail';
 	var SWITCH_KEY = 'nm_layout_switching';
-	var pageKey    = window.location.pathname + window.location.search;
+
+	function pageKey() {
+		return window.location.pathname + window.location.search;
+	}
 
 	function readTrail() {
 		try {
 			var saved = JSON.parse( sessionStorage.getItem( TRAIL_KEY ) || '{}' );
-			return saved.page === pageKey && Array.isArray( saved.layouts ) ? saved.layouts : [];
+			return saved.page === pageKey() && Array.isArray( saved.layouts ) ? saved.layouts : [];
 		} catch ( err ) {
 			return [];
 		}
@@ -126,7 +135,7 @@ function nerMichoelRecordHistory( postId ) {
 
 	function writeTrail( layouts ) {
 		try {
-			sessionStorage.setItem( TRAIL_KEY, JSON.stringify( { page: pageKey, layouts: layouts } ) );
+			sessionStorage.setItem( TRAIL_KEY, JSON.stringify( { page: pageKey(), layouts: layouts } ) );
 		} catch ( err ) {
 			// Storage can be blocked (private windows). Back then just stays disabled.
 		}
@@ -134,31 +143,42 @@ function nerMichoelRecordHistory( postId ) {
 
 	function switchLayout( layout ) {
 		try {
-			sessionStorage.setItem( SWITCH_KEY, pageKey );
+			sessionStorage.setItem( SWITCH_KEY, pageKey() );
 		} catch ( err ) {
-			// Without this flag the trail resets on reload. Still works, just no history.
+			// Without this flag the trail resets on the next sync. Still works, just no history.
 		}
 		document.cookie = 'nm_layout=' + layout + ';path=/;max-age=31536000';
-		window.location.reload();
+		if ( window.nmRouterNavigate ) {
+			// push: false — a layout switch isn't real navigation (the Back
+			// button above has its own sessionStorage trail for this, on
+			// purpose; the browser's own history is untouched).
+			window.nmRouterNavigate( window.location.href, { push: false } );
+		} else {
+			window.location.reload();
+		}
 	}
 
-	// Arriving fresh resets the trail. A reload caused by switchLayout() keeps it.
-	var switching = false;
-	try {
-		switching = sessionStorage.getItem( SWITCH_KEY ) === pageKey;
-		sessionStorage.removeItem( SWITCH_KEY );
-	} catch ( err ) {
-		switching = false;
-	}
-	if ( ! switching ) {
-		writeTrail( [] );
-	}
+	// Arriving fresh resets the trail. A swap caused by switchLayout() keeps it.
+	function syncTrailState() {
+		var switching = false;
+		try {
+			switching = sessionStorage.getItem( SWITCH_KEY ) === pageKey();
+			sessionStorage.removeItem( SWITCH_KEY );
+		} catch ( err ) {
+			switching = false;
+		}
+		if ( ! switching ) {
+			writeTrail( [] );
+		}
 
-	// Back is only live once there's a layout to go back to.
-	var hasHistory = readTrail().length > 0;
-	document.querySelectorAll( '[data-nm-back]' ).forEach( function ( back ) {
-		back.disabled = ! hasHistory;
-	} );
+		// Back is only live once there's a layout to go back to.
+		var hasHistory = readTrail().length > 0;
+		document.querySelectorAll( '[data-nm-back]' ).forEach( function ( back ) {
+			back.disabled = ! hasHistory;
+		} );
+	}
+	syncTrailState();
+	document.addEventListener( 'nm:content-swapped', syncTrailState );
 
 	document.addEventListener( 'click', function ( e ) {
 		var btn = e.target.closest( '.sh-layout-toggle__option' );
@@ -301,6 +321,12 @@ function nerMichoelRecordHistory( postId ) {
 	// + thumbnail strip, no external library. Each .sh-gallery-slider
 	// carries its full image list as JSON so this doesn't need to walk
 	// the DOM to know what comes next/previous.
+	//
+	// Re-entrant: re-runs on 'nm:content-swapped' (nm-router.js), since a
+	// gallery page reached without a real page load needs its own slider set
+	// up too. No teardown needed — every element this binds lives inside
+	// #content, so a previous visit's listeners are destroyed with it.
+	function initGallerySliders() {
 	document.querySelectorAll( '.sh-gallery-slider' ).forEach( function ( slider ) {
 		var images;
 		try {
@@ -360,6 +386,9 @@ function nerMichoelRecordHistory( postId ) {
 			}
 		} );
 	} );
+	}
+	initGallerySliders();
+	document.addEventListener( 'nm:content-swapped', initGallerySliders );
 } )();
 
 ( function () {
@@ -369,39 +398,12 @@ function nerMichoelRecordHistory( postId ) {
 	// Control Panel) — auto-advances, pauses on hover, dots jump
 	// directly to a slide. No external library, same pattern as the
 	// gallery slider above.
-	var slider = document.querySelector( '.nm-hero-slider' );
-	if ( ! slider ) {
-		return;
-	}
-
-	var slides   = slider.querySelectorAll( '.nm-hero-slider__slide' );
-	var dots     = document.querySelectorAll( '.nm-hero-slider__dot' );
-	var navPrev  = document.querySelector( '.nm-hero-slider__nav--prev' );
-	var navNext  = document.querySelector( '.nm-hero-slider__nav--next' );
-	if ( slides.length < 2 ) {
-		return;
-	}
-
-	var interval = parseInt( slider.getAttribute( 'data-interval' ), 10 ) || 6000;
-	var index    = 0;
-	var timer    = null;
-
-	function show( i ) {
-		index = ( i + slides.length ) % slides.length;
-		slides.forEach( function ( slide, i2 ) {
-			slide.classList.toggle( 'is-active', i2 === index );
-		} );
-		dots.forEach( function ( dot, i2 ) {
-			dot.classList.toggle( 'is-active', i2 === index );
-		} );
-	}
-
-	function start() {
-		stop();
-		timer = window.setInterval( function () {
-			show( index + 1 );
-		}, interval );
-	}
+	//
+	// Re-entrant: init() re-runs on 'nm:content-swapped'. timer lives at
+	// module scope (not inside init) so teardown() (on
+	// 'nm:before-content-swap') can always clear it before leaving the
+	// page, even mid-interval.
+	var timer = null;
 
 	function stop() {
 		if ( timer ) {
@@ -410,31 +412,74 @@ function nerMichoelRecordHistory( postId ) {
 		}
 	}
 
-	dots.forEach( function ( dot ) {
-		dot.addEventListener( 'click', function () {
-			show( parseInt( dot.getAttribute( 'data-index' ), 10 ) || 0 );
-			start();
-		} );
-	} );
-
-	if ( navPrev ) {
-		navPrev.addEventListener( 'click', function () {
-			show( index - 1 );
-			start();
-		} );
+	function teardown() {
+		stop();
 	}
 
-	if ( navNext ) {
-		navNext.addEventListener( 'click', function () {
-			show( index + 1 );
-			start();
+	function init() {
+		var slider = document.querySelector( '.nm-hero-slider' );
+		if ( ! slider ) {
+			return;
+		}
+
+		var slides   = slider.querySelectorAll( '.nm-hero-slider__slide' );
+		var dots     = document.querySelectorAll( '.nm-hero-slider__dot' );
+		var navPrev  = document.querySelector( '.nm-hero-slider__nav--prev' );
+		var navNext  = document.querySelector( '.nm-hero-slider__nav--next' );
+		if ( slides.length < 2 ) {
+			return;
+		}
+
+		var interval = parseInt( slider.getAttribute( 'data-interval' ), 10 ) || 6000;
+		var index    = 0;
+
+		function show( i ) {
+			index = ( i + slides.length ) % slides.length;
+			slides.forEach( function ( slide, i2 ) {
+				slide.classList.toggle( 'is-active', i2 === index );
+			} );
+			dots.forEach( function ( dot, i2 ) {
+				dot.classList.toggle( 'is-active', i2 === index );
+			} );
+		}
+
+		function start() {
+			stop();
+			timer = window.setInterval( function () {
+				show( index + 1 );
+			}, interval );
+		}
+
+		dots.forEach( function ( dot ) {
+			dot.addEventListener( 'click', function () {
+				show( parseInt( dot.getAttribute( 'data-index' ), 10 ) || 0 );
+				start();
+			} );
 		} );
+
+		if ( navPrev ) {
+			navPrev.addEventListener( 'click', function () {
+				show( index - 1 );
+				start();
+			} );
+		}
+
+		if ( navNext ) {
+			navNext.addEventListener( 'click', function () {
+				show( index + 1 );
+				start();
+			} );
+		}
+
+		slider.addEventListener( 'mouseenter', stop );
+		slider.addEventListener( 'mouseleave', start );
+
+		start();
 	}
 
-	slider.addEventListener( 'mouseenter', stop );
-	slider.addEventListener( 'mouseleave', start );
-
-	start();
+	init();
+	document.addEventListener( 'nm:before-content-swap', teardown );
+	document.addEventListener( 'nm:content-swapped', init );
 } )();
 
 ( function () {
@@ -1373,8 +1418,13 @@ function nerMichoelRecordHistory( postId ) {
 	// <video controls> element isn't part of the audio queue engine
 	// above, so it gets its own (much simpler) play-once/complete-once
 	// listeners rather than sharing that engine's state.
+	//
+	// Re-entrant: re-runs on 'nm:content-swapped', since a video shiur page
+	// reached without a real page load needs its own listeners bound too.
+	// No teardown needed — every element this binds lives inside #content.
 	var COMPLETE_THRESHOLD = 0.9;
 
+	function initVideoTracking() {
 	document.querySelectorAll( '.sh-video-player' ).forEach( function ( wrap ) {
 		var video = wrap.querySelector( 'video' );
 		if ( ! video ) {
@@ -1398,4 +1448,7 @@ function nerMichoelRecordHistory( postId ) {
 			}
 		} );
 	} );
+	}
+	initVideoTracking();
+	document.addEventListener( 'nm:content-swapped', initVideoTracking );
 } )();

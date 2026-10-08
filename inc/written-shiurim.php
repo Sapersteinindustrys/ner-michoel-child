@@ -844,28 +844,27 @@ function ner_michoel_written_archive_query( $query ) {
 add_action( 'pre_get_posts', 'ner_michoel_written_archive_query' );
 
 /**
- * The reading room's serif face and its two scripts, on written pages only.
+ * The reading room's serif face (written pages only) and its two scripts
+ * (site-wide, not just written pages, so the router (nm-router.js) always
+ * has them ready when it swaps a visitor onto a written-shiur page without
+ * a real page load; both scripts no-op harmlessly where their elements
+ * don't exist).
  */
 function ner_michoel_enqueue_written_assets() {
 	$is_search  = function_exists( 'ner_michoel_is_written_search' ) && ner_michoel_is_written_search();
 	$is_archive = is_post_type_archive( 'written_shiur' ) && ! is_search();
 	$is_single  = is_singular( 'written_shiur' );
-	if ( ! $is_archive && ! $is_search && ! $is_single ) {
-		return;
+
+	if ( $is_archive || $is_search || $is_single ) {
+		wp_enqueue_style(
+			'ner-michoel-written-serif',
+			'https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&display=swap',
+			array(),
+			null // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Google Fonts URL carries its own versioning.
+		);
 	}
 
-	wp_enqueue_style(
-		'ner-michoel-written-serif',
-		'https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&display=swap',
-		array(),
-		null // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Google Fonts URL carries its own versioning.
-	);
-
-	if ( $is_archive || $is_search ) {
-		wp_enqueue_script( 'ner-michoel-written-library', NER_MICHOEL_URI . '/assets/js/written-library.js', array(), NER_MICHOEL_VERSION, true );
-	}
-	if ( $is_single ) {
-		wp_enqueue_script( 'ner-michoel-written-reader', NER_MICHOEL_URI . '/assets/js/written-reader.js', array( 'ner-michoel-custom' ), NER_MICHOEL_VERSION, true );
-	}
+	wp_enqueue_script( 'ner-michoel-written-library', NER_MICHOEL_URI . '/assets/js/written-library.js', array(), NER_MICHOEL_VERSION, true );
+	wp_enqueue_script( 'ner-michoel-written-reader', NER_MICHOEL_URI . '/assets/js/written-reader.js', array( 'ner-michoel-custom' ), NER_MICHOEL_VERSION, true );
 }
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_written_assets', 22 );

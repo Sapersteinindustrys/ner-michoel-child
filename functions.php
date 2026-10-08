@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.58' );
+define( 'NER_MICHOEL_VERSION', '0.2.59' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -78,6 +78,20 @@ function ner_michoel_enqueue_assets() {
 			'isLoggedIn'      => is_user_logged_in(),
 		)
 	);
+
+	// Site-wide router (nm-router.js): swaps #content on same-origin
+	// navigation instead of a real page load, so whatever's playing in
+	// #sh-player keeps playing. No dependency array entry needed on the
+	// other theme scripts below — they listen for its events at parse time,
+	// which only matters before the first navigation, and everything here
+	// is in_footer on every page regardless of relative enqueue order.
+	wp_enqueue_script(
+		'ner-michoel-router',
+		NER_MICHOEL_URI . '/assets/js/nm-router.js',
+		array(),
+		NER_MICHOEL_VERSION,
+		true
+	);
 }
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_assets', 20 );
 
@@ -104,16 +118,13 @@ function ner_michoel_enqueue_component_styles() {
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_component_styles', 21 );
 
 /**
- * Account page (login/sign up/profile) assets — gated to its own
- * template rather than loaded site-wide like the component styles
- * above, since (unlike the Live Shiur block) there's exactly one page
- * that ever needs this CSS/JS and it's known at enqueue time.
+ * Account page (login/sign up/profile) assets. Loaded site-wide (not
+ * gated to the one template that needs it) so the router (nm-router.js)
+ * always has them ready when it swaps a visitor into the Account page
+ * without a real page load; account.js no-ops harmlessly where its
+ * elements don't exist.
  */
 function ner_michoel_enqueue_account_assets() {
-	if ( ! is_page_template( 'page-templates/account.php' ) ) {
-		return;
-	}
-
 	wp_enqueue_style(
 		'ner-michoel-account',
 		NER_MICHOEL_URI . '/assets/css/account.css',

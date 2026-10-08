@@ -16,6 +16,12 @@
  * The History/Saved/Suggested grids' own Save-button clicks are handled
  * in assets/js/custom.js (shared with the standalone Save button on
  * single-shiur.php/single-written_shiur.php), not here.
+ *
+ * Re-entrant: nm-router.js (site-wide) can swap #content without a real page
+ * load, so init() re-runs on its 'nm:content-swapped' event every time this
+ * page is routed to. Every element it binds lives inside #content, so a
+ * previous visit's listeners are destroyed along with that old markup — no
+ * teardown needed, just re-querying.
  */
 ( function () {
 	'use strict';
@@ -53,6 +59,8 @@
 			} );
 		} );
 	}
+
+	function init() {
 
 	/* ---- Logged-out: tabs ---- */
 
@@ -212,4 +220,9 @@
 			} );
 		} );
 	}
+
+	}
+
+	init();
+	document.addEventListener( 'nm:content-swapped', init );
 } )();
