@@ -93,12 +93,13 @@ function ner_michoel_is_app_context() {
 
 /**
  * Which layout to render:
- * - 'stream'  — the Spotify/app-style visual language (grid browsing)
+ * - 'stream'  — "Modern": the Spotify/app-style visual language (grid browsing)
  * - 'classic' — the plain filterable/sortable library style
- * - 'studio'  — the new homepage's light look on the Shiurim pages, with
- *   Modern's lists and 24Six's swipeable rows (inc/shiurim-studio.php,
- *   assets/css/shiurim-studio.css). The Shiurim home has its own page;
- *   the other pages keep their markup and take the look from the CSS.
+ * - 'studio'  — the default. The new homepage's light look on the Shiurim
+ *   pages, with Modern's lists and 24Six's swipeable rows
+ *   (inc/shiurim-studio.php, assets/css/shiurim-studio.css). The Shiurim home
+ *   has its own page; the other pages keep their markup and take the look
+ *   from the CSS.
  * - '24six'   — carousel/swimlane browsing (horizontal-scrolling rows
  *   of Series/Speakers instead of a wrapping grid), inspired by
  *   24six.app's layout specifically, not its color scheme — reuses
@@ -114,11 +115,13 @@ function ner_michoel_is_app_context() {
  * layout of their own yet — they just render their 'stream' markup
  * for that value, same as taxonomy-series.php/single-shiur.php do).
  * Persisted in a cookie so the server can render the right templates
- * directly instead of shipping all of them to the client.
+ * directly instead of shipping all of them to the client. A visitor who
+ * hasn't picked one (no cookie, or a value that isn't one of the four) gets
+ * Studio; picking Modern sets the cookie to 'stream' and keeps it.
  */
 function ner_michoel_get_layout() {
-	$layout = isset( $_COOKIE['nm_layout'] ) ? sanitize_key( wp_unslash( $_COOKIE['nm_layout'] ) ) : 'stream';
-	return in_array( $layout, array( 'classic', '24six', 'studio' ), true ) ? $layout : 'stream';
+	$layout = isset( $_COOKIE['nm_layout'] ) ? sanitize_key( wp_unslash( $_COOKIE['nm_layout'] ) ) : '';
+	return in_array( $layout, array( 'stream', 'classic', '24six', 'studio' ), true ) ? $layout : 'studio';
 }
 
 /**
@@ -144,6 +147,14 @@ add_filter( 'body_class', 'ner_michoel_app_body_class' );
  * layout cookie and reloads, since each layout is a genuinely
  * different template (not a client-side CSS skin) — see the branches
  * at the top of each app-context template.
+ *
+ * Printed inside #content (astra_content_top), not at the top of the
+ * body: nm-router.js swaps #content and nothing outside it. Printed on
+ * wp_body_open, the switch was missing for anyone who reached a Shiurim
+ * page by clicking a link from another page, it stayed on screen after
+ * they left, and after a switch it kept marking the old layout as active
+ * (and ignored a click on that one). It's position: fixed, so where it
+ * sits in the markup doesn't change where it shows.
  */
 function ner_michoel_render_layout_toggle() {
 	if ( ! ner_michoel_is_app_context() ) {
@@ -161,7 +172,7 @@ function ner_michoel_render_layout_toggle() {
 	</div>
 	<?php
 }
-add_action( 'wp_body_open', 'ner_michoel_render_layout_toggle' );
+add_action( 'astra_content_top', 'ner_michoel_render_layout_toggle' );
 
 /**
  * Small inline icon set for the player controls — kept as literal SVG
@@ -277,25 +288,74 @@ function ner_michoel_gallery_card_subtitle( $post_id ) {
 }
 
 /**
- * "Back" button at the top of a Shiurim-section page, in every layout.
- * It never leaves the page. It steps back through the layouts already
- * tried on this page, and stops at the layout the page opened with. The
- * trail is kept by custom.js. The button starts disabled, and the script
- * enables it once there's a layout to go back to.
+ * Where "Back" goes when the visitor didn't arrive from another page of this
+ * site (a shared link, a bookmark, a new tab): up one level. A shiur goes to
+ * its series (or, with no series, its speaker, or the Shiurim archive); a
+ * written shiur goes to the Written Shiurim library; the two searches go to
+ * their own archive; every other page goes to the home page. It's also the
+ * Back link's href, so Back works without JavaScript.
  */
-function ner_michoel_render_back_button( $label = '' ) {
+function ner_michoel_back_parent_url() {
+	$home = home_url( '/' );
+
+	if ( is_singular( 'shiur' ) ) {
+		foreach ( array( 'series', 'speaker' ) as $taxonomy ) {
+			$terms = get_the_terms( get_queried_object_id(), $taxonomy );
+			if ( $terms && ! is_wp_error( $terms ) ) {
+				$link = get_term_link( reset( $terms ) );
+				if ( ! is_wp_error( $link ) ) {
+					return $link;
+				}
+			}
+		}
+		$archive = get_post_type_archive_link( 'shiur' );
+		return $archive ? $archive : $home;
+	}
+
+	$post_type = '';
+	if ( is_singular( 'written_shiur' ) ) {
+		$post_type = 'written_shiur';
+	} elseif ( function_exists( 'ner_michoel_is_shiur_search' ) && ner_michoel_is_shiur_search() ) {
+		$post_type = 'shiur';
+	} elseif ( function_exists( 'ner_michoel_is_written_search' ) && ner_michoel_is_written_search() ) {
+		$post_type = 'written_shiur';
+	}
+
+	if ( $post_type ) {
+		$archive = get_post_type_archive_link( $post_type );
+		return $archive ? $archive : $home;
+	}
+
+	return $home;
+}
+
+/**
+ * "Back" at the top of a Shiurim-section page, in every layout. It's a link to
+ * the page's parent (ner_michoel_back_parent_url()), so it always works, and
+ * nm-router.js decides where a click really goes: back to the page the visitor
+ * came from, when that was a page of this site, and otherwise up to the parent.
+ * A shiur is the exception to "back to where you came from": opened straight
+ * from the home page, it backs out through its series first, then to the home
+ * page (data-nm-up-first). There's no Home link here. Home is in the header
+ * menu (inc/navigation.php).
+ *
+ * @param string $label  Link text. Default "Back".
+ * @param string $parent Where Back goes when there's no page to return to.
+ *                       Default: ner_michoel_back_parent_url().
+ */
+function ner_michoel_render_back_button( $label = '', $parent = '' ) {
 	if ( '' === $label ) {
 		$label = __( 'Back', 'ner-michoel-child' );
 	}
+	if ( '' === $parent ) {
+		$parent = ner_michoel_back_parent_url();
+	}
+	$up_first = is_singular( array( 'shiur', 'written_shiur' ) );
 	?>
 	<nav class="sh-back-row" aria-label="<?php esc_attr_e( 'Page navigation', 'ner-michoel-child' ); ?>">
-		<button type="button" class="sh-back" data-nm-back disabled>
+		<a class="sh-back" href="<?php echo esc_url( $parent ); ?>" data-nm-back data-nm-home="<?php echo esc_url( home_url( '/' ) ); ?>"<?php echo $up_first ? ' data-nm-up-first' : ''; ?>>
 			<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
 			<span><?php echo esc_html( $label ); ?></span>
-		</button>
-		<a class="sh-back sh-home" href="<?php echo esc_url( home_url( '/' ) ); ?>">
-			<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/></svg>
-			<span><?php esc_html_e( 'Home', 'ner-michoel-child' ); ?></span>
 		</a>
 	</nav>
 	<?php
@@ -753,21 +813,28 @@ function ner_michoel_render_tracklist( $shiurim, $show_speaker = true ) {
 }
 
 /**
- * Persistent bottom player bar — printed once in the footer on any
- * Shiurim-related page so playback state can survive navigating
- * between speaker/series/archive pages (see assets/js/custom.js).
+ * Persistent bottom player bar — printed once in the footer of every page
+ * (the router, assets/js/nm-router.js, never replaces it, so playback
+ * carries on while browsing the whole site). It stays hidden until
+ * something plays, or custom.js restores the last shiur on a page load.
  *
- * Shown in Modern ('stream') and 24Six. Every play control (cards, Play
- * All, tracklist rows) is wired to this bar, and custom.js exits early
+ * Shown in Modern ('stream'), 24Six and Studio. Every play control (cards,
+ * Play All, tracklist rows) is wired to this bar, and custom.js exits early
  * without it, so 24Six had no playback at all until this covered it too.
  * Classic doesn't get it: its audio is plain links.
+ *
+ * The layout is on the bar as a class (sh-player--stream, --24six,
+ * --studio), so it looks the same on every page, not only on the Shiurim
+ * pages (assets/css/player-sheet.css). custom.js updates the class when the
+ * layout is switched.
  */
 function ner_michoel_render_player_bar() {
-	if ( 'classic' === ner_michoel_get_layout() ) {
+	$layout = ner_michoel_get_layout();
+	if ( 'classic' === $layout ) {
 		return;
 	}
 	?>
-	<div class="sh-player" id="sh-player" hidden>
+	<div class="sh-player sh-player--<?php echo esc_attr( $layout ); ?>" id="sh-player" hidden>
 		<audio id="sh-audio" preload="metadata"></audio>
 
 		<?php // Full-width hairline scrubber pinned to the bar's top edge. ?>
@@ -809,12 +876,16 @@ function ner_michoel_render_player_bar() {
 					<?php echo ner_michoel_icon( 'volume' ); ?>
 					<input type="range" class="sh-player__volume-range" id="sh-player-volume" min="0" max="1" step="0.01" value="1" aria-label="<?php esc_attr_e( 'Volume', 'ner-michoel-child' ); ?>" />
 				</span>
+				<?php // Shown while paused: puts the bar away and forgets the shiur (custom.js). ?>
+				<button type="button" class="sh-player__close" id="sh-player-close" aria-label="<?php esc_attr_e( 'Close player', 'ner-michoel-child' ); ?>">
+					<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+				</button>
 			</div>
 		</div>
 	</div>
 	<?php
 	// Autoplay switch and queue, slid up from the bar (inc/player-sheet.php).
-	ner_michoel_render_player_sheet();
+	ner_michoel_render_player_sheet( $layout );
 }
 add_action( 'wp_footer', 'ner_michoel_render_player_bar' );
 

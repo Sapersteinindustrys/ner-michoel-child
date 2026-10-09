@@ -18,6 +18,11 @@
  * - nm_color_text    -> --sh-text
  * - nm_color_accent  -> --sh-accent
  * - nm_font_family   -> --sh-font
+ *
+ * The same block also goes on the player bar and its queue sheet when they
+ * have 24Six's look (.sh-player--24six, .sh-sheet--24six), because they
+ * show on every page, not just the app pages. Modern's and Studio's bars
+ * keep their own colours (assets/css/player-sheet.css), as they always did.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -55,7 +60,7 @@ function ner_michoel_render_appearance_overrides() {
 	}
 	?>
 	<style id="ner-michoel-appearance-overrides">
-		body.is-nm-app { <?php echo implode( ' ', $declarations ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each value passed through sanitize_hex_color()/wp_strip_all_tags() above. ?> }
+		body.is-nm-app, .sh-player--24six, .sh-sheet--24six { <?php echo implode( ' ', $declarations ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each value passed through sanitize_hex_color()/wp_strip_all_tags() above. ?> }
 	</style>
 	<?php
 }

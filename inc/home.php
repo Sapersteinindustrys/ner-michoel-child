@@ -1,17 +1,13 @@
 <?php
 /**
- * The homepage's two designs, and the switch between them.
+ * The homepage's data and assets.
  *
- * front-page.php holds the current design. template-parts/home-new.php holds
- * the new one (assets/css/home.css, assets/js/home.js): a hero with the shiur
- * search, then the newest shiurim beside the latest Mazal Tovs. A Current /
- * New switch in the homepage's top-right corner flips between them.
- *
- * The choice is a cookie (nm_home), like the Modern / Classic / 24Six layout
- * cookie, so the server renders one design and nothing is sent twice. The
- * host's page cache only answers requests without cookies, so those all get
- * the default design, and anyone who has switched gets theirs. A link with
- * ?home=new or ?home=current shows that design, and home.js remembers it.
+ * front-page.php shows template-parts/home-new.php (assets/css/home.css,
+ * assets/js/home.js): a hero with the shiur search, then the newest shiurim
+ * beside the latest Mazal Tovs. It is the only homepage design. There used to
+ * be a second, "Current" one, with a Current / New switch in the page's
+ * top-right corner (a cookie, nm_home, and a ?home= link); both are gone, and
+ * a leftover cookie or ?home= in a link is ignored.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,66 +15,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * The homepage design to show: 'new' or 'current'. A ?home= in the link
- * comes first, then the visitor's own choice, then the default: the new
- * design, unless the ner_michoel_home_default_view filter says otherwise.
- */
-function ner_michoel_get_home_view() {
-	$views = array( 'new', 'current' );
-
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a read-only display choice.
-	$asked = isset( $_GET['home'] ) && is_string( $_GET['home'] ) ? sanitize_key( wp_unslash( $_GET['home'] ) ) : '';
-	if ( in_array( $asked, $views, true ) ) {
-		return $asked;
-	}
-
-	$saved = isset( $_COOKIE['nm_home'] ) && is_string( $_COOKIE['nm_home'] ) ? sanitize_key( wp_unslash( $_COOKIE['nm_home'] ) ) : '';
-	if ( in_array( $saved, $views, true ) ) {
-		return $saved;
-	}
-
-	$default = apply_filters( 'ner_michoel_home_default_view', 'new' );
-	return in_array( $default, $views, true ) ? $default : 'new';
-}
-
-/**
- * The Current / New switch: the same dark pill as the layout switch on the
- * Shiurim pages, in the top-right corner of each design's opening section
- * (the new hero, the current slider). It's printed inside that section, so
- * it sits in its corner whatever the header's height or the screen's width,
- * and it stays at the top rather than following the reader down the page.
- */
-function ner_michoel_render_home_switch() {
-	if ( ! is_front_page() ) {
-		return;
-	}
-	$view    = ner_michoel_get_home_view();
-	$options = array(
-		'current' => __( 'Current', 'ner-michoel-child' ),
-		'new'     => __( 'New', 'ner-michoel-child' ),
-	);
-	?>
-	<div class="nm-home-switch" role="group" aria-label="<?php esc_attr_e( 'Homepage design', 'ner-michoel-child' ); ?>" data-home-switch data-home-view="<?php echo esc_attr( $view ); ?>">
-		<?php foreach ( $options as $key => $label ) : ?>
-			<button type="button" class="nm-home-switch__option<?php echo $key === $view ? ' is-active' : ''; ?>" data-home-choose="<?php echo esc_attr( $key ); ?>" aria-pressed="<?php echo $key === $view ? 'true' : 'false'; ?>"><?php echo esc_html( $label ); ?></button>
-		<?php endforeach; ?>
-	</div>
-	<?php
-}
-
-/**
- * The switch's styles and script, and the serif face the new design's
- * headings use (the same one as the Written Shiurim pages, so a visitor's
- * browser usually has it already). Loaded site-wide, not just on the
- * homepage, so the router (nm-router.js) always has them ready when it
- * swaps a visitor onto the homepage without a real page load; home.js
- * no-ops harmlessly on pages without its elements.
+ * The homepage's styles and script, and the serif face its headings use (the
+ * same one as the Written Shiurim pages, so a visitor's browser usually has it
+ * already). Loaded site-wide, not just on the homepage, so the router
+ * (nm-router.js) always has them ready when it swaps a visitor onto the
+ * homepage without a real page load; home.js no-ops harmlessly on pages
+ * without its elements.
  */
 function ner_michoel_enqueue_home_assets() {
 	wp_enqueue_style( 'ner-michoel-home', NER_MICHOEL_URI . '/assets/css/home.css', array( 'ner-michoel-custom' ), NER_MICHOEL_VERSION );
 	wp_enqueue_script( 'ner-michoel-home', NER_MICHOEL_URI . '/assets/js/home.js', array(), NER_MICHOEL_VERSION, true );
 
-	if ( is_front_page() && 'new' === ner_michoel_get_home_view() ) {
+	if ( is_front_page() ) {
 		wp_enqueue_style(
 			'ner-michoel-written-serif',
 			'https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&display=swap',

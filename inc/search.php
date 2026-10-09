@@ -4,7 +4,7 @@
  *
  * The ranking itself lives in ner-michoel-core (includes/shiur-search.php).
  * This file only decides which template shows the results, and provides
- * the Back link on that page.
+ * the Back link that the pages listing shiurim use.
  *
  * Other searches (site-wide, or a plain search with no Shiurim scope) keep
  * WordPress's and Astra's search template.
@@ -169,20 +169,13 @@ function ner_michoel_render_topic_search( $term ) {
 }
 
 /**
- * "Back" on the search results. Unlike the Shiurim page's own Back button
- * (ner_michoel_render_back_button(), which never leaves the page), this one
- * goes back to the page the search came from. custom.js handles the click:
- * the browser's history if the visitor came from this site, and the link's
- * href (the Shiurim archive) if they didn't, such as from a shared link.
+ * "Back" on the pages that list shiurim: a series, a speaker, a topic, and the
+ * two searches' results. It's the same Back link as every other Shiurim-section
+ * page (ner_michoel_render_back_button(), which see): back to the page the
+ * visitor came from when that was a page of this site, and otherwise to
+ * $fallback, or if that's empty to the page's parent
+ * (ner_michoel_back_parent_url(): the search's archive, or the home page).
  */
 function ner_michoel_render_return_link( $fallback = '' ) {
-	$fallback = $fallback ? $fallback : get_post_type_archive_link( 'shiur' );
-	?>
-	<nav class="sh-back-row" aria-label="<?php esc_attr_e( 'Page navigation', 'ner-michoel-child' ); ?>">
-		<a class="sh-back" href="<?php echo esc_url( $fallback ); ?>" data-nm-return>
-			<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
-			<span><?php esc_html_e( 'Back', 'ner-michoel-child' ); ?></span>
-		</a>
-	</nav>
-	<?php
+	ner_michoel_render_back_button( '', $fallback );
 }

@@ -1,94 +1,12 @@
 /*
- * Homepage (front-page.php, inc/home.php, template-parts/home-new.php).
- *
- *   1. The Current / New switch, on both designs.
- *   2. The new design (.hn): light and self-contained, independent of the
- *      dark Shiurim app styles in custom.css, like the current homepage.
+ * Homepage (front-page.php, inc/home.php, template-parts/home-new.php): light
+ * and self-contained (.hn), independent of the dark Shiurim app styles in
+ * custom.css.
  *
  * Astra styles bare elements across the site (a:hover, button:focus,
  * ul, h2, p, input[type=search]). Every rule here is two classes deep,
  * which outranks those without any !important.
  */
-
-/* 1. The switch -------------------------------------------------------------- */
-
-/* Printed inside each design's opening section (the new hero, the current
-   slider), so it sits in that section's top-right corner. */
-.nm-home-hero {
-	position: relative;
-}
-
-.nm-home-switch {
-	position: absolute;
-	top: 16px;
-	right: 16px;
-	z-index: 20;
-	display: inline-flex;
-	gap: 2px;
-	padding: 3px;
-	border: 1px solid rgba(255, 255, 255, 0.16);
-	border-radius: 999px;
-	background: rgba(17, 20, 26, 0.86);
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
-	-webkit-backdrop-filter: blur(10px);
-	backdrop-filter: blur(10px);
-}
-
-.nm-home-switch .nm-home-switch__option {
-	margin: 0;
-	padding: 6px 14px;
-	border: 0;
-	border-radius: 999px;
-	background: transparent;
-	box-shadow: none;
-	color: rgba(255, 255, 255, 0.78);
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-	font-size: 0.8rem;
-	font-weight: 600;
-	line-height: 1.4;
-	letter-spacing: 0.01em;
-	white-space: nowrap;
-	cursor: pointer;
-	transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.nm-home-switch .nm-home-switch__option:hover,
-.nm-home-switch .nm-home-switch__option:focus {
-	background: rgba(255, 255, 255, 0.1);
-	color: #fff;
-}
-
-.nm-home-switch .nm-home-switch__option:focus-visible {
-	outline: 2px solid #fff;
-	outline-offset: 1px;
-}
-
-.nm-home-switch .nm-home-switch__option.is-active,
-.nm-home-switch .nm-home-switch__option.is-active:hover,
-.nm-home-switch .nm-home-switch__option.is-active:focus {
-	background: #2f8f5b;
-	color: #fff;
-	cursor: default;
-}
-
-.nm-home-switch.is-switching {
-	opacity: 0.75;
-	pointer-events: none;
-}
-
-@media (max-width: 480px) {
-	.nm-home-switch {
-		top: 12px;
-		right: 12px;
-	}
-
-	.nm-home-switch .nm-home-switch__option {
-		padding: 5px 11px;
-		font-size: 0.74rem;
-	}
-}
-
-/* 2. The new design ---------------------------------------------------------- */
 
 .hn {
 	--hn-ink: #0f172a;
@@ -1321,8 +1239,7 @@
 		animation: none;
 	}
 
-	.hn *,
-	.nm-home-switch .nm-home-switch__option {
+	.hn * {
 		transition: none !important;
 	}
 

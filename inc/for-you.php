@@ -13,10 +13,10 @@
  *     it's simply the newest shiurim.
  *
  * It appears on the Shiurim home in every layout, as a page of its own
- * (?sh_view=foryou, linked from the Shiurim navigation), and on both homepage
- * designs. Nothing is printed for a visitor who isn't signed in, so the public
- * pages are the same as before. Every call into the core plugin is guarded, so a
- * theme running ahead of an older plugin renders as it did.
+ * (?sh_view=foryou, linked from the Shiurim navigation), and on the homepage.
+ * Nothing is printed for a visitor who isn't signed in, so the public pages are
+ * the same as before. Every call into the core plugin is guarded, so a theme
+ * running ahead of an older plugin renders as it did.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -681,45 +681,6 @@ function ner_michoel_render_for_you_home_new() {
 					</li>
 				<?php endforeach; ?>
 			</ol>
-		<?php endif; ?>
-	</section>
-	<?php
-}
-
-/**
- * The Current homepage's section, in its own style: the Account page's Continue
- * cards, then the same cards its "Recent Shiurim" uses.
- */
-function ner_michoel_render_for_you_home_current() {
-	if ( ! ner_michoel_for_you_available() ) {
-		return;
-	}
-	$data     = ner_michoel_for_you_data();
-	$continue = array_slice( $data['continue'], 0, 3 );
-	$picks    = array_slice( $data['picks'], 0, 4 );
-	if ( ! $continue && ! $picks ) {
-		return;
-	}
-	?>
-	<section class="nm-home-section nm-home-foryou" aria-labelledby="nm-foryou-title">
-		<div class="nm-home-section__head">
-			<h2 id="nm-foryou-title"><?php esc_html_e( 'For you', 'ner-michoel-child' ); ?></h2>
-			<a class="nm-home-more" href="<?php echo esc_url( $data['url'] ); ?>"><?php esc_html_e( 'See all', 'ner-michoel-child' ); ?> &rarr;</a>
-		</div>
-		<p class="nm-home-foryou__lede"><?php echo esc_html( ner_michoel_for_you_greeting() . '. ' . ner_michoel_for_you_lede() ); ?></p>
-		<?php if ( $continue ) : ?>
-			<div class="nm-continue-grid">
-				<?php foreach ( $continue as $item ) : ?>
-					<?php ner_michoel_render_continue_card( $item['term'], $item['shiur'] ); ?>
-				<?php endforeach; ?>
-			</div>
-		<?php endif; ?>
-		<?php if ( $picks ) : ?>
-			<div class="nm-home-shiur-grid">
-				<?php foreach ( $picks as $post ) : ?>
-					<?php ner_michoel_render_library_card( $post->ID ); ?>
-				<?php endforeach; ?>
-			</div>
 		<?php endif; ?>
 	</section>
 	<?php

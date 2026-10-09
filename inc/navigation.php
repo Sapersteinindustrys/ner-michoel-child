@@ -2,6 +2,8 @@
 /**
  * "Written Shiurim" under the Shiurim item of the site header menu, when
  * the admin has it switched on (Site Control Panel > Site Settings > Menu).
+ * Also "Log In" / the visitor's name at the end of it, and "Home" at the
+ * start of it on every page but the home page.
  *
  * The menu itself is built in Appearance > Menus, and this never writes to
  * it. The entry is added to the list as WordPress renders it, so switching
@@ -180,8 +182,74 @@ function ner_michoel_nav_add_account_link( $items, $args ) {
 }
 
 /**
- * Styles for the Back link on Shiurim-section pages, and the layout
- * toggle's position under 24Six. See assets/css/shiurim-navigation.css.
+ * "Home" as the first item in the site header menu, linking to the home page.
+ * Added at render time, like the two items above (it never writes to the saved
+ * menu, and is skipped if the menu already has a Home item added by hand).
+ *
+ * It's printed on every page, the home page included, and the home page hides
+ * it with CSS (body.home, assets/css/shiurim-navigation.css) instead of
+ * leaving it out here. The page router (nm-router.js) swaps a page's content
+ * but never the header: a header printed without Home on the home page would
+ * still lack it after the visitor moved to any other page, and one printed
+ * with it would still show it after they came back. The router does update the
+ * body's classes on every swap, so the CSS follows the page they're on.
+ */
+add_filter( 'wp_nav_menu_objects', 'ner_michoel_nav_add_home_link', 10, 2 );
+
+function ner_michoel_nav_add_home_link( $items, $args ) {
+	if ( ! ner_michoel_nav_is_header_menu( $args ) ) {
+		return $items;
+	}
+
+	$home_url = untrailingslashit( home_url( '/' ) );
+
+	// Cloned from the first item this loop sees, for the reason given on the
+	// Log In item above.
+	$template = null;
+	foreach ( $items as $item ) {
+		if ( untrailingslashit( (string) $item->url ) === $home_url ) {
+			return $items; // Already in the menu, added by hand.
+		}
+		if ( null === $template ) {
+			$template = $item;
+		}
+	}
+
+	if ( null === $template ) {
+		return $items;
+	}
+
+	$child                        = clone $template;
+	$child->ID                    = -3;
+	$child->db_id                 = -3;
+	$child->menu_item_parent      = '0';
+	$child->title                 = __( 'Home', 'ner-michoel-child' );
+	$child->url                   = home_url( '/' );
+	$child->object                = 'custom';
+	$child->object_id             = 0;
+	$child->type                  = 'custom';
+	$child->type_label            = __( 'Custom Link', 'ner-michoel-child' );
+	$child->menu_order            = 0;
+	$child->target                = '';
+	$child->attr_title            = '';
+	$child->description           = '';
+	$child->xfn                   = '';
+	$child->post_parent           = 0;
+	$child->ancestors             = array();
+	$child->classes               = array( 'menu-item', 'menu-item-type-custom', 'menu-item-object-custom', 'nm-menu-home' );
+	$child->current               = false;
+	$child->current_item_ancestor = false;
+	$child->current_item_parent   = false;
+
+	array_unshift( $items, $child );
+
+	return $items;
+}
+
+/**
+ * Styles for the Back link on Shiurim-section pages, the layout toggle's
+ * position under 24Six, and hiding the header menu's Home item on the home
+ * page. See assets/css/shiurim-navigation.css.
  */
 function ner_michoel_enqueue_shiurim_navigation_styles() {
 	wp_enqueue_style(

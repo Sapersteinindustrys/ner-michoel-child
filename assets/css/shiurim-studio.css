@@ -2,9 +2,10 @@
  * Studio: the Shiurim pages in the new homepage's look (inc/shiurim-studio.php).
  *
  *   1. The light theme. Every Shiurim page in Studio (body.sh-layout-studio
- *      .is-shiurim): the app's colour variables (custom.css) set light, the few
- *      colours custom.css fixes in place adjusted, and the player bar and its
- *      sheet kept dark.
+ *      .is-shiurim): the app's colour variables (custom.css) set light, and the
+ *      few colours custom.css fixes in place adjusted. The player bar and its
+ *      sheet stay navy; that look is in player-sheet.css (.sh-player--studio),
+ *      because the bar shows on every page and this file only loads here.
  *   2. The Shiurim home (template-parts/shiurim-studio.php, the .st-* classes).
  *   3. The other Shiurim pages: hero, track list, cards, search.
  *
@@ -52,7 +53,6 @@ body.sh-layout-studio.is-shiurim {
 	--sh-border: #e3e8f0;
 	--sh-accent: #2f8f5b;
 	--sh-accent-hover: #267a4c;
-	--sh-player-bg: #0e1b33;
 	--sh-radius: 16px;
 	--sh-font: var(--st-sans);
 
@@ -60,19 +60,6 @@ body.sh-layout-studio.is-shiurim {
 	color: var(--sh-text);
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-}
-
-/* The player bar, its queue sheet and the speed menu stay dark: navy, to sit
-   with the hero. Custom properties inherit, so setting them here is enough. */
-body.sh-layout-studio .sh-player,
-body.sh-layout-studio .sh-sheet,
-body.sh-layout-studio .sh-sheet-backdrop {
-	--sh-surface: #16233d;
-	--sh-surface-hover: #22324f;
-	--sh-text: #fff;
-	--sh-text-muted: rgba(255, 255, 255, 0.64);
-	--sh-border: rgba(255, 255, 255, 0.1);
-	color: #fff;
 }
 
 /* Bottom placements of the layout switch go above the player bar, as in Modern

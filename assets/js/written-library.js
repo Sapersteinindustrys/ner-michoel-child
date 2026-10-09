@@ -428,7 +428,8 @@
 				}
 			} );
 			var query = params.toString();
-			window.history.replaceState( null, '', window.location.pathname + ( query ? '?' + query : '' ) + window.location.hash );
+			// The entry's own state stays (nm-router.js keeps where the visitor came from in it, for Back).
+			window.history.replaceState( window.history.state, '', window.location.pathname + ( query ? '?' + query : '' ) + window.location.hash );
 		}
 
 		// After a change made far down the page, bring the results back into view.

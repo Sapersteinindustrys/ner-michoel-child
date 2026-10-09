@@ -1,11 +1,11 @@
 <?php
 /**
- * The new homepage design (front-page.php shows it when inc/home.php says
- * so): a hero with the shiur search and the homepage slider's photos, then
- * the newest shiurim beside the latest Mazal Tovs, then the rest of the site.
+ * The homepage (front-page.php): a hero with the shiur search and the
+ * homepage slider's photos, then the newest shiurim beside the latest Mazal
+ * Tovs, then the rest of the site.
  *
- * Light and self-contained (.hn-*, assets/css/home.css), like the current
- * homepage: it doesn't use the dark Shiurim app styles.
+ * Light and self-contained (.hn-*, assets/css/home.css): it doesn't use the
+ * dark Shiurim app styles.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -23,7 +23,6 @@ $sparkle = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" 
 <div class="hn">
 
 	<section class="hn-hero" aria-labelledby="hn-hero-title">
-		<?php ner_michoel_render_home_switch(); ?>
 		<div class="hn-hero__copy">
 			<p class="hn-eyebrow"><?php esc_html_e( 'Yeshivas Toras Moshe Alumni Association', 'ner-michoel-child' ); ?></p>
 			<h1 class="hn-hero__title" id="hn-hero-title"><?php esc_html_e( 'Welcome to Ner Michoel', 'ner-michoel-child' ); ?></h1>
@@ -63,9 +62,9 @@ $sparkle = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" 
 		<div class="hn-hero__media" data-hn-photos data-interval="<?php echo esc_attr( $home['interval'] ); ?>">
 			<?php if ( $home['slides'] ) : ?>
 				<?php
-				// The slide's own URL only, as the current slider uses it. Its srcset
-				// lists the uploads folder's copies, and with the media on the CDN
-				// those are gone, so a browser that picked one showed a broken image.
+				// The slide's own URL only. Its srcset lists the uploads folder's
+				// copies, and with the media on the CDN those are gone, so a browser
+				// that picked one showed a broken image.
 				foreach ( $home['slides'] as $index => $slide ) :
 					?>
 					<?php if ( 0 === $index ) : ?>

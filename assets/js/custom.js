@@ -101,132 +101,30 @@ function nerMichoelRecordHistory( postId ) {
 ( function () {
 	'use strict';
 
-	// Layout toggle and Back button (Shiurim-section pages, plus the other
-	// pages with the toggle).
+	// Layout toggle (Shiurim-section pages, plus the other pages with it).
 	//
 	// The layout is a cookie the server reads. Switching re-fetches the
 	// current page through nm-router.js (so anything playing in #sh-player
 	// isn't interrupted) rather than a real page.reload() — falling back to
-	// reload() only if the router isn't present. Every layout fetched for one
-	// page is a "version" of it, kept as a trail in sessionStorage, keyed to
-	// the page's path and query — recomputed on every use (pageKey(), not a
-	// fixed value) since nm-router.js can change the current URL without a
-	// real navigation. Opening a page fresh clears its trail, so Back only
-	// steps through layouts tried on that page, and stops at the layout it
-	// opened with. It never leaves the page. The browser's own back button is
-	// unaffected. syncTrailState() re-runs on every router swap (initial load
-	// counts as one too), so a page reached via the router starts with the
-	// right trail/Back-button state instead of whatever the previous page left.
-	var TRAIL_KEY  = 'nm_layout_trail';
-	var SWITCH_KEY = 'nm_layout_switching';
-
-	function pageKey() {
-		return window.location.pathname + window.location.search;
-	}
-
-	function readTrail() {
-		try {
-			var saved = JSON.parse( sessionStorage.getItem( TRAIL_KEY ) || '{}' );
-			return saved.page === pageKey() && Array.isArray( saved.layouts ) ? saved.layouts : [];
-		} catch ( err ) {
-			return [];
-		}
-	}
-
-	function writeTrail( layouts ) {
-		try {
-			sessionStorage.setItem( TRAIL_KEY, JSON.stringify( { page: pageKey(), layouts: layouts } ) );
-		} catch ( err ) {
-			// Storage can be blocked (private windows). Back then just stays disabled.
-		}
-	}
-
+	// reload() only if the router isn't present. A layout switch isn't
+	// navigation: it adds nothing to the browser's history, and it's not
+	// something Back undoes. The Back link is nm-router.js's (see "Back"
+	// there): it leaves the page.
 	function switchLayout( layout ) {
-		try {
-			sessionStorage.setItem( SWITCH_KEY, pageKey() );
-		} catch ( err ) {
-			// Without this flag the trail resets on the next sync. Still works, just no history.
-		}
 		document.cookie = 'nm_layout=' + layout + ';path=/;max-age=31536000';
 		if ( window.nmRouterNavigate ) {
-			// push: false — a layout switch isn't real navigation (the Back
-			// button above has its own sessionStorage trail for this, on
-			// purpose; the browser's own history is untouched).
 			window.nmRouterNavigate( window.location.href, { push: false } );
 		} else {
 			window.location.reload();
 		}
 	}
 
-	// Arriving fresh resets the trail. A swap caused by switchLayout() keeps it.
-	function syncTrailState() {
-		var switching = false;
-		try {
-			switching = sessionStorage.getItem( SWITCH_KEY ) === pageKey();
-			sessionStorage.removeItem( SWITCH_KEY );
-		} catch ( err ) {
-			switching = false;
-		}
-		if ( ! switching ) {
-			writeTrail( [] );
-		}
-
-		// Back is only live once there's a layout to go back to.
-		var hasHistory = readTrail().length > 0;
-		document.querySelectorAll( '[data-nm-back]' ).forEach( function ( back ) {
-			back.disabled = ! hasHistory;
-		} );
-	}
-	syncTrailState();
-	document.addEventListener( 'nm:content-swapped', syncTrailState );
-
 	document.addEventListener( 'click', function ( e ) {
 		var btn = e.target.closest( '.sh-layout-toggle__option' );
 		if ( ! btn || btn.classList.contains( 'is-active' ) ) {
 			return;
 		}
-		var current = document.querySelector( '.sh-layout-toggle__option.is-active' );
-		var layouts = readTrail();
-		if ( current ) {
-			layouts.push( current.getAttribute( 'data-layout' ) );
-		}
-		writeTrail( layouts );
 		switchLayout( btn.getAttribute( 'data-layout' ) );
-	} );
-
-	document.addEventListener( 'click', function ( e ) {
-		var back = e.target.closest( '[data-nm-back]' );
-		if ( ! back || back.disabled ) {
-			return;
-		}
-		var layouts  = readTrail();
-		var previous = layouts.pop();
-		if ( ! previous ) {
-			return;
-		}
-		writeTrail( layouts );
-		switchLayout( previous );
-	} );
-} )();
-
-( function () {
-	'use strict';
-
-	// "Back" on the Shiurim search results (ner_michoel_render_return_link()
-	// in inc/search.php). This one does leave the page: it returns to the
-	// page the search came from, the same as the browser's back. If the
-	// visitor didn't come from this site (a new tab, a shared link), the
-	// link's href (the Shiurim archive) is followed instead.
-	document.addEventListener( 'click', function ( e ) {
-		var link = e.target.closest( '[data-nm-return]' );
-		if ( ! link ) {
-			return;
-		}
-		var fromSite = document.referrer.indexOf( window.location.origin + '/' ) === 0;
-		if ( fromSite && window.history.length > 1 ) {
-			e.preventDefault();
-			window.history.back();
-		}
 	} );
 } )();
 
@@ -515,6 +413,62 @@ function nerMichoelRecordHistory( postId ) {
 	var elSheetSpeaker = document.getElementById( 'sh-sheet-now-speaker' );
 	var elSheetQueue   = document.getElementById( 'sh-sheet-queue' );
 	var elAutoplay     = document.getElementById( 'sh-autoplay' );
+
+	// Puts the bar away (shown while paused; closePlayer() below).
+	var elClose = document.getElementById( 'sh-player-close' );
+
+	// The bar is on every page, so it carries the visitor's layout as a class
+	// (sh-player--stream, --24six, --studio, and the same on the sheet and its
+	// backdrop) instead of taking its look from the page (player-sheet.css).
+	// The server prints the class; this keeps it right when the layout is
+	// switched, which re-fetches the page through the router but never
+	// reprints the bar.
+	var root    = document.documentElement;
+	var LAYOUTS = [ 'stream', '24six', 'studio' ];
+
+	// The layout the visitor picked (the nm_layout cookie the layout switch
+	// sets), or '' when there's none or it's one the server doesn't know: the
+	// server then used its default, which is already on the bar.
+	function chosenLayout() {
+		var value = '';
+		try {
+			var match = document.cookie.match( /(?:^|;\s*)nm_layout=([^;]*)/ );
+			value = match ? decodeURIComponent( match[1] ).toLowerCase() : '';
+		} catch ( e ) {
+			value = '';
+		}
+		return 'classic' === value || LAYOUTS.indexOf( value ) !== -1 ? value : '';
+	}
+
+	function applyLayoutLook() {
+		var layout = chosenLayout();
+		// No choice: keep the server's. Classic has no bar of its own: one still
+		// playing from another layout keeps the look it has.
+		if ( ! layout || 'classic' === layout ) {
+			return;
+		}
+		[ [ player, 'sh-player' ], [ elSheet, 'sh-sheet' ], [ elSheetBackdrop, 'sh-sheet-backdrop' ] ].forEach( function ( pair ) {
+			if ( ! pair[0] ) {
+				return;
+			}
+			LAYOUTS.forEach( function ( name ) {
+				pair[0].classList.toggle( pair[1] + '--' + name, name === layout );
+			} );
+		} );
+	}
+	applyLayoutLook();
+	document.addEventListener( 'nm:content-swapped', applyLayoutLook );
+
+	// Shows the bar, and has the page make room for it (custom.css). The flag
+	// goes on <html> because the router replaces body's classes on every swap.
+	function showBar() {
+		player.hidden = false;
+		root.classList.add( 'nm-has-player' );
+	}
+
+	// Bumped by closePlayer(), so a "next up" answer that arrives after the
+	// bar was closed doesn't bring it back.
+	var closedCount = 0;
 
 	// Autoplay is on by default. The viewer can switch it off, and it's
 	// remembered on this device.
@@ -825,7 +779,7 @@ function nerMichoelRecordHistory( postId ) {
 		audio.src = track.src;
 		audio.playbackRate = currentSpeed;
 		updateMeta();
-		player.hidden = false;
+		showBar();
 		elPrev.disabled = state.index <= 0;
 		elNext.disabled = state.index >= state.queue.length - 1;
 		elSeek.value = 0;
@@ -1109,7 +1063,12 @@ function nerMichoelRecordHistory( postId ) {
 			playIndex( state.index + 1 );
 			return;
 		}
+		var closedAt = closedCount;
 		fetchNextUp().then( function ( tracks ) {
+			// The bar was closed while this was on its way.
+			if ( closedAt !== closedCount ) {
+				return;
+			}
 			if ( ! tracks.length ) {
 				stopPlayback();
 				return;
@@ -1263,6 +1222,41 @@ function nerMichoelRecordHistory( postId ) {
 		} );
 	}
 
+	// The close button (shown while paused). Stops and unloads the audio,
+	// forgets the shiur so no page brings the bar back, and gives the page
+	// its space back. Playing any shiur shows the bar again.
+	function closePlayer() {
+		closedCount++;
+		closeSpeedMenu( false );
+		closeSheet( false );
+		// Emptied first, so the pause below has nothing to save.
+		state.queue = [];
+		state.index = -1;
+		audio.pause();
+		audio.removeAttribute( 'src' );
+		audio.load();
+		setLoading( false );
+		updateActiveRowHighlight();
+		try {
+			window.localStorage.removeItem( STORAGE_KEY );
+		} catch ( e ) {
+			// Storage unavailable — nothing was saved to forget.
+		}
+		player.hidden = true;
+		root.classList.remove( 'nm-has-player' );
+		// The focused button has gone with the bar: move focus to the page,
+		// the way the router does after a swap.
+		var content = document.getElementById( 'content' );
+		if ( content ) {
+			content.setAttribute( 'tabindex', '-1' );
+			content.focus( { preventScroll: true } );
+		}
+	}
+
+	if ( elClose ) {
+		elClose.addEventListener( 'click', closePlayer );
+	}
+
 	// Pressing the bar itself opens the sheet. Its controls and links keep
 	// their own jobs, so pressing the title still opens the shiur's page.
 	player.addEventListener( 'click', function ( e ) {
@@ -1323,7 +1317,8 @@ function nerMichoelRecordHistory( postId ) {
 		// a focused menu option would toggle playback here AND its
 		// preventDefault would cancel the option's own click, and the
 		// arrows would change volume instead of moving through the list.
-		if ( elSpeedWrap.contains( e.target ) ) {
+		// Same for the close button: Space should close, not play.
+		if ( elSpeedWrap.contains( e.target ) || e.target === elClose ) {
 			return;
 		}
 		switch ( e.key ) {
@@ -1371,9 +1366,9 @@ function nerMichoelRecordHistory( postId ) {
 	// immediately rather than waiting for the first drag.
 	setRangeFill( elVolume );
 
-	// Restore the last "now playing" snapshot (paused) after navigating
-	// to a different Shiurim page — no autoplay, browsers block it
-	// without a fresh user gesture anyway.
+	// Restore the last "now playing" snapshot (paused) on a page load, on
+	// any page — no autoplay, browsers block it without a fresh user
+	// gesture anyway. The close button forgets it.
 	try {
 		var saved = window.localStorage.getItem( STORAGE_KEY );
 		if ( saved ) {
@@ -1393,7 +1388,7 @@ function nerMichoelRecordHistory( postId ) {
 				audio.src = currentTrack().src;
 				audio.playbackRate = currentSpeed;
 				updateMeta();
-				player.hidden = false;
+				showBar();
 				elPrev.disabled = state.index <= 0;
 				elNext.disabled = state.index >= state.queue.length - 1;
 				setToggleIcon( false );

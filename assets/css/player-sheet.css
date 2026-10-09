@@ -3,6 +3,11 @@
  * queue, sliding up from the bottom of the player bar. The bar itself is
  * styled in custom.css. The bar sits at z-index 9999, so the backdrop goes
  * just under it, and the bar stays usable while the sheet is open.
+ *
+ * Also here, because this file loads on every page and the bar shows on
+ * every page: the bar's close button, and at the end the bar's and the
+ * sheet's looks for Modern and Studio (shiurim-modern.css and
+ * shiurim-studio.css only load on the Shiurim pages).
  */
 
 .sh-sheet-backdrop {
@@ -31,6 +36,7 @@
 	max-height: 72vh;
 	background: var(--sh-surface, #181818);
 	color: var(--sh-text, #fff);
+	font-family: var(--sh-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif);
 	border-radius: 14px 14px 0 0;
 	box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.4);
 	transform: translate(-50%, 110%);
@@ -48,7 +54,7 @@
 	height: 4px;
 	margin: 8px auto 0;
 	border-radius: 2px;
-	background: var(--sh-text-muted, rgba(255, 255, 255, 0.4));
+	background: var(--sh-text-muted, rgba(255, 255, 255, 0.6));
 	opacity: 0.6;
 }
 
@@ -129,7 +135,10 @@
 	background: var(--sh-surface-hover, #282828);
 }
 
-/* Autoplay switch: a real checkbox (role=switch) under a styled track. */
+/* Autoplay switch: a real checkbox (role=switch) under a styled track.
+   It's a <label>, which Astra colours dark grey (label, legend), so the
+   colour is set here: the "Autoplay" heading was invisible on the dark
+   sheets. */
 .sh-sheet__autoplay {
 	position: relative;
 	display: flex;
@@ -140,6 +149,7 @@
 	padding: 12px 14px;
 	border-radius: 10px;
 	background: rgba(255, 255, 255, 0.04);
+	color: var(--sh-text, #fff);
 	cursor: pointer;
 }
 
@@ -314,6 +324,52 @@
 	background: rgba(255, 255, 255, 0.08);
 }
 
+/* Close button at the end of the bar: puts the bar away and forgets the
+   shiur (custom.js). Shown while paused only; while playing it keeps its
+   place but can't be seen or pressed, so pausing doesn't shift the times
+   and controls beside it. One class deeper than the arrow above, so
+   Astra's button:hover and button:focus can't repaint it. */
+.sh-player .sh-player__close {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 30px;
+	height: 30px;
+	padding: 0 !important;
+	margin: 0;
+	box-sizing: border-box;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	box-shadow: none;
+	color: var(--sh-text, #fff);
+	cursor: pointer;
+}
+
+.sh-player .sh-player__close svg {
+	flex: none;
+}
+
+.sh-player .sh-player__close:hover,
+.sh-player .sh-player__close:focus-visible {
+	background: rgba(255, 255, 255, 0.08);
+	color: var(--sh-text, #fff);
+}
+
+.sh-player .sh-player__close:focus {
+	outline: none;
+}
+
+.sh-player .sh-player__close:focus-visible {
+	outline: 2px solid var(--sh-text, #fff);
+	outline-offset: 2px;
+}
+
+.sh-player.is-playing .sh-player__close {
+	visibility: hidden;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.sh-sheet,
 	.sh-sheet-backdrop,
@@ -329,4 +385,323 @@
 		max-height: 78vh;
 		border-radius: 14px 14px 0 0;
 	}
+}
+
+/* ------------------------------------------------------------------
+ * The bar's looks, the same on every page. The visitor's layout is a class
+ * on the bar, the sheet and the backdrop (sh-player--stream and so on, from
+ * ner_michoel_render_player_bar(); custom.js changes it when the layout is
+ * switched). Each look sets its colours on the bar itself, so the page's own
+ * colours never leak in. Studio's and Modern's used to sit in
+ * shiurim-studio.css and shiurim-modern.css, scoped to the Shiurim pages, so
+ * the bar changed colour as soon as a visitor went anywhere else.
+ * ------------------------------------------------------------------ */
+
+/* 24Six: the app's dark look (body.is-nm-app's values in custom.css). The
+   Control Panel's Appearance colours (inc/appearance.php) print later, in
+   the page's head, so they still win. */
+.sh-player--24six,
+.sh-sheet--24six,
+.sh-sheet-backdrop--24six {
+	--sh-player-bg: #0b0b0c;
+	--sh-surface: #181818;
+	--sh-surface-hover: #282828;
+	--sh-text: #fff;
+	--sh-text-muted: rgba(255, 255, 255, 0.6);
+	--sh-border: rgba(255, 255, 255, 0.08);
+	--sh-accent: var(--nm-primary);
+}
+
+/* Studio: navy, to sit with its hero. Custom properties inherit, so setting
+   them here is enough. */
+.sh-player--studio,
+.sh-sheet--studio,
+.sh-sheet-backdrop--studio {
+	--sh-player-bg: #0e1b33;
+	--sh-surface: #16233d;
+	--sh-surface-hover: #22324f;
+	--sh-text: #fff;
+	--sh-text-muted: rgba(255, 255, 255, 0.64);
+	--sh-border: rgba(255, 255, 255, 0.1);
+	--sh-accent: #2f8f5b;
+	color: #fff;
+}
+
+/* The title is a link. Classic colours every link
+   (body.sh-layout-classic.is-nm-app a, stronger than custom.css's title
+   rule), which showed if the layout was switched to Classic while a shiur
+   played. Modern's title rule below is already this strong. */
+.sh-player.sh-player--24six .sh-player__title,
+.sh-player.sh-player--studio .sh-player__title {
+	color: var(--sh-text, #fff);
+}
+
+/* Modern: white with navy. The palette is shiurim-modern.css's (its tokens
+   on body.sh-layout-stream.is-shiurim), repeated here because that file
+   only loads on the Shiurim pages. Each rule is a class deeper than the one
+   it adjusts in custom.css or above; the !important ones answer !important
+   rules there. */
+.sh-player--stream,
+.sh-sheet--stream,
+.sh-sheet-backdrop--stream {
+	--md-ink: #0f172a;
+	--md-ink-2: #334155;
+	--md-muted: #5b6678;
+	--md-faint: #94a3b8;
+	--md-line: #e3e8ef;
+	--md-line-2: #cfd8e3;
+	--md-surface: #fff;
+	--md-soft: #f1f4f8;
+	--md-primary: #1b2f52;
+	--md-primary-2: #24406d;
+	--md-tint: #e9eff8;
+	--md-shadow-lg: 0 2px 4px rgba(15, 23, 42, 0.06), 0 22px 44px -20px rgba(15, 23, 42, 0.32);
+
+	/* The app's own variables, light. */
+	--sh-surface: var(--md-surface);
+	--sh-surface-hover: var(--md-soft);
+	--sh-text: var(--md-ink);
+	--sh-text-muted: var(--md-muted);
+	--sh-border: var(--md-line);
+	--sh-accent: var(--md-primary);
+	--sh-player-bg: var(--md-surface);
+}
+
+/* Astra gives every <button> a faint drop shadow. It never showed on black;
+   on white it rings each icon button. The play disc sets its own below. */
+.sh-player.sh-player--stream .sh-player__buttons button,
+.sh-player.sh-player--stream .sh-player__open,
+.sh-sheet.sh-sheet--stream button {
+	box-shadow: none;
+}
+
+.sh-player.sh-player--stream {
+	border-top: 1px solid var(--md-line);
+	background: var(--md-surface);
+	box-shadow: 0 -12px 32px -20px rgba(15, 23, 42, 0.35);
+}
+
+/* The scrubber along the top edge and the volume: navy on a pale rail. */
+.sh-player.sh-player--stream input[type="range"].sh-player__seek,
+.sh-player.sh-player--stream input[type="range"].sh-player__volume-range {
+	--rail-fill: var(--md-primary);
+	--rail-empty: #dde3ec;
+}
+
+.sh-player.sh-player--stream input[type="range"].sh-player__seek::-webkit-slider-thumb,
+.sh-player.sh-player--stream input[type="range"].sh-player__volume-range::-webkit-slider-thumb {
+	background: var(--md-primary);
+	box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(15, 23, 42, 0.35);
+}
+
+.sh-player.sh-player--stream input[type="range"].sh-player__seek::-moz-range-thumb,
+.sh-player.sh-player--stream input[type="range"].sh-player__volume-range::-moz-range-thumb {
+	background: var(--md-primary);
+	box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(15, 23, 42, 0.35);
+}
+
+.sh-player.sh-player--stream input[type="range"].sh-player__seek:focus-visible::-webkit-slider-thumb,
+.sh-player.sh-player--stream input[type="range"].sh-player__volume-range:focus-visible::-webkit-slider-thumb {
+	box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgba(27, 47, 82, 0.3);
+}
+
+.sh-player.sh-player--stream input[type="range"].sh-player__seek:focus-visible::-moz-range-thumb,
+.sh-player.sh-player--stream input[type="range"].sh-player__volume-range:focus-visible::-moz-range-thumb {
+	box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgba(27, 47, 82, 0.3);
+}
+
+.sh-player.sh-player--stream .sh-player__cover {
+	border: 1px solid var(--md-line);
+	border-radius: 10px;
+	background: var(--md-soft);
+}
+
+.sh-player.sh-player--stream .sh-player__cover:empty::before {
+	color: var(--md-faint);
+}
+
+.sh-player.sh-player--stream.is-loading .sh-player__cover::after {
+	border-color: rgba(27, 47, 82, 0.2);
+	border-top-color: var(--md-primary);
+}
+
+.sh-player.sh-player--stream .sh-player__title {
+	color: var(--md-ink);
+	font-weight: 650;
+}
+
+.sh-player.sh-player--stream .sh-player__speaker {
+	color: var(--md-muted);
+}
+
+/* Prev / next: dark icons that turn navy. The play disc: solid navy. */
+.sh-player.sh-player--stream .sh-player__buttons button {
+	color: var(--md-ink-2);
+}
+
+.sh-player.sh-player--stream .sh-player__buttons button:hover:not(:disabled) {
+	color: var(--md-primary);
+	opacity: 1;
+}
+
+.sh-player.sh-player--stream .sh-player__buttons button:focus-visible {
+	outline: 2px solid var(--md-primary);
+}
+
+.sh-player.sh-player--stream .sh-player__buttons button.sh-player__toggle {
+	background: var(--md-primary) !important;
+	box-shadow: 0 10px 20px -10px rgba(27, 47, 82, 0.8);
+	color: #fff !important;
+}
+
+.sh-player.sh-player--stream .sh-player__buttons button.sh-player__toggle:hover:not(:disabled) {
+	background: var(--md-primary-2) !important;
+	color: #fff !important;
+}
+
+.sh-player.sh-player--stream .sh-player__time {
+	color: var(--md-ink);
+}
+
+.sh-player.sh-player--stream .sh-player__time-sep,
+.sh-player.sh-player--stream .sh-player__time--total {
+	color: var(--md-muted);
+}
+
+.sh-player.sh-player--stream .sh-player__open,
+.sh-player.sh-player--stream .sh-player__close {
+	color: var(--md-ink-2);
+}
+
+.sh-player.sh-player--stream .sh-player__open:hover,
+.sh-player.sh-player--stream .sh-player__open:focus-visible,
+.sh-player.sh-player--stream .sh-player__open[aria-expanded="true"],
+.sh-player.sh-player--stream .sh-player__close:hover,
+.sh-player.sh-player--stream .sh-player__close:focus-visible {
+	background: var(--md-soft);
+	color: var(--md-ink);
+}
+
+.sh-player.sh-player--stream .sh-player__close:focus-visible {
+	outline-color: var(--md-primary);
+}
+
+.sh-player.sh-player--stream .sh-player__speed {
+	border-color: var(--md-line-2) !important;
+	background: var(--md-surface) !important;
+	color: var(--md-ink-2) !important;
+}
+
+.sh-player.sh-player--stream .sh-player__speed:hover,
+.sh-player.sh-player--stream .sh-player__speed[aria-expanded="true"] {
+	border-color: var(--md-primary) !important;
+	background: var(--md-soft) !important;
+	color: var(--md-ink) !important;
+}
+
+.sh-player.sh-player--stream .sh-player__speed.is-active {
+	border-color: var(--md-primary) !important;
+	color: var(--md-primary) !important;
+}
+
+.sh-player.sh-player--stream .sh-player__speed:focus-visible {
+	outline-color: var(--md-primary);
+}
+
+.sh-player.sh-player--stream .sh-speed-menu {
+	border-color: var(--md-line);
+	background: var(--md-surface);
+	box-shadow: var(--md-shadow-lg);
+}
+
+.sh-player.sh-player--stream .sh-speed-menu .sh-speed-menu__option {
+	color: var(--md-ink) !important;
+}
+
+.sh-player.sh-player--stream .sh-speed-menu .sh-speed-menu__option:hover,
+.sh-player.sh-player--stream .sh-speed-menu .sh-speed-menu__option:focus {
+	background: var(--md-soft) !important;
+	color: var(--md-ink) !important;
+}
+
+.sh-player.sh-player--stream .sh-speed-menu .sh-speed-menu__option:focus-visible {
+	box-shadow: inset 0 0 0 2px var(--md-primary) !important;
+}
+
+.sh-player.sh-player--stream .sh-player__volume {
+	color: var(--md-muted);
+}
+
+.sh-player.sh-player--stream .sh-player__volume:hover svg {
+	color: var(--md-ink);
+}
+
+/* The queue sheet: white, sliding up over a dimmed page. */
+.sh-sheet-backdrop.sh-sheet-backdrop--stream {
+	background: rgba(15, 23, 42, 0.35);
+}
+
+.sh-sheet.sh-sheet--stream {
+	border: 1px solid var(--md-line);
+	border-bottom: 0;
+	border-radius: 18px 18px 0 0;
+	box-shadow: 0 -18px 44px -16px rgba(15, 23, 42, 0.35);
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__grip {
+	background: var(--md-line-2);
+	opacity: 1;
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__cover {
+	border-radius: 10px;
+	background: var(--md-soft);
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__close {
+	color: var(--md-ink-2);
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__close:hover,
+.sh-sheet.sh-sheet--stream .sh-sheet__close:focus-visible {
+	background: var(--md-soft);
+	color: var(--md-ink);
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__autoplay {
+	border: 1px solid var(--md-line);
+	background: var(--md-soft);
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__switch {
+	background: #c5cfdc;
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__switch::after {
+	box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__switch-input:checked + .sh-sheet__switch {
+	background: var(--md-primary);
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__switch-input:focus-visible + .sh-sheet__switch {
+	outline-color: var(--md-primary);
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__item {
+	border-radius: 10px;
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__item:hover,
+.sh-sheet.sh-sheet--stream .sh-sheet__item:focus-visible {
+	background: var(--md-soft);
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__item.is-current {
+	background: var(--md-tint);
+}
+
+.sh-sheet.sh-sheet--stream .sh-sheet__item.is-current .sh-sheet__item-title {
+	color: var(--md-primary);
 }

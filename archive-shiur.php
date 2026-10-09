@@ -1,7 +1,9 @@
 <?php
 /**
- * Shiurim home. Three layouts, toggled top-right:
- * - Modern (default): Spotify-style grid of Series/Speakers.
+ * Shiurim home. Four layouts, toggled top-right:
+ * - Studio (default): the new homepage's look, with a Shiurim home of its own
+ *   (template-parts/shiurim-studio.php).
+ * - Modern: Spotify-style grid of Series/Speakers.
  * - Classic: a plain filterable/sortable list of every shiur.
  * - 24Six: the same Series/Speakers browsing, as horizontal-scrolling
  *   carousel rows instead of a wrapping grid.

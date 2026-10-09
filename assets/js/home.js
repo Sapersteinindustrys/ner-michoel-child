@@ -1,13 +1,9 @@
 /*
- * Homepage (inc/home.php).
+ * Homepage (inc/home.php, template-parts/home-new.php).
  *
- * - The Current / New switch in the top-right corner. The choice is a cookie
- *   (nm_home) the server reads, so switching loads the page again with the
- *   other design. A link with ?home=new or ?home=current shows that design;
- *   it is remembered here and tidied out of the address.
- * - On the new design (template-parts/home-new.php): the hero's photos fade
- *   from one to the next, each fetched just before its turn, and the New
- *   Shiurim tabs switch between audio/video and written.
+ * - The hero's photos fade from one to the next, each fetched just before its
+ *   turn.
+ * - The New Shiurim tabs switch between audio/video and written.
  *
  * Re-entrant: nm-router.js (site-wide) can swap #content without a real page
  * load, so init() re-runs on its 'nm:content-swapped' event every time this
@@ -17,33 +13,6 @@
  */
 ( function () {
 	'use strict';
-
-	var YEAR = 60 * 60 * 24 * 365;
-
-	function remember( view ) {
-		document.cookie = 'nm_home=' + view + ';path=/;max-age=' + YEAR + ';SameSite=Lax';
-	}
-
-	function remembered() {
-		var match = document.cookie.match( /(?:^|;\s*)nm_home=([a-z]+)/ );
-		return match ? match[ 1 ] : '';
-	}
-
-	function storage( action, key ) {
-		try {
-			if ( 'get' === action ) {
-				return window.sessionStorage.getItem( key );
-			}
-			if ( 'set' === action ) {
-				window.sessionStorage.setItem( key, '1' );
-			} else {
-				window.sessionStorage.removeItem( key );
-			}
-		} catch ( e ) {
-			// Storage blocked (private mode): the check below just doesn't run.
-		}
-		return null;
-	}
 
 	var photoInterval = null;
 
@@ -55,60 +24,6 @@
 	}
 
 	function init() {
-		// The switch -------------------------------------------------------------
-		var params = new URLSearchParams( window.location.search );
-		var asked  = params.get( 'home' );
-
-		if ( 'new' === asked || 'current' === asked ) {
-			remember( asked );
-			params.delete( 'home' );
-			if ( window.history && window.history.replaceState ) {
-				var query = params.toString();
-				window.history.replaceState( null, '', window.location.pathname + ( query ? '?' + query : '' ) + window.location.hash );
-			}
-		}
-
-		var switcher = document.querySelector( '[data-home-switch]' );
-		if ( switcher ) {
-			var shown = switcher.getAttribute( 'data-home-view' );
-			var mine  = remembered();
-
-			// The browser may keep a copy of the homepage for a while (the site
-			// allows two hours). If that copy shows the other design than the one
-			// chosen, fetch the page again, once.
-			if ( ! asked && mine && mine !== shown && ! storage( 'get', 'nmHomeRefetched' ) ) {
-				storage( 'set', 'nmHomeRefetched' );
-				window.location.reload();
-				return;
-			}
-			if ( mine === shown ) {
-				storage( 'remove', 'nmHomeRefetched' );
-			}
-
-			switcher.addEventListener( 'click', function ( e ) {
-				var button = e.target.closest ? e.target.closest( '[data-home-choose]' ) : null;
-				if ( ! button ) {
-					return;
-				}
-				var view = button.getAttribute( 'data-home-choose' );
-				if ( view === shown ) {
-					return;
-				}
-				remember( view );
-				switcher.classList.add( 'is-switching' );
-				Array.prototype.forEach.call( switcher.querySelectorAll( '[data-home-choose]' ), function ( option ) {
-					var on = option === button;
-					option.classList.toggle( 'is-active', on );
-					option.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
-				} );
-				// ?home= as well as the cookie, so it works even where cookies are
-				// blocked, and the address never offers a stale copy.
-				var next = new URLSearchParams( window.location.search );
-				next.set( 'home', view );
-				window.location.replace( window.location.pathname + '?' + next.toString() + window.location.hash );
-			} );
-		}
-
 		// The hero's photos ---------------------------------------------------
 		var media = document.querySelector( '[data-hn-photos]' );
 		var reduceMotion = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;

@@ -3,17 +3,20 @@
  * (ner_michoel_enqueue_modern_styles() in inc/template-tags.php).
  *
  * The markup and navigation are Modern's own (the sidebar, Back and Home,
- * the layout switch, the card grid, the hero, the track list, the player
- * bar); only the look changes. Every rule is scoped to
- * body.sh-layout-stream.is-shiurim, so Galleries, Written Shiurim and the
- * other layouts are untouched.
+ * the layout switch, the card grid, the hero, the track list); only the
+ * look changes. Every rule is scoped to body.sh-layout-stream.is-shiurim,
+ * so Galleries, Written Shiurim and the other layouts are untouched.
+ *
+ * The player bar's Modern look (with its speed menu and queue sheet) is in
+ * player-sheet.css (.sh-player--stream): the bar shows on every page, and
+ * this file only loads on the Shiurim pages.
  *
  *   1. Tokens: the app's colour variables (custom.css, body.is-nm-app) set
  *      light. Two classes on body, so they win over the Appearance
  *      overrides (inc/appearance.php), which print on body.is-nm-app.
  *   2. Navigation: sidebar, Back and Home, the layout switch.
  *   3. Page content: headings, cards, the hero, the track list, search.
- *   4. The player bar, its speed menu and its queue sheet.
+ *   4. The layout switch's room above the player bar.
  *   5. Touch screens, reduced motion, narrow screens.
  *
  * Astra styles bare elements (button, button:hover, input[type=search],
@@ -57,7 +60,6 @@ body.sh-layout-stream.is-shiurim {
 	--sh-border: var(--md-line);
 	--sh-accent: var(--md-primary);
 	--sh-accent-hover: var(--md-primary-2);
-	--sh-player-bg: var(--md-surface);
 	--sh-radius: var(--md-radius);
 
 	color-scheme: light;
@@ -78,11 +80,8 @@ body.sh-layout-stream.is-shiurim .sh-layout-toggle button:focus-visible {
 
 /* Astra gives every <button> a faint drop shadow. It never showed on the old
    black; on white it rings each icon button. The buttons that want a shadow
-   set their own further down. */
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__buttons button,
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__open,
+   set their own further down. (The player bar's are in player-sheet.css.) */
 body.sh-layout-stream.is-shiurim .sh-layout-toggle .sh-layout-toggle__option,
-body.sh-layout-stream.is-shiurim .sh-sheet button,
 body.sh-layout-stream.is-shiurim .shiurim-app .sh-track button,
 body.sh-layout-stream.is-shiurim .shiurim-app .sh-save,
 body.sh-layout-stream.is-shiurim .nm-live-search button {
@@ -197,7 +196,7 @@ body.sh-layout-stream.is-shiurim .sh-sidebar .sh-sidebar__link.is-active {
 	font-weight: 650;
 }
 
-/* Back and Home: quiet outlined pills. */
+/* Back: a quiet outlined pill. */
 body.sh-layout-stream.is-shiurim .sh-back-row {
 	display: flex;
 	flex-wrap: wrap;
@@ -229,11 +228,6 @@ body.sh-layout-stream.is-shiurim .sh-back-row .sh-back:not(:disabled):focus-visi
 	border-color: var(--md-line-2);
 	background: var(--md-soft);
 	color: var(--md-ink);
-}
-
-body.sh-layout-stream.is-shiurim .sh-back-row .sh-back:disabled {
-	opacity: 0.5;
-	box-shadow: none;
 }
 
 /* The layout switch: the same pill, white, with the current layout in navy.
@@ -817,231 +811,7 @@ body.sh-layout-stream.is-shiurim .nm-live-search .nm-live-search__more:hover {
 	color: var(--md-primary);
 }
 
-/* 4. The player bar ---------------------------------------------------------- */
-
-body.sh-layout-stream.is-shiurim .sh-player {
-	border-top: 1px solid var(--md-line);
-	background: var(--md-surface);
-	box-shadow: 0 -12px 32px -20px rgba(15, 23, 42, 0.35);
-}
-
-/* The scrubber along the top edge and the volume: navy on a pale rail. */
-body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__seek,
-body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__volume-range {
-	--rail-fill: var(--md-primary);
-	--rail-empty: #dde3ec;
-}
-
-body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__seek::-webkit-slider-thumb,
-body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__volume-range::-webkit-slider-thumb {
-	background: var(--md-primary);
-	box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(15, 23, 42, 0.35);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__seek::-moz-range-thumb,
-body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__volume-range::-moz-range-thumb {
-	background: var(--md-primary);
-	box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(15, 23, 42, 0.35);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__seek:focus-visible::-webkit-slider-thumb,
-body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__volume-range:focus-visible::-webkit-slider-thumb {
-	box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgba(27, 47, 82, 0.3);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__seek:focus-visible::-moz-range-thumb,
-body.sh-layout-stream.is-shiurim .sh-player input[type="range"].sh-player__volume-range:focus-visible::-moz-range-thumb {
-	box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgba(27, 47, 82, 0.3);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__cover {
-	border: 1px solid var(--md-line);
-	border-radius: 10px;
-	background: var(--md-soft);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__cover:empty::before {
-	color: var(--md-faint);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player.is-loading .sh-player__cover::after {
-	border-color: rgba(27, 47, 82, 0.2);
-	border-top-color: var(--md-primary);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__title {
-	color: var(--md-ink);
-	font-weight: 650;
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__speaker {
-	color: var(--md-muted);
-}
-
-/* Prev / next: dark icons that turn navy. The play disc: solid navy. */
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__buttons button {
-	color: var(--md-ink-2);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__buttons button:hover:not(:disabled) {
-	color: var(--md-primary);
-	opacity: 1;
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__buttons button:focus-visible {
-	outline: 2px solid var(--md-primary);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__buttons button.sh-player__toggle {
-	background: var(--md-primary) !important;
-	box-shadow: 0 10px 20px -10px rgba(27, 47, 82, 0.8);
-	color: #fff !important;
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__buttons button.sh-player__toggle:hover:not(:disabled) {
-	background: var(--md-primary-2) !important;
-	color: #fff !important;
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__time {
-	color: var(--md-ink);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__time-sep,
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__time--total {
-	color: var(--md-muted);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__open {
-	color: var(--md-ink-2);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__open:hover,
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__open:focus-visible,
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__open[aria-expanded="true"] {
-	background: var(--md-soft);
-	color: var(--md-ink);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__speed {
-	border-color: var(--md-line-2) !important;
-	background: var(--md-surface) !important;
-	color: var(--md-ink-2) !important;
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__speed:hover,
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__speed[aria-expanded="true"] {
-	border-color: var(--md-primary) !important;
-	background: var(--md-soft) !important;
-	color: var(--md-ink) !important;
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__speed.is-active {
-	border-color: var(--md-primary) !important;
-	color: var(--md-primary) !important;
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__speed:focus-visible {
-	outline-color: var(--md-primary);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-speed-menu {
-	border-color: var(--md-line);
-	background: var(--md-surface);
-	box-shadow: var(--md-shadow-lg);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-speed-menu .sh-speed-menu__option {
-	color: var(--md-ink) !important;
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-speed-menu .sh-speed-menu__option:hover,
-body.sh-layout-stream.is-shiurim .sh-player .sh-speed-menu .sh-speed-menu__option:focus {
-	background: var(--md-soft) !important;
-	color: var(--md-ink) !important;
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-speed-menu .sh-speed-menu__option:focus-visible {
-	box-shadow: inset 0 0 0 2px var(--md-primary) !important;
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__volume {
-	color: var(--md-muted);
-}
-
-body.sh-layout-stream.is-shiurim .sh-player .sh-player__volume:hover svg {
-	color: var(--md-ink);
-}
-
-/* The queue sheet: white, sliding up over a dimmed page. */
-body.sh-layout-stream.is-shiurim .sh-sheet-backdrop {
-	background: rgba(15, 23, 42, 0.35);
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet {
-	border: 1px solid var(--md-line);
-	border-bottom: 0;
-	border-radius: 18px 18px 0 0;
-	box-shadow: 0 -18px 44px -16px rgba(15, 23, 42, 0.35);
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__grip {
-	background: var(--md-line-2);
-	opacity: 1;
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__cover {
-	border-radius: 10px;
-	background: var(--md-soft);
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__close {
-	color: var(--md-ink-2);
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__close:hover,
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__close:focus-visible {
-	background: var(--md-soft);
-	color: var(--md-ink);
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__autoplay {
-	border: 1px solid var(--md-line);
-	background: var(--md-soft);
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__switch {
-	background: #c5cfdc;
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__switch::after {
-	box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__switch-input:checked + .sh-sheet__switch {
-	background: var(--md-primary);
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__switch-input:focus-visible + .sh-sheet__switch {
-	outline-color: var(--md-primary);
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__item {
-	border-radius: 10px;
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__item:hover,
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__item:focus-visible {
-	background: var(--md-soft);
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__item.is-current {
-	background: var(--md-tint);
-}
-
-body.sh-layout-stream.is-shiurim .sh-sheet .sh-sheet__item.is-current .sh-sheet__item-title {
-	color: var(--md-primary);
-}
+/* 4. The layout switch above the player bar ---------------------------------- */
 
 /* Bottom placements of the layout switch go above the player bar. custom.css
    already does this for Modern; kept here so the two stay together. */

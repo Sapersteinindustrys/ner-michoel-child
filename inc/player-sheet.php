@@ -16,11 +16,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * The sheet's markup. Its now-playing details and the queue are filled in by
  * custom.js, so the server sends only the structure.
+ *
+ * $layout is the bar's: the sheet and its backdrop take the same look
+ * (sh-sheet--stream and so on, assets/css/player-sheet.css).
  */
-function ner_michoel_render_player_sheet() {
+function ner_michoel_render_player_sheet( $layout = '' ) {
+	$layout = sanitize_key( $layout );
 	?>
-	<div class="sh-sheet-backdrop" id="sh-sheet-backdrop" aria-hidden="true"></div>
-	<div class="sh-sheet" id="sh-sheet" role="dialog" aria-labelledby="sh-sheet-heading" aria-hidden="true">
+	<div class="sh-sheet-backdrop<?php echo $layout ? ' sh-sheet-backdrop--' . esc_attr( $layout ) : ''; ?>" id="sh-sheet-backdrop" aria-hidden="true"></div>
+	<div class="sh-sheet<?php echo $layout ? ' sh-sheet--' . esc_attr( $layout ) : ''; ?>" id="sh-sheet" role="dialog" aria-labelledby="sh-sheet-heading" aria-hidden="true">
 		<div class="sh-sheet__grip" aria-hidden="true"></div>
 
 		<div class="sh-sheet__head">
