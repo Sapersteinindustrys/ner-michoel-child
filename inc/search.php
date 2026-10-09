@@ -46,21 +46,29 @@ add_filter( 'ner_michoel_shiur_search_server_ranking', 'ner_michoel_skip_server_
  */
 function ner_michoel_enqueue_shiur_live_search() {
 	wp_enqueue_style( 'ner-michoel-shiur-live-search', NER_MICHOEL_URI . '/assets/css/shiur-live-search.css', array(), NER_MICHOEL_VERSION );
-	wp_enqueue_script( 'ner-michoel-shiur-live-search', NER_MICHOEL_URI . '/assets/js/shiur-live-search.js', array(), NER_MICHOEL_VERSION, true );
+	// The matching and ranking, on their own so they can be tested; the live search and the topic page's search box use it.
+	wp_enqueue_script( 'ner-michoel-shiur-search-engine', NER_MICHOEL_URI . '/assets/js/shiur-search-engine.js', array(), NER_MICHOEL_VERSION, true );
+	wp_enqueue_script( 'ner-michoel-shiur-live-search', NER_MICHOEL_URI . '/assets/js/shiur-live-search.js', array( 'ner-michoel-shiur-search-engine' ), NER_MICHOEL_VERSION, true );
 	wp_localize_script(
 		'ner-michoel-shiur-live-search',
 		'nmLiveSearch',
 		array(
-			'loading'  => __( 'Loading shiurim…', 'ner-michoel-child' ),
-			'none'     => __( 'No shiurim match these words and filters. Try fewer or different words.', 'ner-michoel-child' ),
+			'loading'   => __( 'Loading shiurim…', 'ner-michoel-child' ),
+			'none'      => __( 'No shiurim match these words and filters. Try fewer or different words.', 'ner-michoel-child' ),
 			/* translators: 1: shiurim shown so far, 2: shiurim found */
-			'showing'  => __( 'Showing %1$s of %2$s shiurim', 'ner-michoel-child' ),
-			'foundOne' => __( '1 shiur found.', 'ner-michoel-child' ),
+			'showing'   => __( 'Showing %1$s of %2$s shiurim', 'ner-michoel-child' ),
+			'foundOne'  => __( '1 shiur found.', 'ner-michoel-child' ),
 			/* translators: %s: number of shiurim found */
-			'found'    => __( '%s shiurim found.', 'ner-michoel-child' ),
-			'audio'    => __( 'Audio', 'ner-michoel-child' ),
-			'video'    => __( 'Video', 'ner-michoel-child' ),
-			'written'  => __( 'Written', 'ner-michoel-child' ),
+			'found'     => __( '%s shiurim found.', 'ner-michoel-child' ),
+			'audio'     => __( 'Audio', 'ner-michoel-child' ),
+			'video'     => __( 'Video', 'ner-michoel-child' ),
+			'written'   => __( 'Written', 'ner-michoel-child' ),
+			// The heading above the results that match with a letter or two off or swapped.
+			'closeOne'  => __( '1 close match · spelled a little differently', 'ner-michoel-child' ),
+			/* translators: %s: number of close matches */
+			'closeMany' => __( '%s close matches · spelled a little differently', 'ner-michoel-child' ),
+			// A topic page's search box, when the search can't load.
+			'unavailable' => __( 'Search isn’t working right now. Please try again in a moment.', 'ner-michoel-child' ),
 		)
 	);
 }
@@ -112,6 +120,51 @@ function ner_michoel_render_written_search_form() {
 		<input type="search" id="sh-written-search-input" name="s" value="<?php echo esc_attr( $term ); ?>" placeholder="<?php esc_attr_e( 'Search written shiurim…', 'ner-michoel-child' ); ?>" />
 		<button type="submit"><?php esc_html_e( 'Search', 'ner-michoel-child' ); ?></button>
 	</form>
+	<?php
+}
+
+/**
+ * The search box on a topic page (taxonomy-topic.php): finds that topic's shiurim
+ * and written shiurim as you type, across all of the topic's pages
+ * (assets/js/shiur-live-search.js, from the same cached index as the Shiurim
+ * search). Close spellings are found too, after the full matches.
+ *
+ * It starts hidden and the script shows it, so a visitor without script just
+ * sees the page's own lists. The index is only fetched when the box is used, not
+ * with every topic page. Those lists carry data-topic-browse; the search takes
+ * their place while something is typed. The search is kept in the address as #q=
+ * (after the #, so the server never sees it) and put back into the box by the
+ * script, never printed here: topic pages can be cached, and one visitor's search
+ * must not end up in the page the next one gets.
+ *
+ * @param WP_Term $term The topic.
+ */
+function ner_michoel_render_topic_search( $term ) {
+	if ( ! $term || empty( $term->term_id ) || ! $term->count ) {
+		return;
+	}
+
+	$index_url = function_exists( 'ner_michoel_shiur_index_url' ) ? ner_michoel_shiur_index_url() : rest_url( 'ner-michoel/v1/shiur-index' );
+	/* translators: %s: topic name */
+	$label = sprintf( __( 'Search within %s', 'ner-michoel-child' ), $term->name );
+	?>
+	<div class="nm-live-search nm-live-search--topic"
+		data-topic-search
+		data-topic-id="<?php echo esc_attr( $term->term_id ); ?>"
+		data-index-url="<?php echo esc_url( $index_url ); ?>"
+		data-all-url="<?php echo esc_url( home_url( '/' ) ); ?>"
+		data-none="<?php echo esc_attr( __( 'No shiurim in this topic match “%s”.', 'ner-michoel-child' ) ); ?>"
+		data-all-label="<?php echo esc_attr( __( 'Search all shiurim for “%s”', 'ner-michoel-child' ) ); ?>"
+		hidden>
+		<label class="screen-reader-text" for="nm-topic-query"><?php echo esc_html( $label ); ?></label>
+		<input type="search" id="nm-topic-query" class="nm-live-search__query" placeholder="<?php echo esc_attr( $label . '…' ); ?>" autocomplete="off" enterkeyhint="search" data-topic-query />
+		<div class="nm-live-search__status">
+			<p class="nm-live-search__count" data-topic-count aria-live="polite"></p>
+			<p class="nm-live-search__all" data-topic-all hidden><a href="<?php echo esc_url( home_url( '/' ) ); ?>"></a></p>
+		</div>
+		<ul class="nm-live-results" data-topic-results></ul>
+		<button type="button" class="nm-live-search__more" data-topic-more hidden><?php esc_html_e( 'Show more', 'ner-michoel-child' ); ?></button>
+	</div>
 	<?php
 }
 

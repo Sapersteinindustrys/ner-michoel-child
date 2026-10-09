@@ -6,6 +6,11 @@
  *   (40 a page, newest first: some topics have over a thousand), then on the
  *   first page its written shiurim, as cards.
  * - Classic: the plain table, paged the same way.
+ *
+ * Under the header is a search box for this topic (ner_michoel_render_topic_search(),
+ * inc/search.php), which looks through all of the topic's shiurim, not just the
+ * page shown. While something is typed it takes the place of the lists marked
+ * data-topic-browse.
  */
 
 get_header();
@@ -20,8 +25,11 @@ if ( 'classic' === ner_michoel_get_layout() ) :
 		<header class="sh-page-header">
 			<h1><?php echo esc_html( $term->name ); ?></h1>
 		</header>
-		<?php ner_michoel_render_classic_table( $wp_query, true, true ); ?>
-		<?php ner_michoel_render_classic_pagination( $wp_query ); ?>
+		<?php ner_michoel_render_topic_search( $term ); ?>
+		<div data-topic-browse>
+			<?php ner_michoel_render_classic_table( $wp_query, true, true ); ?>
+			<?php ner_michoel_render_classic_pagination( $wp_query ); ?>
+		</div>
 	</div>
 	<?php
 	get_footer();
@@ -113,15 +121,17 @@ $written = $is_first ? get_posts(
 		</div>
 	</header>
 
+	<?php ner_michoel_render_topic_search( $term ); ?>
+
 	<?php if ( $shiurim ) : ?>
-		<section class="sh-section">
+		<section class="sh-section" data-topic-browse>
 			<?php ner_michoel_render_tracklist( $shiurim, true ); ?>
 			<?php ner_michoel_render_classic_pagination( $wp_query ); ?>
 		</section>
 	<?php endif; ?>
 
 	<?php if ( $written ) : ?>
-		<section class="sh-section">
+		<section class="sh-section" data-topic-browse>
 			<h2 class="sh-section__title"><?php esc_html_e( 'Written Shiurim', 'ner-michoel-child' ); ?></h2>
 			<?php ner_michoel_render_card_collection_start( $is_carousel ); ?>
 				<?php foreach ( $written as $item ) :
@@ -142,7 +152,7 @@ $written = $is_first ? get_posts(
 	<?php endif; ?>
 
 	<?php if ( ! $shiurim && ! $written ) : ?>
-		<p class="sh-empty"><?php esc_html_e( 'No shiurim with this topic yet.', 'ner-michoel-child' ); ?></p>
+		<p class="sh-empty" data-topic-browse><?php esc_html_e( 'No shiurim with this topic yet.', 'ner-michoel-child' ); ?></p>
 	<?php endif; ?>
 </div>
 

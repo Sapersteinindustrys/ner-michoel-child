@@ -115,17 +115,31 @@
 				.trim();
 		}
 
-		var byId = {};
-		index.items.forEach( function ( it ) {
-			byId[ it.i ] = it;
+		var byId     = {};
+		var position = {};
+		index.items.forEach( function ( it, n ) {
+			byId[ it.i ]     = it;
+			position[ it.i ] = n;
 			it._text = fold( [ it.m, it.n, speakers[ it.a ], it.s, it.p, it.y, it.x ].join( ' ' ) );
 		} );
+
+		// The search engine of the Shiurim search (shiur-search-engine.js), for the close
+		// matches: a letter or two off, or swapped. Without it, only exact matches.
+		var engine   = window.nmShiurSearch;
+		var libData  = { items: index.items };
+		var closeNote = {
+			label: library.getAttribute( 'data-close-label' ) || 'Close matches',
+			hint: library.getAttribute( 'data-close-hint' ) || 'spelled a little differently'
+		};
+		// Close matches come in small groups, so they load as you scroll like the weeks do.
+		var CLOSE_GROUP = 24;
 
 		function isFiltering() {
 			return !! ( fold( state.q ) || state.speaker || state.sefer || state.year );
 		}
 
-		function matches( it, words ) {
+		// The author, Sefer and year picked (not the words).
+		function chipsAllow( it ) {
 			if ( state.speaker && String( it.a ) !== state.speaker ) {
 				return false;
 			}
@@ -133,6 +147,13 @@
 				return false;
 			}
 			if ( state.year && it.y !== state.year ) {
+				return false;
+			}
+			return true;
+		}
+
+		function matches( it, words ) {
+			if ( ! chipsAllow( it ) ) {
 				return false;
 			}
 			for ( var i = 0; i < words.length; i++ ) {
@@ -143,22 +164,46 @@
 			return true;
 		}
 
-		// Each week of the index, cut down to its matching pieces.
+		// Each week of the index, cut down to its matching pieces, then the close
+		// matches (every word is there, but a letter or two off or swapped) in groups
+		// after them. Those aren't from one week, so each group is a week of its own,
+		// marked close; the first also gets the heading that renderMore() adds.
 		function matchingWeeks() {
 			var words = fold( state.q ).split( ' ' ).filter( Boolean );
 			var out   = [];
+			var rest  = [];
 			index.weeks.forEach( function ( week ) {
 				var items = [];
 				week.i.forEach( function ( id ) {
 					var it = byId[ id ];
-					if ( it && matches( it, words ) ) {
+					if ( ! it ) {
+						return;
+					}
+					if ( matches( it, words ) ) {
 						items.push( it );
+					} else if ( words.length && engine && chipsAllow( it ) ) {
+						rest.push( position[ id ] );
 					}
 				} );
 				if ( items.length ) {
 					out.push( { week: week, items: items } );
 				}
 			} );
+
+			if ( rest.length ) {
+				var close = engine.closeMatches( libData, fold( state.q ), rest ).map( function ( m ) {
+					return m.it;
+				} );
+				for ( var n = 0; n < close.length; n += CLOSE_GROUP ) {
+					out.push( {
+						close: true,
+						first: 0 === n,
+						// Read out to screen readers like any week's heading; sighted readers get the divider.
+						week: { l: closeNote.label, s: '', k: 'other', y: '', r: closeNote.hint, i: [] },
+						items: close.slice( n, n + CLOSE_GROUP )
+					} );
+				}
+			}
 			return out;
 		}
 
@@ -290,6 +335,13 @@
 			for ( var i = shown; i < end; i++ ) {
 				var feature = ! filtering && 0 === i;
 				var week    = buildWeek( matched[ i ], feature );
+				// Where the close matches begin, across the whole grid.
+				if ( matched[ i ].first ) {
+					var divider       = document.createElement( 'div' );
+					divider.className = 'nm-library__close';
+					divider.textContent = closeNote.label + ' · ' + closeNote.hint;
+					frag.appendChild( divider );
+				}
 				// A short cascade for the first sheets of a new result. The feature
 				// spread keeps still: its sheets are already turned at an angle.
 				if ( animate && ! feature ) {

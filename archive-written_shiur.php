@@ -102,7 +102,7 @@ foreach ( $shown as $week ) {
 		<?php ner_michoel_render_written_filters( $weeks, $filters, $filtering ? $matched : null ); ?>
 
 		<?php // No whitespace inside when nothing matches, so the library is :empty (written-shiurim.css). ?>
-		<div class="nm-library<?php echo $filtering ? ' is-filtering' : ''; ?>" data-written-library><?php
+		<div class="nm-library<?php echo $filtering ? ' is-filtering' : ''; ?>" data-written-library data-close-label="<?php echo esc_attr( __( 'Close matches', 'ner-michoel-child' ) ); ?>" data-close-hint="<?php echo esc_attr( __( 'spelled a little differently', 'ner-michoel-child' ) ); ?>"><?php
 		foreach ( array_slice( $shown, 0, $first_weeks ) as $index => $week ) {
 			ner_michoel_render_written_week( $week, ! $filtering && 0 === $index );
 		}

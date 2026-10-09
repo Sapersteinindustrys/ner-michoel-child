@@ -864,7 +864,8 @@ function ner_michoel_enqueue_written_assets() {
 		);
 	}
 
-	wp_enqueue_script( 'ner-michoel-written-library', NER_MICHOEL_URI . '/assets/js/written-library.js', array(), NER_MICHOEL_VERSION, true );
+	// The search engine (assets/js/shiur-search-engine.js, enqueued in inc/search.php) finds the close spellings.
+	wp_enqueue_script( 'ner-michoel-written-library', NER_MICHOEL_URI . '/assets/js/written-library.js', array( 'ner-michoel-shiur-search-engine' ), NER_MICHOEL_VERSION, true );
 	wp_enqueue_script( 'ner-michoel-written-reader', NER_MICHOEL_URI . '/assets/js/written-reader.js', array( 'ner-michoel-custom' ), NER_MICHOEL_VERSION, true );
 }
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_written_assets', 22 );

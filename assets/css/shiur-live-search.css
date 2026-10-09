@@ -115,3 +115,60 @@ body.sh-layout-classic .nm-live-search {
 .nm-live-search__more:hover {
 	border-color: var(--sh-accent, #1d4ed8);
 }
+
+/* Where the close matches (a letter or two off) begin, after the full matches. */
+.nm-live-results__divider {
+	padding: 18px 0 8px;
+	border-bottom: 1px solid var(--sh-border, #e5e7eb);
+	color: var(--sh-text-muted, #5b6470);
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.nm-live-results__divider:first-child {
+	padding-top: 10px;
+}
+
+/*
+ * The search box on a topic page (taxonomy-topic.php). It is the live search's own
+ * box, so each layout's look for that comes with it; this is only the spacing.
+ * While something is typed, the page's own lists (marked data-topic-browse) are put
+ * away: an author rule like .sh-section { display: … } would beat the hidden
+ * attribute, hence !important.
+ */
+.nm-live-search--topic {
+	margin: 4px 0 22px;
+}
+
+/* The count and the way out to every shiur, on one row (two when it is narrow). */
+.nm-live-search__status {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	column-gap: 18px;
+}
+
+.nm-live-search--topic .nm-live-search__count:empty {
+	display: none;
+}
+
+.nm-live-search .nm-live-search__all {
+	margin: 6px 0 10px;
+	font-size: 0.9rem;
+}
+
+.nm-live-search .nm-live-search__all[hidden] {
+	display: none;
+}
+
+/* Two classes, to beat body.is-nm-app a { color: inherit } in custom.css. */
+.nm-live-search .nm-live-search__all a {
+	color: var(--sh-accent, #1d4ed8);
+	text-decoration: underline;
+}
+
+[data-topic-browse][hidden] {
+	display: none !important;
+}

@@ -992,6 +992,26 @@
 	white-space: nowrap;
 }
 
+/* Where the close matches (a letter or two off, or swapped) begin: the last of
+   the full matches are above it, across the whole grid (written-library.js). */
+.nm-library__close {
+	grid-column: 1 / -1;
+	margin-top: 8px;
+	padding: 16px 0 10px;
+	border-top: 1px solid var(--rr-rule);
+	color: var(--rr-muted);
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+.nm-library__close:first-child {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: 0;
+}
+
 .nm-library__more {
 	display: flex;
 	justify-content: center;
