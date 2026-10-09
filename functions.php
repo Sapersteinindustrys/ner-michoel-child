@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.60' );
+define( 'NER_MICHOEL_VERSION', '0.2.61' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -195,6 +195,18 @@ function ner_michoel_form_guard_support() {
 	add_theme_support( 'nm-form-guard' );
 }
 add_action( 'after_setup_theme', 'ner_michoel_form_guard_support' );
+
+/**
+ * Tells ner-michoel-core that the Account page has the "enter your code" step
+ * (page-templates/account.php, assets/js/account.js), so a new sign-up is
+ * confirmed by an emailed 6-digit code before the account works. Until a theme
+ * says this the plugin signs new accounts straight in, so the two can be
+ * updated in either order.
+ */
+function ner_michoel_email_verification_support() {
+	add_theme_support( 'nm-email-verification' );
+}
+add_action( 'after_setup_theme', 'ner_michoel_email_verification_support' );
 
 /**
  * Additional includes, split by concern as the rebuild grows

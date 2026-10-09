@@ -156,6 +156,114 @@
 	}
 }
 
+/* The short line under a field (sign-up: "We'll email you a 6-digit code"). */
+.nm-contact-form__hint {
+	font-weight: 400;
+	font-size: 0.85rem;
+	color: var(--nm-text-muted);
+}
+
+/* ---- Email verification: enter the code (account.js shows it after sign-up) ----
+   The tab strip's own display:flex would beat [hidden], same as the panels above. */
+.nm-account-tabs[hidden] {
+	display: none;
+}
+
+/* A narrow column, like the forms it follows. The page shrinks to fit its widest
+   line, so the notice above the code step is held to the same width, or a long
+   message would stretch everything. */
+.nm-verify {
+	max-width: 22rem;
+}
+
+.nm-page--account:has(.nm-verify:not([hidden])) .nm-form-notice {
+	max-width: 22rem;
+}
+
+.nm-verify .nm-verify__title {
+	margin: 0 0 2px;
+	font-size: 1.4rem;
+	line-height: 1.25;
+}
+
+.nm-verify .nm-account-panel__intro {
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.nm-verify .nm-account-panel__intro strong {
+	color: var(--nm-text);
+}
+
+/* A big, centred, spaced-out field: six digits you can read at a glance.
+   The extra left padding balances the letter-spacing after the last digit. */
+.nm-contact-form__field .nm-verify__code {
+	width: 100%;
+	max-width: 15rem;
+	padding: 12px 14px 12px calc(14px + 0.35em);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 1.75rem;
+	font-weight: 600;
+	letter-spacing: 0.35em;
+	text-align: center;
+	font-variant-numeric: tabular-nums;
+}
+
+.nm-contact-form__field .nm-verify__code::placeholder {
+	color: rgba(0, 0, 0, 0.22);
+	font-weight: 400;
+}
+
+.nm-verify .nm-verify__hint {
+	margin: -6px 0 0;
+	font-size: 0.9rem;
+	color: var(--nm-text-muted);
+}
+
+.nm-verify .nm-verify__links {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 12px;
+	font-size: 0.9rem;
+	color: var(--nm-text-muted);
+}
+
+/* "Resend code" is a button (it counts down) that reads as a link. Astra paints
+   every button, so the reset is spelled out and scoped to beat its rules. */
+.nm-verify .nm-verify__link,
+.nm-verify .nm-verify__link:hover,
+.nm-verify .nm-verify__link:focus,
+.nm-verify .nm-verify__link:active {
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
+	color: var(--nm-text-muted);
+	font: inherit;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	cursor: pointer;
+}
+
+.nm-verify .nm-verify__link:hover,
+.nm-verify .nm-verify__link:focus-visible {
+	color: var(--nm-primary);
+}
+
+.nm-verify .nm-verify__link:focus-visible {
+	outline: 2px solid var(--nm-primary);
+	outline-offset: 3px;
+}
+
+.nm-verify .nm-verify__link:disabled {
+	color: var(--nm-text-muted);
+	text-decoration: none;
+	cursor: default;
+	opacity: 0.8;
+}
+
 /* Optional sign-up choices (accounts.php stores them): checkbox, then its label. */
 .nm-contact-form__check {
 	display: flex;

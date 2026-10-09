@@ -61,7 +61,7 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 				<?php endif; ?>
 			</div>
 
-			<p id="nm-account-notice" class="nm-form-notice" hidden></p>
+			<p id="nm-account-notice" class="nm-form-notice" role="status" aria-live="polite" hidden></p>
 
 			<div class="nm-account-panel" data-panel="profile">
 				<div class="nm-account-avatar">
@@ -72,7 +72,7 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 					</label>
 				</div>
 
-				<form id="nm-account-profile-form" class="nm-contact-form">
+				<form id="nm-account-profile-form" method="post" class="nm-contact-form">
 					<label class="nm-contact-form__field">
 						<?php esc_html_e( 'Name', 'ner-michoel-child' ); ?>
 						<input type="text" name="name" value="<?php echo esc_attr( $account['name'] ); ?>" required />
@@ -85,7 +85,7 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 				</form>
 
 				<h2 class="nm-account-subhead"><?php esc_html_e( 'Change Password', 'ner-michoel-child' ); ?></h2>
-				<form id="nm-account-password-form" class="nm-contact-form">
+				<form id="nm-account-password-form" method="post" class="nm-contact-form">
 					<label class="nm-contact-form__field">
 						<?php esc_html_e( 'Current Password', 'ner-michoel-child' ); ?>
 						<input type="password" name="current_password" autocomplete="current-password" required />
@@ -167,12 +167,12 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 				<button type="button" class="nm-account-tab" data-tab="signup" role="tab"><?php esc_html_e( 'Sign Up', 'ner-michoel-child' ); ?></button>
 			</div>
 
-			<p id="nm-account-notice" class="nm-form-notice" hidden></p>
+			<p id="nm-account-notice" class="nm-form-notice" role="status" aria-live="polite" hidden></p>
 
-			<form id="nm-account-login-form" class="nm-contact-form nm-account-panel" data-panel="login">
+			<form id="nm-account-login-form" method="post" class="nm-contact-form nm-account-panel" data-panel="login">
 				<label class="nm-contact-form__field">
 					<?php esc_html_e( 'Email', 'ner-michoel-child' ); ?>
-					<input type="email" name="email" required />
+					<input type="email" name="email" autocomplete="username" required />
 				</label>
 				<label class="nm-contact-form__field">
 					<?php esc_html_e( 'Password', 'ner-michoel-child' ); ?>
@@ -188,7 +188,7 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 				<a href="#" class="nm-account-link" data-show-panel="forgot"><?php esc_html_e( 'Forgot password?', 'ner-michoel-child' ); ?></a>
 			</form>
 
-			<form id="nm-account-signup-form" class="nm-contact-form nm-account-panel" data-panel="signup" hidden>
+			<form id="nm-account-signup-form" method="post" class="nm-contact-form nm-account-panel" data-panel="signup" hidden>
 				<div class="nm-hp-field" aria-hidden="true">
 					<label for="nm-account-website"><?php esc_html_e( 'Leave this field blank', 'ner-michoel-child' ); ?></label>
 					<input type="text" id="nm-account-website" name="website" tabindex="-1" autocomplete="off" value="" />
@@ -198,8 +198,9 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 					<input type="text" name="name" required />
 				</label>
 				<label class="nm-contact-form__field">
-					<?php esc_html_e( 'Email', 'ner-michoel-child' ); ?>
-					<input type="email" name="email" required />
+					<?php esc_html_e( 'Email (this is your username)', 'ner-michoel-child' ); ?>
+					<input type="email" name="email" autocomplete="username" required />
+					<span class="nm-contact-form__hint"><?php esc_html_e( 'We’ll email you a 6-digit code to confirm it.', 'ner-michoel-child' ); ?></span>
 				</label>
 				<label class="nm-contact-form__field">
 					<?php esc_html_e( 'Password', 'ner-michoel-child' ); ?>
@@ -226,7 +227,50 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 				<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Create Account', 'ner-michoel-child' ); ?></button>
 			</form>
 
-			<form id="nm-account-forgot-form" class="nm-contact-form nm-account-panel" data-panel="forgot" hidden>
+			<?php // The code step: shown by account.js after sign-up (and when a not-yet-confirmed account logs in). ?>
+			<form id="nm-account-verify-form" method="post" class="nm-contact-form nm-account-panel nm-verify" data-panel="verify" hidden novalidate>
+				<h2 class="nm-verify__title"><?php esc_html_e( 'Check your email', 'ner-michoel-child' ); ?></h2>
+				<p class="nm-account-panel__intro">
+					<?php
+					printf(
+						/* translators: %s: the person's email address */
+						esc_html__( 'We sent a 6-digit code to %s. Enter it here to activate your account.', 'ner-michoel-child' ),
+						'<strong data-verify-email></strong>'
+					);
+					?>
+				</p>
+				<label class="nm-contact-form__field">
+					<?php esc_html_e( '6-digit code', 'ner-michoel-child' ); ?>
+					<input type="text" name="code" class="nm-verify__code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="12" placeholder="123456" required />
+				</label>
+				<p class="nm-verify__hint">
+						<?php
+						// Who the email says it is from (ner-michoel-core's ner_michoel_email_sender_name(); an older plugin doesn't have it).
+						$verify_sender = function_exists( 'ner_michoel_email_sender_name' ) ? ner_michoel_email_sender_name() : '';
+						if ( $verify_sender ) {
+							printf(
+								/* translators: %s: who the email is from (Yeshivas Toras Moshe) */
+								esc_html__( 'Look for an email from %s. Can’t find it? Check your spam folder. The code works for 30 minutes.', 'ner-michoel-child' ),
+								'<strong>' . esc_html( $verify_sender ) . '</strong>'
+							);
+						} else {
+							esc_html_e( 'Can’t find it? Check your spam folder. The code works for 30 minutes.', 'ner-michoel-child' );
+						}
+						?>
+					</p>
+				<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Verify & Continue', 'ner-michoel-child' ); ?></button>
+				<div class="nm-verify__links">
+					<button type="button" class="nm-verify__link" data-verify-resend><?php esc_html_e( 'Resend code', 'ner-michoel-child' ); ?></button>
+					<span aria-hidden="true">·</span>
+					<a href="#" class="nm-account-link" data-verify-restart><?php esc_html_e( 'Wrong email? Start over', 'ner-michoel-child' ); ?></a>
+				</div>
+				<?php // Only shown when every code for this sign-up has been sent: a reset link confirms the email too. ?>
+				<p class="nm-verify__hint" data-verify-forgot-wrap hidden>
+					<a href="#" class="nm-account-link" data-verify-forgot data-show-panel="forgot"><?php esc_html_e( 'Use “Forgot password?” instead', 'ner-michoel-child' ); ?></a>
+				</p>
+			</form>
+
+			<form id="nm-account-forgot-form" method="post" class="nm-contact-form nm-account-panel" data-panel="forgot" hidden>
 				<p class="nm-account-panel__intro"><?php esc_html_e( 'Enter your email and we’ll send a link to reset your password.', 'ner-michoel-child' ); ?></p>
 				<label class="nm-contact-form__field">
 					<?php esc_html_e( 'Email', 'ner-michoel-child' ); ?>
