@@ -274,34 +274,6 @@ $sparkle = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" 
 
 	</div>
 
-	<?php
-	$tiles = array(
-		array( 'headphones', __( 'Shiurim', 'ner-michoel-child' ), __( 'Audio and video lectures', 'ner-michoel-child' ), $urls['shiurim'] ),
-		array( 'book-open', __( 'Written Shiurim', 'ner-michoel-child' ), __( 'Divrei Torah to read and print', 'ner-michoel-child' ), $urls['written'] ),
-		array( 'image', __( 'Galleries', 'ner-michoel-child' ), __( 'Photos and videos from events', 'ner-michoel-child' ), $urls['galleries'] ),
-		array( 'newspaper', __( 'Mazal Tov', 'ner-michoel-child' ), __( 'Simchas from our alumni families', 'ner-michoel-child' ), $urls['mazal'] ),
-		array( 'heart', __( 'Contribute', 'ner-michoel-child' ), __( 'Support the Yeshiva', 'ner-michoel-child' ), $urls['contribute'] ),
-		array( 'mail', __( 'Contact', 'ner-michoel-child' ), __( 'We would love to hear from you', 'ner-michoel-child' ), $urls['contact'] ),
-	);
-	?>
-	<nav class="hn-explore" aria-label="<?php esc_attr_e( 'Explore the site', 'ner-michoel-child' ); ?>">
-		<?php foreach ( $tiles as $tile ) : ?>
-			<?php
-			if ( ! $tile[3] ) {
-				continue;
-			}
-			?>
-			<a class="hn-tile" href="<?php echo esc_url( $tile[3] ); ?>">
-				<span class="hn-tile__icon" aria-hidden="true"><?php echo ner_michoel_line_icon( $tile[0] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
-				<span class="hn-tile__text">
-					<span class="hn-tile__title"><?php echo esc_html( $tile[1] ); ?></span>
-					<span class="hn-tile__desc"><?php echo esc_html( $tile[2] ); ?></span>
-				</span>
-				<span class="hn-tile__go" aria-hidden="true"><?php echo ner_michoel_line_icon( 'arrow-right' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
-			</a>
-		<?php endforeach; ?>
-	</nav>
-
 	<?php if ( $home['galleries'] ) : ?>
 		<section class="hn-gallery" aria-labelledby="hn-gallery-title">
 			<header class="hn-section-head">

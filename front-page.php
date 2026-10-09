@@ -7,7 +7,7 @@
  * benefit from the same Modern/Classic split as browsable content.
  *
  * Pulls a small preview of live content (recent shiurim, news, mazal
- * tov) plus quick-link cards to every section. Written defensively
+ * tov). Written defensively
  * (post_type_exists / function_exists checks) so nothing here fatals
  * before real content or the mazal_tov CPT exist.
  *
@@ -188,30 +188,6 @@ $hero_slides = function_exists( 'ner_michoel_get_homepage_slider_images' ) ? ner
 		</div>
 	</section>
 	<?php endif; ?>
-
-	<?php
-	// Section index: one bordered panel divided into cells, rather than
-	// six floating shadowed cards with emoji — the latter being the
-	// stock generated-template look this replaced.
-	$index_links = array(
-		array( 'headphones', __( 'Shiurim', 'ner-michoel-child' ), __( 'Audio, video & written lectures', 'ner-michoel-child' ), $shiurim_url ? $shiurim_url : '#' ),
-		array( 'image', __( 'Galleries', 'ner-michoel-child' ), __( 'Photos & videos from events', 'ner-michoel-child' ), $gallery_url ? $gallery_url : '#' ),
-		array( 'heart', __( 'Contribute', 'ner-michoel-child' ), __( 'Support the Yeshiva', 'ner-michoel-child' ), home_url( '/contribute/' ) ),
-		array( 'mail', __( 'Contact', 'ner-michoel-child' ), __( 'We\'d love to hear from you', 'ner-michoel-child' ), home_url( '/contact/' ) ),
-	);
-	?>
-	<nav class="nm-home-index" aria-label="<?php esc_attr_e( 'Explore the site', 'ner-michoel-child' ); ?>">
-		<?php foreach ( $index_links as $link ) : ?>
-			<a class="nm-home-index__item" href="<?php echo esc_url( $link[3] ); ?>">
-				<span class="nm-home-index__icon"><?php echo ner_michoel_line_icon( $link[0] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
-				<span class="nm-home-index__text">
-					<span class="nm-home-index__title"><?php echo esc_html( $link[1] ); ?></span>
-					<span class="nm-home-index__desc"><?php echo esc_html( $link[2] ); ?></span>
-				</span>
-				<span class="nm-home-index__arrow"><?php echo ner_michoel_line_icon( 'arrow-right' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
-			</a>
-		<?php endforeach; ?>
-	</nav>
 
 	<?php if ( $recent_shiurim ) : ?>
 	<section class="nm-home-section">
