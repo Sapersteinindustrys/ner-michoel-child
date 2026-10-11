@@ -29,7 +29,50 @@ function ner_michoel_is_written_context() {
 }
 
 /**
- * A shiur's topics (ner-michoel-core includes/topics.php) as links to their pages.
+ * A shiur's topics in the order of its series name, the way the old site listed its
+ * categories ("Gemara / Bava Kamma / Perek 2": Gemara, then Bava Kamma). get_the_terms()
+ * gives them A to Z, which put "Haazinu" before "Sefer Devarim" and "Bava Kamma" before
+ * "Gemara". A topic the series name doesn't give (one added by hand in the shiur's form)
+ * comes after those, A to Z.
+ *
+ * @param WP_Term[] $topics  The shiur's topics.
+ * @param int       $post_id The shiur.
+ * @return WP_Term[]
+ */
+function ner_michoel_order_topics_by_series( $topics, $post_id ) {
+	$topics = array_values( (array) $topics );
+	$series = get_the_terms( $post_id, 'series' );
+	if ( count( $topics ) < 2 || ! $series || is_wp_error( $series ) || ! function_exists( 'ner_michoel_topic_names_from_series' ) ) {
+		return $topics;
+	}
+
+	$key      = function ( $name ) {
+		$name = html_entity_decode( (string) $name, ENT_QUOTES, 'UTF-8' );
+		return function_exists( 'mb_strtolower' ) ? mb_strtolower( $name, 'UTF-8' ) : strtolower( $name );
+	};
+	$position = array();
+	foreach ( $series as $term ) {
+		foreach ( ner_michoel_topic_names_from_series( $term->name ) as $name ) {
+			if ( ! isset( $position[ $key( $name ) ] ) ) {
+				$position[ $key( $name ) ] = count( $position );
+			}
+		}
+	}
+
+	usort(
+		$topics,
+		function ( $a, $b ) use ( $position, $key ) {
+			$pa = isset( $position[ $key( $a->name ) ] ) ? $position[ $key( $a->name ) ] : PHP_INT_MAX;
+			$pb = isset( $position[ $key( $b->name ) ] ) ? $position[ $key( $b->name ) ] : PHP_INT_MAX;
+			return $pa === $pb ? strnatcasecmp( $a->name, $b->name ) : ( $pa < $pb ? -1 : 1 );
+		}
+	);
+	return $topics;
+}
+
+/**
+ * A shiur's topics (ner-michoel-core includes/topics.php) as links to their pages, in the
+ * order of its series name (ner_michoel_order_topics_by_series()).
  * Nothing when it has none, or when the core plugin is older than topics.
  */
 function ner_michoel_render_topic_chips( $post_id ) {
@@ -40,6 +83,7 @@ function ner_michoel_render_topic_chips( $post_id ) {
 	if ( ! $topics || is_wp_error( $topics ) ) {
 		return;
 	}
+	$topics = ner_michoel_order_topics_by_series( $topics, $post_id );
 	?>
 	<ul class="sh-topic-chips" aria-label="<?php esc_attr_e( 'Topics', 'ner-michoel-child' ); ?>">
 		<?php foreach ( $topics as $topic ) : ?>
@@ -485,6 +529,10 @@ function ner_michoel_render_save_button( $post_id ) {
  * cards rather than speaker/series cards (those have nothing to
  * save). Logged-out visitors never see it, same as everywhere else
  * Save appears — nothing extra for a caller to check first.
+ *
+ * tags (optional): small labels under the subtitle, each array( 'label' =>
+ * text, 'title' => hover text ). A speaker's page uses one on a series that
+ * also holds other speakers' shiurim, to say who else is in it.
  */
 function ner_michoel_render_media_card( $args ) {
 	$args = wp_parse_args(
@@ -500,6 +548,7 @@ function ner_michoel_render_media_card( $args ) {
 			'save_id'  => 0,
 			'variant'  => '', // 'series' gives a series card its own look (see shiurim-cards.css).
 			'kicker'   => '', // Small label above the title, e.g. "Series".
+			'tags'     => array(), // Small labels under the subtitle: each array( 'label' => text, 'title' => hover text, optional ).
 		)
 	);
 
@@ -544,6 +593,13 @@ function ner_michoel_render_media_card( $args ) {
 		<div class="sh-card__title"><?php echo esc_html( $args['title'] ); ?></div>
 		<?php if ( $args['subtitle'] ) : ?>
 			<div class="sh-card__subtitle"><?php echo esc_html( $args['subtitle'] ); ?></div>
+		<?php endif; ?>
+		<?php if ( $args['tags'] ) : ?>
+			<div class="sh-card__tags">
+				<?php foreach ( (array) $args['tags'] as $tag ) : ?>
+					<span class="sh-card__tag"<?php echo ! empty( $tag['title'] ) ? ' title="' . esc_attr( $tag['title'] ) . '"' : ''; ?>><span class="sh-card__tag-text"><?php echo esc_html( $tag['label'] ); ?></span></span>
+				<?php endforeach; ?>
+			</div>
 		<?php endif; ?>
 	</a>
 	<?php

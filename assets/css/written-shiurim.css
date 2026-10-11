@@ -114,6 +114,14 @@
 	font: inherit;
 }
 
+/* Touch screens: 16px at least, so iPhone Safari doesn't zoom the page
+   in when the field is tapped (see the same note in home.css). */
+@media (pointer: coarse) {
+	.sh-written-search input[type="search"] {
+		font-size: 16px;
+	}
+}
+
 .sh-written-search button {
 	padding: 9px 20px;
 	border: 0;
@@ -412,6 +420,14 @@
 	font-size: 1rem;
 	box-shadow: inset 0 1px 2px rgba(60, 45, 25, 0.05);
 	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Touch screens: 16px at least, so iPhone Safari doesn't zoom the page
+   in when the field is tapped (see the same note in home.css). */
+@media (pointer: coarse) {
+	.nm-filters__search input[type="search"] {
+		font-size: 16px;
+	}
 }
 
 .nm-filters__search input[type="search"]:focus {

@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.65' );
+define( 'NER_MICHOEL_VERSION', '0.2.66' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -209,6 +209,35 @@ function ner_michoel_email_verification_support() {
 add_action( 'after_setup_theme', 'ner_michoel_email_verification_support' );
 
 /**
+ * Opens the two Google Fonts connections at the top of the head on pages that load
+ * the serif font (the homepage, Studio, the written library): the stylesheet comes
+ * from fonts.googleapis.com and the font file from fonts.gstatic.com, and each needs
+ * its own connection before the text can show in that font. WordPress already adds
+ * a dns-prefetch for the first; a preconnect also does the secure handshake.
+ */
+function ner_michoel_font_preconnect( $urls, $relation ) {
+	if ( 'preconnect' === $relation && wp_style_is( 'ner-michoel-written-serif', 'enqueued' ) ) {
+		$urls[] = 'https://fonts.googleapis.com';
+		$urls[] = array(
+			'href'        => 'https://fonts.gstatic.com',
+			'crossorigin' => 'anonymous',
+		);
+	}
+	return $urls;
+}
+add_filter( 'wp_resource_hints', 'ner_michoel_font_preconnect', 10, 2 );
+
+/**
+ * Tells ner-michoel-core's Speed & Capacity screen which of its speed items the
+ * theme takes care of (the "Google Fonts connected late" item).
+ */
+function ner_michoel_theme_speed_features( $features ) {
+	$features[] = 'font-preconnect';
+	return $features;
+}
+add_filter( 'ner_michoel_theme_speed_features', 'ner_michoel_theme_speed_features' );
+
+/**
  * Additional includes, split by concern as the rebuild grows
  * (e.g. custom post types, ACF field registration, template tags).
  */
@@ -223,3 +252,4 @@ require_once NER_MICHOEL_PATH . '/inc/written-shiurim.php';
 require_once NER_MICHOEL_PATH . '/inc/home.php';
 require_once NER_MICHOEL_PATH . '/inc/shiurim-studio.php';
 require_once NER_MICHOEL_PATH . '/inc/for-you.php';
+require_once NER_MICHOEL_PATH . '/inc/speaker-series.php';

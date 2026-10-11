@@ -577,6 +577,15 @@ body.is-nm-app .ast-article-single {
 	padding: 9px 14px 9px 36px;
 }
 
+/* Touch screens: 16px at least, so iPhone Safari doesn't zoom the page
+   in when the field is tapped (see the note at the Classic phone rules).
+   The same for Modern's version of this field in shiurim-modern.css. */
+@media (pointer: coarse) {
+	.sh-sidebar__search input[type="search"] {
+		font-size: 16px;
+	}
+}
+
 .sh-sidebar__search input[type="search"]::placeholder {
 	color: var(--sh-text-muted);
 }
@@ -2367,6 +2376,108 @@ body.sh-layout-classic.is-nm-app a {
 	background: var(--nm-primary);
 	color: #fff;
 	border-color: transparent;
+}
+
+/* Classic on a phone. The list is a six-column table (title, speaker,
+   series, date, duration, listen) that needs roughly 560px or more; on
+   a phone it made the page wider than the screen, so the phone zoomed
+   out to fit it and the page could be dragged sideways (body's
+   overflow-x: hidden from Astra only hides the overflow on a desktop
+   window, a phone still pans). Below 720px each row is a small card:
+   the title, then speaker / series / date / duration on one wrapping
+   line, then the Play and Download links. Table semantics for screen
+   readers are kept by the role attributes in classic-view.php
+   (display: block would otherwise drop them). The filter fields go full
+   width, because a dropdown is as wide as its longest option (the live
+   site has series names over 60 characters), and are 16px so iPhone
+   Safari doesn't zoom into a field when it's tapped and stay zoomed. */
+@media (max-width: 720px) {
+	.shiurim-app--classic,
+	.nm-app--classic {
+		padding: 20px 16px;
+	}
+
+	.sh-classic-toolbar {
+		gap: 12px;
+	}
+
+	.sh-classic-toolbar__field {
+		flex: 1 1 100%;
+		min-width: 0;
+	}
+
+	.sh-classic-toolbar__field select,
+	.sh-classic-toolbar__field input {
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 100%;
+		font-size: 16px;
+	}
+
+	.sh-classic-toolbar__apply {
+		flex: 1 1 100%;
+		padding: 10px 16px;
+	}
+
+	.sh-classic-table,
+	.sh-classic-table tbody {
+		display: block;
+		border: 0;
+	}
+
+	/* Column headings are redundant on a card, but stay for screen readers. */
+	.sh-classic-table thead {
+		display: block;
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+	}
+
+	.sh-classic-table tbody tr {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 2px 14px;
+		padding: 12px 0;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+	}
+
+	.sh-classic-table tbody td {
+		display: block;
+		min-width: 0;
+		padding: 0;
+		border: 0;
+		font-size: 0.85rem;
+		color: var(--sh-text-muted, #666);
+		overflow-wrap: anywhere;
+	}
+
+	.sh-classic-table tbody td:first-child {
+		flex: 0 0 100%;
+		font-size: 1rem;
+		font-weight: 600;
+		color: inherit;
+	}
+
+	.sh-classic-table tbody td:last-child {
+		flex: 0 0 100%;
+		margin-top: 6px;
+		font-size: 0.9rem;
+		color: inherit;
+	}
+
+	/* A shiur with no speaker or series: no empty cell to leave a gap. */
+	.sh-classic-table tbody td.sh-classic-table__empty {
+		display: none;
+	}
+
+	.sh-classic-pagination ul {
+		flex-wrap: wrap;
+	}
 }
 
 /* Galleries — Classic (light card grid + plain photo grid) */

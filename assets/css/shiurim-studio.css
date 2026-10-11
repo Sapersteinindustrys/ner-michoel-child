@@ -359,6 +359,14 @@ body.sh-layout-studio .shiurim-app button:focus-visible {
 	line-height: 1.2;
 }
 
+/* Touch screens: 16px at least, so iPhone Safari doesn't zoom the page
+   in when the field is tapped (see the same note in home.css). */
+@media (pointer: coarse) {
+	.st .st-search .st-search__input {
+		font-size: 16px;
+	}
+}
+
 .st .st-search .st-search__input:focus {
 	outline: none;
 	border: 0;

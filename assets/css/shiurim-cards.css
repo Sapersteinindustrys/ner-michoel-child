@@ -58,6 +58,48 @@
 	margin-bottom: 2px;
 }
 
+/* A speaker's page (taxonomy-speaker.php): the line under the title of "Series with
+   other speakers". */
+.sh-section__note {
+	margin: -6px 0 16px;
+	max-width: 62ch;
+	color: var(--sh-text-muted, rgba(255, 255, 255, 0.7));
+	font-size: 0.9rem;
+	line-height: 1.45;
+}
+
+/* Small labels under a card's subtitle (ner_michoel_render_media_card()'s `tags`): on a
+   speaker's page, who else is in a series that also holds other speakers' shiurim. The
+   outline is on the outer span and the line limit on the inner one, because a limited box
+   that has padding shows a sliver of the next line. */
+.sh-card__tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-top: 8px;
+}
+
+.sh-card__tag {
+	display: block;
+	max-width: 100%;
+	padding: 3px 9px;
+	border: 1px solid var(--sh-border, rgba(255, 255, 255, 0.12));
+	border-radius: 10px;
+	color: var(--sh-text-muted, rgba(255, 255, 255, 0.7));
+	font-size: 0.72rem;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.sh-card__tag-text {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	overflow: hidden;
+	overflow-wrap: anywhere;
+}
+
 /* A shiur's topics, under its title (ner_michoel_render_topic_chips()). */
 .sh-topic-chips {
 	display: flex;

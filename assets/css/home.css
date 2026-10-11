@@ -323,6 +323,15 @@
 	line-height: 1.2;
 }
 
+/* Touch screens: 16px at least. Astra makes 1rem 14.6px, and iPhone
+   Safari zooms the page in when a field under 16px is tapped and then
+   leaves it zoomed, wider than the screen and pannable sideways. */
+@media (pointer: coarse) {
+	.hn .hn-search .hn-search__input {
+		font-size: 16px;
+	}
+}
+
 .hn .hn-search .hn-search__input:focus {
 	outline: none;
 	border: 0;

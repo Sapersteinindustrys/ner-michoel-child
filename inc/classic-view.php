@@ -133,18 +133,18 @@ function ner_michoel_render_classic_table( WP_Query $query, $show_speaker = true
 		return;
 	}
 	?>
-	<table class="sh-classic-table">
-		<thead>
-			<tr>
-				<th><?php esc_html_e( 'Title', 'ner-michoel-child' ); ?></th>
-				<?php if ( $show_speaker ) : ?><th><?php esc_html_e( 'Speaker', 'ner-michoel-child' ); ?></th><?php endif; ?>
-				<?php if ( $show_series ) : ?><th><?php esc_html_e( 'Series', 'ner-michoel-child' ); ?></th><?php endif; ?>
-				<th><?php esc_html_e( 'Date', 'ner-michoel-child' ); ?></th>
-				<th><?php esc_html_e( 'Duration', 'ner-michoel-child' ); ?></th>
-				<th><?php esc_html_e( 'Listen', 'ner-michoel-child' ); ?></th>
+	<table class="sh-classic-table" role="table">
+		<thead role="rowgroup">
+			<tr role="row">
+				<th role="columnheader"><?php esc_html_e( 'Title', 'ner-michoel-child' ); ?></th>
+				<?php if ( $show_speaker ) : ?><th role="columnheader"><?php esc_html_e( 'Speaker', 'ner-michoel-child' ); ?></th><?php endif; ?>
+				<?php if ( $show_series ) : ?><th role="columnheader"><?php esc_html_e( 'Series', 'ner-michoel-child' ); ?></th><?php endif; ?>
+				<th role="columnheader"><?php esc_html_e( 'Date', 'ner-michoel-child' ); ?></th>
+				<th role="columnheader"><?php esc_html_e( 'Duration', 'ner-michoel-child' ); ?></th>
+				<th role="columnheader"><?php esc_html_e( 'Listen', 'ner-michoel-child' ); ?></th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody role="rowgroup">
 			<?php
 			while ( $query->have_posts() ) :
 				$query->the_post();
@@ -155,25 +155,25 @@ function ner_michoel_render_classic_table( WP_Query $query, $show_speaker = true
 				$series_terms  = get_the_terms( get_the_ID(), 'series' );
 				$download_url  = function_exists( 'ner_michoel_get_shiur_download_url' ) ? ner_michoel_get_shiur_download_url( get_the_ID() ) : $audio_url;
 				?>
-				<tr>
-					<td><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a><?php ner_michoel_render_shiur_badges( get_the_ID() ); ?></td>
+				<tr role="row">
+					<td role="cell"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a><?php ner_michoel_render_shiur_badges( get_the_ID() ); ?></td>
 					<?php if ( $show_speaker ) : ?>
-						<td>
+						<td role="cell"<?php echo ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) ? '' : ' class="sh-classic-table__empty"'; ?>>
 							<?php if ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) : ?>
 								<a href="<?php echo esc_url( get_term_link( $speaker_terms[0] ) ); ?>"><?php echo esc_html( $speaker_terms[0]->name ); ?></a>
 							<?php endif; ?>
 						</td>
 					<?php endif; ?>
 					<?php if ( $show_series ) : ?>
-						<td>
+						<td role="cell"<?php echo ( $series_terms && ! is_wp_error( $series_terms ) ) ? '' : ' class="sh-classic-table__empty"'; ?>>
 							<?php if ( $series_terms && ! is_wp_error( $series_terms ) ) : ?>
 								<a href="<?php echo esc_url( get_term_link( $series_terms[0] ) ); ?>"><?php echo esc_html( $series_terms[0]->name ); ?></a>
 							<?php endif; ?>
 						</td>
 					<?php endif; ?>
-					<td><?php echo esc_html( get_the_date() ); ?></td>
-					<td><?php echo esc_html( $duration ); ?></td>
-					<td>
+					<td role="cell"><?php echo esc_html( get_the_date() ); ?></td>
+					<td role="cell"><?php echo esc_html( $duration ); ?></td>
+					<td role="cell">
 						<?php if ( $is_video ) : ?>
 							<a href="<?php the_permalink(); ?>"><?php esc_html_e( 'Watch', 'ner-michoel-child' ); ?></a>
 						<?php elseif ( $audio_url ) : ?>

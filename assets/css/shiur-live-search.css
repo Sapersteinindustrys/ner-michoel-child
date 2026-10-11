@@ -36,6 +36,14 @@ body.sh-layout-classic .nm-live-search {
 	font-size: 1rem;
 }
 
+/* Touch screens: 16px at least, so iPhone Safari doesn't zoom the page
+   in when the field is tapped (see the same note in home.css). */
+@media (pointer: coarse) {
+	.nm-live-search__query {
+		font-size: 16px;
+	}
+}
+
 .nm-live-search__query::placeholder {
 	color: var(--sh-text-muted, #5b6470);
 	opacity: 1;
@@ -66,6 +74,12 @@ body.sh-layout-classic .nm-live-search {
 	padding: 8px 10px;
 	border-radius: 8px;
 	font-size: 0.95rem;
+}
+
+@media (pointer: coarse) {
+	.nm-live-search__filters select {
+		font-size: 16px;
+	}
 }
 
 .nm-live-search__count {
