@@ -82,11 +82,11 @@ body.sh-layout-stream.is-shiurim .shiurim-app .sh-foryou .sh-carousel__nav:focus
 	gap: 22px;
 	min-width: 0;
 	padding: clamp(20px, 2.6vw, 28px);
-	border: 1px solid #d6e0f0;
+	border: 1px solid var(--nm-look-brand-tint-line, #d6e0f0);
 	border-radius: var(--st-radius-lg);
 	background:
-		radial-gradient(90% 140% at 100% 0%, rgba(36, 64, 111, 0.1), rgba(36, 64, 111, 0) 60%),
-		#f8fbff;
+		radial-gradient(90% 140% at 100% 0%, var(--nm-look-brand-glow, rgba(36, 64, 111, 0.1)), transparent 60%),
+		var(--nm-look-brand-wash, #f8fbff);
 	box-shadow: var(--st-shadow);
 }
 

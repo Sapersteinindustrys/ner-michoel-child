@@ -417,13 +417,13 @@
 .sh-player--studio,
 .sh-sheet--studio,
 .sh-sheet-backdrop--studio {
-	--sh-player-bg: #0e1b33;
-	--sh-surface: #16233d;
-	--sh-surface-hover: #22324f;
+	--sh-player-bg: var(--nm-look-bar, #0e1b33);
+	--sh-surface: var(--nm-look-bar-2, #16233d);
+	--sh-surface-hover: var(--nm-look-bar-3, #22324f);
 	--sh-text: #fff;
 	--sh-text-muted: rgba(255, 255, 255, 0.64);
 	--sh-border: rgba(255, 255, 255, 0.1);
-	--sh-accent: #2f8f5b;
+	--sh-accent: var(--nm-look-fresh, #2f8f5b);
 	color: #fff;
 }
 
@@ -444,17 +444,17 @@
 .sh-player--stream,
 .sh-sheet--stream,
 .sh-sheet-backdrop--stream {
-	--md-ink: #0f172a;
-	--md-ink-2: #334155;
-	--md-muted: #5b6678;
-	--md-faint: #94a3b8;
-	--md-line: #e3e8ef;
+	--md-ink: var(--nm-look-ink, #0f172a);
+	--md-ink-2: var(--nm-look-ink-2, #334155);
+	--md-muted: var(--nm-look-muted, #5b6678);
+	--md-faint: var(--nm-look-faint, #94a3b8);
+	--md-line: var(--nm-look-line, #e3e8ef);
 	--md-line-2: #cfd8e3;
 	--md-surface: #fff;
-	--md-soft: #f1f4f8;
-	--md-primary: #1b2f52;
-	--md-primary-2: #24406d;
-	--md-tint: #e9eff8;
+	--md-soft: var(--nm-look-surface-soft, #f1f4f8);
+	--md-primary: var(--nm-look-brand, #1b2f52);
+	--md-primary-2: var(--nm-look-brand-2, #24406d);
+	--md-tint: var(--nm-look-brand-tint, #e9eff8);
 	--md-shadow-lg: 0 2px 4px rgba(15, 23, 42, 0.06), 0 22px 44px -20px rgba(15, 23, 42, 0.32);
 
 	/* The app's own variables, light. */
@@ -521,7 +521,7 @@
 }
 
 .sh-player.sh-player--stream.is-loading .sh-player__cover::after {
-	border-color: rgba(27, 47, 82, 0.2);
+	border-color: var(--nm-look-brand-ring, rgba(27, 47, 82, 0.2));
 	border-top-color: var(--md-primary);
 }
 
@@ -550,7 +550,7 @@
 
 .sh-player.sh-player--stream .sh-player__buttons button.sh-player__toggle {
 	background: var(--md-primary) !important;
-	box-shadow: 0 10px 20px -10px rgba(27, 47, 82, 0.8);
+	box-shadow: 0 10px 20px -10px var(--nm-look-brand-shadow-3, rgba(27, 47, 82, 0.8));
 	color: #fff !important;
 }
 

@@ -38,6 +38,31 @@ function ner_michoel_enqueue_home_assets() {
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_home_assets', 22 );
 
 /**
+ * The homepage's own words: the small line above the welcome, the welcome title
+ * and paragraph, and the title and text of the banner at the bottom. An
+ * administrator can change them in the Control Panel (Homepage & Look >
+ * Homepage; ner-michoel-core, includes/homepage-settings.php). A blank box, or a
+ * plugin that does not have the setting yet, gives the words below.
+ *
+ * @param string $key eyebrow, title, lede, cta_title or cta_text.
+ */
+function ner_michoel_home_text( $key ) {
+	$defaults = array(
+		'eyebrow'   => __( 'Yeshivas Toras Moshe Alumni Association', 'ner-michoel-child' ),
+		'title'     => __( 'Welcome to Ner Michoel', 'ner-michoel-child' ),
+		'lede'      => __( 'Thousands of shiurim, community updates, and a way to stay close to the Yeshiva and each other — wherever you are.', 'ner-michoel-child' ),
+		'cta_title' => __( 'Stay Connected', 'ner-michoel-child' ),
+		'cta_text'  => __( 'Update your contact info, join the alumni WhatsApp group, or reach out any time — we\'d love to hear how you\'re doing.', 'ner-michoel-child' ),
+	);
+
+	$saved = function_exists( 'ner_michoel_get_homepage_text' ) ? ner_michoel_get_homepage_text( $key ) : '';
+	if ( '' !== $saved ) {
+		return $saved;
+	}
+	return isset( $defaults[ $key ] ) ? $defaults[ $key ] : '';
+}
+
+/**
  * "Today", "Yesterday", "3 days ago", then a date: "Sep 17", or
  * "Sep 17, 2025" from another year. Days are counted in the site's timezone.
  */

@@ -18,41 +18,43 @@
 /* 1. The light theme --------------------------------------------------------- */
 
 body.sh-layout-studio.is-shiurim {
-	--st-ink: #0f172a;
-	--st-ink-2: #334155;
-	--st-muted: #5b6678;
-	--st-faint: #8a94a6;
-	--st-line: #e3e8f0;
-	--st-line-soft: #eef2f7;
+	/* Colours and fonts the Control Panel's Colors & Fonts screen can change (see home.css):
+	   each is var(--nm-look-*, today's value). */
+	--st-ink: var(--nm-look-ink, #0f172a);
+	--st-ink-2: var(--nm-look-ink-2, #334155);
+	--st-muted: var(--nm-look-muted, #5b6678);
+	--st-faint: var(--nm-look-faint, #8a94a6);
+	--st-line: var(--nm-look-line, #e3e8f0);
+	--st-line-soft: var(--nm-look-line-soft, #eef2f7);
 	--st-surface: #fff;
-	--st-soft: #f6f8fb;
-	--st-navy: #1b2f52;
-	--st-navy-2: #24406f;
-	--st-gold: #a87a26;
-	--st-gold-bright: #e4be6c;
-	--st-green: #2f8f5b;
+	--st-soft: var(--nm-look-surface-soft, #f6f8fb);
+	--st-navy: var(--nm-look-brand, #1b2f52);
+	--st-navy-2: var(--nm-look-brand-2, #24406f);
+	--st-gold: var(--nm-look-accent-deep, #a87a26);
+	--st-gold-bright: var(--nm-look-accent-bright, #e4be6c);
+	--st-green: var(--nm-look-fresh, #2f8f5b);
 	--st-radius-xl: 28px;
 	--st-radius-lg: 20px;
 	--st-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
 	--st-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px -14px rgba(15, 23, 42, 0.18);
 	--st-shadow-lg: 0 2px 6px rgba(15, 23, 42, 0.06), 0 32px 64px -28px rgba(15, 23, 42, 0.42);
-	--st-serif: "Frank Ruhl Libre", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-	--st-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--st-serif: var(--nm-look-font-heading, "Frank Ruhl Libre", "Iowan Old Style", "Palatino Linotype", Georgia, serif);
+	--st-sans: var(--nm-look-font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
 	--st-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 	--st-hero-bg:
-		radial-gradient(110% 130% at 100% 0%, rgba(214, 165, 71, 0.2), rgba(214, 165, 71, 0) 50%),
-		radial-gradient(80% 110% at 0% 100%, rgba(47, 143, 91, 0.16), rgba(47, 143, 91, 0) 55%),
-		linear-gradient(140deg, #1d3358 0%, #132443 55%, #0e1b33 100%);
+		radial-gradient(110% 130% at 100% 0%, var(--nm-look-glow-gold, rgba(214, 165, 71, 0.2)), transparent 50%),
+		radial-gradient(80% 110% at 0% 100%, var(--nm-look-glow-fresh, rgba(47, 143, 91, 0.16)), transparent 55%),
+		linear-gradient(140deg, var(--nm-look-hero-1, #1d3358) 0%, var(--nm-look-hero-2, #132443) 55%, var(--nm-look-hero-3, #0e1b33) 100%);
 
 	/* The app's own variables (custom.css, body.is-nm-app), light. */
-	--sh-bg: #f5f7fb;
+	--sh-bg: var(--nm-look-page, #f5f7fb);
 	--sh-surface: #fff;
-	--sh-surface-hover: #eef2f7;
-	--sh-text: #0f172a;
-	--sh-text-muted: #5b6678;
-	--sh-border: #e3e8f0;
-	--sh-accent: #2f8f5b;
-	--sh-accent-hover: #267a4c;
+	--sh-surface-hover: var(--nm-look-line-soft, #eef2f7);
+	--sh-text: var(--nm-look-ink, #0f172a);
+	--sh-text-muted: var(--nm-look-muted, #5b6678);
+	--sh-border: var(--nm-look-line, #e3e8f0);
+	--sh-accent: var(--nm-look-fresh, #2f8f5b);
+	--sh-accent-hover: var(--nm-look-fresh-dark, #267a4c);
 	--sh-radius: 16px;
 	--sh-font: var(--st-sans);
 
@@ -72,7 +74,7 @@ body.is-shiurim.sh-layout-studio .sh-layout-toggle--bottom-right {
 
 /* Artwork with no picture: navy, with the serif initial. */
 body.sh-layout-studio .sh-placeholder-art {
-	background: linear-gradient(150deg, var(--st-navy-2), #0e1b33);
+	background: linear-gradient(150deg, var(--st-navy-2), var(--nm-look-hero-3, #0e1b33));
 	color: rgba(255, 255, 255, 0.92);
 	font-family: var(--st-serif);
 	font-weight: 500;
@@ -192,13 +194,13 @@ body.sh-layout-studio .shiurim-app button:focus-visible {
 }
 
 .st .st-pill--new {
-	background: #e5f4eb;
-	color: #1f7046;
+	background: var(--nm-look-fresh-soft, #e5f4eb);
+	color: var(--nm-look-fresh-dark, #1f7046);
 }
 
 .st .st-pill--written {
-	background: #f7efdc;
-	color: #8a6420;
+	background: var(--nm-look-gold-soft, #f7efdc);
+	color: var(--nm-look-accent-ink, #8a6420);
 }
 
 /* Artwork: a picture, or initials on the name's own colour. */
@@ -468,7 +470,7 @@ body.sh-layout-studio .shiurim-app button:focus-visible {
 
 .st .st-feature__label {
 	margin: 0;
-	color: #f1d595;
+	color: var(--nm-look-accent-pale, #f1d595);
 	font-size: 0.68rem;
 	font-weight: 700;
 	letter-spacing: 0.14em;
@@ -545,11 +547,11 @@ body.sh-layout-studio .shiurim-app button:focus-visible {
 
 .st .st-season {
 	padding: clamp(20px, 2.6vw, 28px);
-	border: 1px solid #efe1bf;
+	border: 1px solid var(--nm-look-gold-line, #efe1bf);
 	border-radius: var(--st-radius-lg);
 	background:
-		radial-gradient(90% 140% at 100% 0%, rgba(228, 190, 108, 0.22), rgba(228, 190, 108, 0) 60%),
-		#fffdf8;
+		radial-gradient(90% 140% at 100% 0%, var(--nm-look-glow-bright, rgba(228, 190, 108, 0.22)), transparent 60%),
+		var(--nm-look-mazal-bg, #fffdf8);
 	box-shadow: var(--st-shadow);
 }
 
@@ -1330,14 +1332,14 @@ body.sh-layout-studio .shiurim-app .sh-play-all {
 	min-height: 46px;
 	padding: 0 24px;
 	border: 0;
-	background: linear-gradient(145deg, #d9ab4f, #b4842c);
-	box-shadow: 0 10px 20px -12px rgba(168, 122, 38, 0.9);
+	background: linear-gradient(145deg, var(--nm-look-gold-1, #d9ab4f), var(--nm-look-gold-2, #b4842c));
+	box-shadow: 0 10px 20px -12px var(--nm-look-gold-shadow, rgba(168, 122, 38, 0.9));
 	color: #fff;
 }
 
 body.sh-layout-studio .shiurim-app .sh-play-all:hover,
 body.sh-layout-studio .shiurim-app .sh-play-all:focus {
-	background: linear-gradient(145deg, #e0b45a, #bb8b31);
+	background: linear-gradient(145deg, var(--nm-look-gold-1-hover, #e0b45a), var(--nm-look-gold-2-hover, #bb8b31));
 	color: #fff;
 	transform: translateY(-1px);
 }
@@ -1361,7 +1363,7 @@ body.sh-layout-studio .shiurim-app .sh-track:hover {
 }
 
 body.sh-layout-studio .shiurim-app .sh-track.is-active {
-	background: #edf6f0;
+	background: var(--nm-look-fresh-tint, #edf6f0);
 }
 
 body.sh-layout-studio .shiurim-app .sh-track__art {

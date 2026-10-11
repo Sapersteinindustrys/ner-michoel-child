@@ -24,9 +24,9 @@ $sparkle = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" 
 
 	<section class="hn-hero" aria-labelledby="hn-hero-title">
 		<div class="hn-hero__copy">
-			<p class="hn-eyebrow"><?php esc_html_e( 'Yeshivas Toras Moshe Alumni Association', 'ner-michoel-child' ); ?></p>
-			<h1 class="hn-hero__title" id="hn-hero-title"><?php esc_html_e( 'Welcome to Ner Michoel', 'ner-michoel-child' ); ?></h1>
-			<p class="hn-hero__lede"><?php esc_html_e( 'Thousands of shiurim, community updates, and a way to stay close to the Yeshiva and each other — wherever you are.', 'ner-michoel-child' ); ?></p>
+			<p class="hn-eyebrow"><?php echo esc_html( ner_michoel_home_text( 'eyebrow' ) ); ?></p>
+			<h1 class="hn-hero__title" id="hn-hero-title"><?php echo esc_html( ner_michoel_home_text( 'title' ) ); ?></h1>
+			<p class="hn-hero__lede"><?php echo esc_html( ner_michoel_home_text( 'lede' ) ); ?></p>
 
 			<?php if ( $urls['shiurim'] ) : ?>
 				<form class="hn-search" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
@@ -306,8 +306,8 @@ $sparkle = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" 
 
 	<section class="hn-cta" aria-labelledby="hn-cta-title">
 		<div class="hn-cta__copy">
-			<h2 class="hn-cta__title" id="hn-cta-title"><?php esc_html_e( 'Stay Connected', 'ner-michoel-child' ); ?></h2>
-			<p><?php esc_html_e( 'Update your contact info, join the alumni WhatsApp group, or reach out any time — we\'d love to hear how you\'re doing.', 'ner-michoel-child' ); ?></p>
+			<h2 class="hn-cta__title" id="hn-cta-title"><?php echo esc_html( ner_michoel_home_text( 'cta_title' ) ); ?></h2>
+			<p><?php echo esc_html( ner_michoel_home_text( 'cta_text' ) ); ?></p>
 		</div>
 		<div class="hn-cta__actions">
 			<a class="hn-btn hn-btn--light" href="<?php echo esc_url( $urls['contact'] ); ?>"><?php esc_html_e( 'Get in Touch', 'ner-michoel-child' ); ?></a>
