@@ -19,7 +19,8 @@ $search = home_url( '/' );
 
 	<section class="st-hero" aria-labelledby="st-hero-title">
 		<div class="st-hero__copy">
-			<p class="st-eyebrow"><?php esc_html_e( 'Ner Michoel · Shiurim', 'ner-michoel-child' ); ?></p>
+			<?php /* translators: %s: the site's name */ ?>
+			<p class="st-eyebrow"><?php echo esc_html( sprintf( __( '%s · Shiurim', 'ner-michoel-child' ), ner_michoel_site_name() ) ); ?></p>
 			<h1 class="st-hero__title" id="st-hero-title"><?php esc_html_e( 'The Shiurim Library', 'ner-michoel-child' ); ?></h1>
 			<p class="st-hero__lede"><?php esc_html_e( 'Every shiur, by speaker, series and topic. Search the whole library, or start with what was just given.', 'ner-michoel-child' ); ?></p>
 

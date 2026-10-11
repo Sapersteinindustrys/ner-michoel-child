@@ -213,7 +213,8 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 				<?php // Two separate choices, both optional. Stored as user meta by accounts.php. ?>
 				<label class="nm-contact-form__check">
 					<input type="checkbox" name="pref_updates" value="1" />
-					<span><?php esc_html_e( 'Send me Ner Michoel updates', 'ner-michoel-child' ); ?></span>
+					<?php /* translators: %s: the site's name */ ?>
+					<span><?php echo esc_html( sprintf( __( 'Send me %s updates', 'ner-michoel-child' ), ner_michoel_site_name() ) ); ?></span>
 				</label>
 				<label class="nm-contact-form__check">
 					<input type="checkbox" name="pref_new_shiur_alerts" value="1" />

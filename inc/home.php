@@ -42,14 +42,16 @@ add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_home_assets', 22 );
  * and paragraph, and the title and text of the banner at the bottom. An
  * administrator can change them in the Control Panel (Homepage & Look >
  * Homepage; ner-michoel-core, includes/homepage-settings.php). A blank box, or a
- * plugin that does not have the setting yet, gives the words below.
+ * plugin that does not have the setting yet, gives the words below. The welcome names the site
+ * (Homepage & Look > Site Name & Logo); the small line above it is the second, smaller name.
  *
  * @param string $key eyebrow, title, lede, cta_title or cta_text.
  */
 function ner_michoel_home_text( $key ) {
 	$defaults = array(
-		'eyebrow'   => __( 'Yeshivas Toras Moshe Alumni Association', 'ner-michoel-child' ),
-		'title'     => __( 'Welcome to Ner Michoel', 'ner-michoel-child' ),
+		'eyebrow'   => __( 'Ner Michoel Alumni Association', 'ner-michoel-child' ),
+		/* translators: %s: the site's name */
+		'title'     => sprintf( __( 'Welcome to %s', 'ner-michoel-child' ), ner_michoel_site_name() ),
 		'lede'      => __( 'Thousands of shiurim, community updates, and a way to stay close to the Yeshiva and each other — wherever you are.', 'ner-michoel-child' ),
 		'cta_title' => __( 'Stay Connected', 'ner-michoel-child' ),
 		'cta_text'  => __( 'Update your contact info, join the alumni WhatsApp group, or reach out any time — we\'d love to hear how you\'re doing.', 'ner-michoel-child' ),
@@ -60,6 +62,45 @@ function ner_michoel_home_text( $key ) {
 		return $saved;
 	}
 	return isset( $defaults[ $key ] ) ? $defaults[ $key ] : '';
+}
+
+/**
+ * The welcome title, as HTML ready to print. Words an administrator saved are printed as they are. The
+ * site's own words, "Welcome to <name>", put the name in a span of its own, so the name stays together on
+ * the line under "Welcome to" (and, when it is too long for a phone, breaks between its own words), never
+ * "Welcome to Yeshivas / Toras Moshe".
+ */
+function ner_michoel_home_title_html() {
+	$saved = function_exists( 'ner_michoel_get_homepage_text' ) ? ner_michoel_get_homepage_text( 'title' ) : '';
+	if ( '' !== $saved ) {
+		return esc_html( $saved );
+	}
+	return sprintf(
+		/* translators: %s: the site's name, in an element of its own */
+		esc_html__( 'Welcome to %s', 'ner-michoel-child' ),
+		'<span class="hn-hero__name">' . esc_html( ner_michoel_site_name() ) . '</span>'
+	);
+}
+
+/**
+ * The icon in the Mazal Tov box's gold badge, and in the round badge of an announcement that has no photo:
+ * the one chosen in the Control Panel (ner-michoel-core, Homepage & Look > Homepage), or a kiddush cup until
+ * one is chosen. The theme keeps its own copy of the cup for a plugin that is behind.
+ *
+ * @return array {kind: "svg" or "image", svg: the drawing for kind svg, url: the picture for kind image}
+ */
+function ner_michoel_mazal_icon() {
+	if ( function_exists( 'ner_michoel_get_mazal_icon' ) ) {
+		$icon = ner_michoel_get_mazal_icon();
+		if ( is_array( $icon ) && isset( $icon['kind'] ) && ( ( 'image' === $icon['kind'] && ! empty( $icon['url'] ) ) || ( 'svg' === $icon['kind'] && ! empty( $icon['svg'] ) ) ) ) {
+			return $icon;
+		}
+	}
+	return array(
+		'kind' => 'svg',
+		'svg'  => '<svg class="nm-mazal-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 3h10l-.8 6.6a4.2 4.2 0 0 1-8.4 0z"/><path d="M7.6 7h8.8"/><path d="M12 13.8v5.7"/><path d="M8 21h8"/></svg>',
+		'url'  => '',
+	);
 }
 
 /**

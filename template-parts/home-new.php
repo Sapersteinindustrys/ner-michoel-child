@@ -17,7 +17,9 @@ $urls   = $home['urls'];
 $counts = $home['counts'];
 $newest = $home['shiurim'] ? $home['shiurim'][0] : null;
 
-$sparkle = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9L12 2.5z"/><path d="M19 15.5l.8 2.2 2.2.8-2.2.8L19 21.5l-.8-2.2-2.2-.8 2.2-.8.8-2.2z" opacity=".7"/></svg>';
+// The icon in the Mazal Tov box's badge: chosen in the Control Panel (Homepage & Look > Homepage).
+$mazal_icon = ner_michoel_mazal_icon();
+$site_name  = ner_michoel_site_name();
 ?>
 
 <div class="hn">
@@ -25,7 +27,7 @@ $sparkle = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" 
 	<section class="hn-hero" aria-labelledby="hn-hero-title">
 		<div class="hn-hero__copy">
 			<p class="hn-eyebrow"><?php echo esc_html( ner_michoel_home_text( 'eyebrow' ) ); ?></p>
-			<h1 class="hn-hero__title" id="hn-hero-title"><?php echo esc_html( ner_michoel_home_text( 'title' ) ); ?></h1>
+			<h1 class="hn-hero__title" id="hn-hero-title"><?php echo ner_michoel_home_title_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built. ?></h1>
 			<p class="hn-hero__lede"><?php echo esc_html( ner_michoel_home_text( 'lede' ) ); ?></p>
 
 			<?php if ( $urls['shiurim'] ) : ?>
@@ -212,10 +214,17 @@ $sparkle = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" 
 
 		<aside class="hn-panel hn-mazal" aria-labelledby="hn-mazal-title">
 			<header class="hn-mazal__head">
-				<span class="hn-mazal__mark" aria-hidden="true"><?php echo $sparkle; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
+				<span class="hn-mazal__mark<?php echo 'image' === $mazal_icon['kind'] ? ' hn-mazal__mark--image' : ''; ?>" aria-hidden="true">
+					<?php if ( 'image' === $mazal_icon['kind'] ) : ?>
+						<img src="<?php echo esc_url( $mazal_icon['url'] ); ?>" alt="" width="46" height="46" decoding="async" />
+					<?php else : ?>
+						<?php echo $mazal_icon['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed drawing from ner_michoel_mazal_icons(). ?>
+					<?php endif; ?>
+				</span>
 				<p class="hn-kicker hn-kicker--gold"><?php esc_html_e( 'Simchas', 'ner-michoel-child' ); ?></p>
 				<h2 class="hn-panel__title" id="hn-mazal-title"><?php esc_html_e( 'Mazal Tov', 'ner-michoel-child' ); ?></h2>
-				<p class="hn-mazal__lede"><?php esc_html_e( 'Celebrating with the Ner Michoel family.', 'ner-michoel-child' ); ?></p>
+				<?php /* translators: %s: the site's name */ ?>
+				<p class="hn-mazal__lede"><?php echo esc_html( sprintf( __( 'Celebrating with the %s family.', 'ner-michoel-child' ), $site_name ) ); ?></p>
 			</header>
 
 			<?php if ( $home['mazal'] ) : ?>
@@ -225,8 +234,10 @@ $sparkle = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" 
 							<span class="hn-mt__badge" aria-hidden="true">
 								<?php if ( $mazal['photo'] ) : ?>
 									<img src="<?php echo esc_url( $mazal['photo'] ); ?>" alt="" loading="lazy" decoding="async" width="48" height="48" />
+								<?php elseif ( 'image' === $mazal_icon['kind'] ) : ?>
+									<img class="hn-mt__icon" src="<?php echo esc_url( $mazal_icon['url'] ); ?>" alt="" loading="lazy" decoding="async" width="48" height="48" />
 								<?php else : ?>
-									<?php echo $sparkle; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?>
+									<?php echo $mazal_icon['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed drawing from ner_michoel_mazal_icons(). ?>
 								<?php endif; ?>
 							</span>
 							<div class="hn-mt__body">

@@ -131,6 +131,30 @@
 	font-weight: 700;
 }
 
+/* The second, smaller name (the site's tagline: Control Panel > Site Name & Logo) sits under the name. Astra
+   prints it only when the site has one (inc/site-identity.php turns it on). With no logo picture the name
+   stands alone, a little larger. */
+.site-header .ast-site-identity .ast-site-title-wrap {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.site-header .ast-site-identity .site-description {
+	display: block;
+	margin: 3px 0 0;
+	color: var(--nm-look-accent-deep, #a87a26);
+	font-size: 0.66rem;
+	font-weight: 700;
+	line-height: 1.2;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+body:not(.wp-custom-logo) .site-header .ast-site-identity .site-title {
+	font-size: 1.3rem;
+}
+
 /* Menu: Astra's own line-height:80px rule is (0,5,0) — this matches its
    selector plus one class, so it wins regardless of load order. */
 .ast-desktop .site-header .ast-primary-header-bar .ast-builder-menu-1 .main-header-menu > .menu-item {
@@ -293,6 +317,14 @@
 
 #ast-mobile-header .ast-site-identity .site-title {
 	font-size: 1rem;
+}
+
+#ast-mobile-header .ast-site-identity .site-description {
+	font-size: 0.6rem;
+}
+
+body:not(.wp-custom-logo) #ast-mobile-header .ast-site-identity .site-title {
+	font-size: 1.1rem;
 }
 
 /* Astra's mobile menu is an absolutely-positioned panel sized to its

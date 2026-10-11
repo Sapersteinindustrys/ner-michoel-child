@@ -271,6 +271,15 @@
 	text-wrap: balance;
 }
 
+.hn .hn-hero__name {
+	/* The site's name (Control Panel > Site Name & Logo) starts the second line and stays together; a little
+	   smaller than "Welcome to" so a name like "Yeshivas Toras Moshe" fits on one line from 360px up to a
+	   full desktop. On a narrower screen it breaks between its own words, never "Welcome to Yeshivas / Toras Moshe". */
+	display: block;
+	font-size: 0.86em;
+	text-wrap: balance;
+}
+
 .hn .hn-hero__lede {
 	max-width: 34em;
 	margin: 18px 0 0;
@@ -849,6 +858,24 @@
 	height: 22px;
 }
 
+/* A picture chosen in the Control Panel (Homepage > Mazal Tov icon) instead of a ready-made icon. */
+.hn .hn-mazal__mark--image {
+	background: #fff;
+	color: var(--hn-gold);
+	box-shadow: 0 0 0 2px var(--hn-gold-bright), 0 10px 22px -10px var(--hn-badge-shadow);
+}
+
+.hn .hn-mazal__mark img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	max-width: none;
+	padding: 7px;
+	box-sizing: border-box;
+	object-fit: contain;
+	border-radius: 50%;
+}
+
 .hn .hn-mazal__lede {
 	margin: 8px 0 0;
 	color: var(--hn-muted);
@@ -920,6 +947,13 @@
 	height: 100%;
 	max-width: none;
 	object-fit: cover;
+}
+
+/* The administrator's own icon picture in the badge of an announcement without a photo: whole, not cropped. */
+.hn .hn-mt__badge img.hn-mt__icon {
+	padding: 9px;
+	box-sizing: border-box;
+	object-fit: contain;
 }
 
 .hn .hn-mt__body {

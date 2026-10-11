@@ -84,7 +84,8 @@ foreach ( $shown as $week ) {
 	<?php ner_michoel_render_back_button(); ?>
 
 	<header class="nm-masthead">
-		<p class="nm-masthead__eyebrow"><?php esc_html_e( 'The Ner Michoel library', 'ner-michoel-child' ); ?></p>
+		<?php /* translators: %s: the site's name */ ?>
+		<p class="nm-masthead__eyebrow"><?php echo esc_html( sprintf( __( 'The %s library', 'ner-michoel-child' ), ner_michoel_site_name() ) ); ?></p>
 		<h1 class="nm-masthead__title"><?php post_type_archive_title(); ?></h1>
 		<p class="nm-masthead__lede"><?php esc_html_e( 'Each week’s divrei Torah and halacha, ready to read, print and share.', 'ner-michoel-child' ); ?></p>
 		<?php if ( $written_posts ) : ?>
