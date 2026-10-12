@@ -1,0 +1,227 @@
+/*
+ * Site footer (inc/footer.php): the title, links to the pages, Contribute and
+ * Amazon Smile that an administrator sets in the Control Panel (Homepage & Look >
+ * Footer; ner-michoel-core, includes/footer-settings.php).
+ *
+ * It is printed on every page, just before Astra's own footer (#colophon), and shown
+ * from the body class, because the page router (nm-router.js) swaps only #content
+ * and so can't add or take away something printed outside it:
+ *
+ *   .nm-footer--home  shown on the home page only (body.home)
+ *   .nm-footer--all   shown on every page except the Shiurim pages (body.is-shiurim),
+ *                     where the player bar and the page's own navigation already sit
+ *                     at the bottom (Astra's footer is hidden there too)
+ *
+ * Where it shows it takes Astra's footer's place (the sibling rule below); elsewhere
+ * Astra's footer stays as it was.
+ *
+ * Astra styles bare elements across the site (a:hover, ul, p). Every rule here is two
+ * classes deep, which outranks those without any !important.
+ */
+
+.nm-footer {
+	/* The colours and fonts the Control Panel's Colors & Fonts screen can change (ner-michoel-core,
+	   includes/site-look.php): each is var(--nm-look-*, today's value), as in home.css. */
+	--nmf-bg-1: var(--nm-look-deep-2, #12213c);
+	--nmf-bg-2: var(--nm-look-deep, #0b1628);
+	--nmf-gold: var(--nm-look-accent-bright, #e4be6c);
+	--nmf-glow: var(--nm-look-glow-gold, rgba(214, 165, 71, 0.2));
+	--nmf-serif: var(--nm-look-font-heading, "Frank Ruhl Libre", "Iowan Old Style", "Palatino Linotype", Georgia, serif);
+	--nmf-sans: var(--nm-look-font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
+
+	display: none;
+	position: relative;
+	margin: 0;
+	padding: clamp(36px, 5vw, 60px) clamp(16px, 4vw, 40px) calc(clamp(22px, 3vw, 30px) + env(safe-area-inset-bottom, 0px));
+	background:
+		radial-gradient(80% 160% at 100% 0%, var(--nmf-glow), transparent 55%),
+		linear-gradient(160deg, var(--nmf-bg-1) 0%, var(--nmf-bg-2) 100%);
+	color: rgba(255, 255, 255, 0.82);
+	font-family: var(--nmf-sans);
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.nm-footer *,
+.nm-footer *::before,
+.nm-footer *::after {
+	box-sizing: border-box;
+}
+
+/* Where it shows ------------------------------------------------------------- */
+
+body.home .nm-footer--home,
+body:not(.is-shiurim) .nm-footer--all {
+	display: block;
+}
+
+body.home .nm-footer--home ~ .site-footer,
+body:not(.is-shiurim) .nm-footer--all ~ .site-footer {
+	display: none;
+}
+
+/* The words and links ---------------------------------------------------------- */
+
+.nm-footer .nm-footer__inner {
+	display: grid;
+	gap: clamp(18px, 2.4vw, 28px);
+	width: 100%;
+	min-width: 0;
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+.nm-footer .nm-footer__top {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 18px 32px;
+}
+
+.nm-footer .nm-footer__title {
+	margin: 0;
+	color: #fff;
+	font-family: var(--nmf-serif);
+	font-size: clamp(1.5rem, 2.4vw, 2rem);
+	font-weight: 500;
+	line-height: 1.15;
+	overflow-wrap: anywhere;
+}
+
+.nm-footer .nm-footer__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.nm-footer .nm-footer__btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 0 22px;
+	border: 1px solid rgba(255, 255, 255, 0.38);
+	border-radius: 999px;
+	background: transparent;
+	color: #fff;
+	font-size: 0.95rem;
+	font-weight: 650;
+	line-height: 1.2;
+	text-align: center;
+	text-decoration: none;
+	transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.nm-footer .nm-footer__btn:hover,
+.nm-footer .nm-footer__btn:focus {
+	border-color: rgba(255, 255, 255, 0.7);
+	background: rgba(255, 255, 255, 0.08);
+	color: #fff;
+	transform: translateY(-1px);
+}
+
+.nm-footer .nm-footer__btn--primary {
+	border-color: transparent;
+	background: var(--nmf-gold);
+	color: var(--nmf-bg-2);
+	box-shadow: 0 10px 20px -12px rgba(0, 0, 0, 0.6);
+}
+
+.nm-footer .nm-footer__btn--primary:hover,
+.nm-footer .nm-footer__btn--primary:focus {
+	border-color: transparent;
+	background: var(--nmf-gold);
+	color: var(--nmf-bg-2);
+	box-shadow: 0 14px 24px -12px rgba(0, 0, 0, 0.7);
+}
+
+.nm-footer .nm-footer__links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 30px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.nm-footer .nm-footer__links li {
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+}
+
+.nm-footer .nm-footer__link {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	padding: 0;
+	color: rgba(255, 255, 255, 0.86);
+	font-size: 0.98rem;
+	font-weight: 500;
+	text-decoration: none;
+	overflow-wrap: anywhere;
+}
+
+.nm-footer .nm-footer__link:hover,
+.nm-footer .nm-footer__link:focus {
+	color: #fff;
+	text-decoration: underline;
+	text-decoration-color: var(--nmf-gold);
+	text-decoration-thickness: 2px;
+	text-underline-offset: 5px;
+}
+
+.nm-footer .nm-footer__note {
+	margin: 0;
+	padding-top: 18px;
+	border-top: 1px solid rgba(255, 255, 255, 0.14);
+	color: rgba(255, 255, 255, 0.66);
+	font-size: 0.85rem;
+	overflow-wrap: anywhere;
+}
+
+.nm-footer a:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: 3px;
+	border-radius: 6px;
+}
+
+.nm-footer .nm-footer__btn:focus-visible {
+	border-radius: 999px;
+}
+
+/* Phones ----------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+	.nm-footer .nm-footer__top {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.nm-footer .nm-footer__actions {
+		width: 100%;
+	}
+
+	.nm-footer .nm-footer__btn {
+		flex: 1 1 auto;
+	}
+
+	.nm-footer .nm-footer__links {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0 20px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.nm-footer * {
+		transition: none !important;
+	}
+
+	.nm-footer .nm-footer__btn:hover,
+	.nm-footer .nm-footer__btn:focus {
+		transform: none;
+	}
+}

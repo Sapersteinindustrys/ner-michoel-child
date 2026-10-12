@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.67' );
+define( 'NER_MICHOEL_VERSION', '0.2.68' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -254,3 +254,4 @@ require_once NER_MICHOEL_PATH . '/inc/home.php';
 require_once NER_MICHOEL_PATH . '/inc/shiurim-studio.php';
 require_once NER_MICHOEL_PATH . '/inc/for-you.php';
 require_once NER_MICHOEL_PATH . '/inc/speaker-series.php';
+require_once NER_MICHOEL_PATH . '/inc/footer.php';
