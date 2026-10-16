@@ -196,8 +196,8 @@
 					return;
 				}
 				renewGuard( loginForm );
-				if ( result.data.verify ) {
-					// The right password, but the email isn't confirmed yet: on to the code step.
+				if ( result.data.verify || result.data.login_code ) {
+					// The right password, but the email isn't confirmed yet, or this computer isn't remembered: on to the code step.
 					loginForm.password.value = '';
 					startVerify( result.data );
 					return;
@@ -330,13 +330,52 @@
 	 * asked for), with the server's message above it.
 	 */
 	function startVerify( data ) {
-		pending = { email: data.email, token: data.token, resendAt: 0, noResend: 'exhausted' === data.status };
+		pending = {
+			email: data.email,
+			token: data.token,
+			resendAt: 0,
+			noResend: 'exhausted' === data.status,
+			// 'login': the right password from a computer that isn't remembered; 'signup': a new account's email.
+			mode: data.login_code ? 'login' : 'signup',
+			hint: data.email_hint || '',
+			rememberDays: Number( data.remember_days ) || 0
+		};
+		if ( verifyForm.remember ) {
+			verifyForm.remember.checked = true;
+		}
 		showVerify( data.message, 'failed' === data.status || 'capped' === data.status || 'exhausted' === data.status );
 		waitToResend( data.resend_in );
 	}
 
+	/** The one code step says what fits what it is for: confirming a new account, or logging in. */
+	function applyVerifyMode() {
+		var mode = pending && 'login' === pending.mode ? 'login' : 'signup';
+		verifyForm.querySelectorAll( '[data-verify-mode]' ).forEach( function ( el ) {
+			el.hidden = el.dataset.verifyMode !== mode;
+		} );
+		verifyForm.querySelectorAll( '[data-verify-email]' ).forEach( function ( el ) {
+			el.textContent = 'login' === mode && pending.hint ? pending.hint : pending.email;
+		} );
+		[ verifyForm.querySelector( 'button[type="submit"]' ), verifyForm.querySelector( '[data-verify-restart]' ) ].forEach( function ( el ) {
+			var text = el && el.getAttribute( 'data-' + mode + '-text' );
+			if ( text ) {
+				el.textContent = text;
+			}
+		} );
+		var remember = verifyForm.querySelector( '[data-verify-remember]' );
+		if ( remember && pending.rememberDays > 0 ) {
+			var pattern = remember.getAttribute( 1 === pending.rememberDays ? 'data-text-one' : 'data-text-many' );
+			if ( pattern ) {
+				remember.textContent = pattern.replace( '%d', pending.rememberDays );
+			}
+		}
+		if ( 'login' === mode ) {
+			verifyForm.querySelector( '[data-verify-forgot-wrap]' ).hidden = true;
+		}
+	}
+
 	function showVerify( message, isError ) {
-		verifyForm.querySelector( '[data-verify-email]' ).textContent = pending.email;
+		applyVerifyMode();
 		verifyForm.code.value = '';
 		setVerifyBusy( false );
 		showPanel( 'verify' );
@@ -384,8 +423,20 @@
 			}
 
 			setVerifyBusy( true );
-			postAccount( 'account-verify', { email: pending.email, token: pending.token, code: code } ).then( function ( result ) {
+			var isLogin = 'login' === pending.mode;
+			postAccount(
+				isLogin ? 'account-login-code' : 'account-verify',
+				isLogin
+					? { email: pending.email, token: pending.token, code: code, remember: !! verifyForm.remember.checked }
+					: { email: pending.email, token: pending.token, code: code }
+			).then( function ( result ) {
 				var data = result.data || {};
+				if ( result.ok && data.success && isLogin ) {
+					writePending( null );
+					notice( noticeBox, 'Code accepted! Taking you to your account…', false );
+					window.location.reload();
+					return;
+				}
 				if ( result.ok && data.success ) {
 					try {
 						window.sessionStorage.setItem( WELCOME_KEY, data.name || '1' );
@@ -435,7 +486,7 @@
 			var button = this;
 			button.disabled = true;
 			button.textContent = 'Sending…';
-			postAccount( 'account-resend-code', { email: pending.email, token: pending.token } ).then( function ( result ) {
+			postAccount( 'login' === pending.mode ? 'account-login-code-resend' : 'account-resend-code', { email: pending.email, token: pending.token } ).then( function ( result ) {
 				var data = result.data || {};
 				if ( 'invalid_session' === data.code ) {
 					verifySessionEnded( data.message );
@@ -458,11 +509,20 @@
 
 		verifyForm.querySelector( '[data-verify-restart]' ).addEventListener( 'click', function ( e ) {
 			e.preventDefault();
+			var wasLogin = pending && 'login' === pending.mode;
 			writePending( null );
 			pending = null;
 			window.clearInterval( resendTimer );
 			resendTimer = null;
 			hideNotice( noticeBox );
+			if ( wasLogin ) {
+				// A log in's code step: back to the log in form, not to sign-up.
+				showPanel( 'login' );
+				if ( loginForm ) {
+					loginForm.email.focus();
+				}
+				return;
+			}
 			showPanel( 'signup' );
 			if ( signupForm ) {
 				signupForm.email.focus();
@@ -520,6 +580,27 @@
 				notice( noticeEl, result.ok ? 'Password updated.' : ( result.data.message || 'Something went wrong.' ), ! result.ok );
 				if ( result.ok ) {
 					passwordForm.reset();
+				}
+			} );
+		} );
+	}
+
+	/* ---- Logged-in: remembered computers ---- */
+
+	var forgetButton = document.getElementById( 'nm-account-forget-computers' );
+	if ( forgetButton ) {
+		forgetButton.addEventListener( 'click', function () {
+			var noticeEl = document.getElementById( 'nm-account-notice' );
+			forgetButton.disabled = true;
+			postAccount( 'account-forget-computers', {} ).then( function ( result ) {
+				forgetButton.disabled = false;
+				notice( noticeEl, result.ok ? ( result.data.message || 'Done.' ) : ( result.data.message || 'Something went wrong.' ), ! result.ok );
+				if ( result.ok ) {
+					var text = document.querySelector( '[data-computers-text]' );
+					if ( text ) {
+						text.textContent = text.getAttribute( 'data-text-none' ) || text.textContent;
+					}
+					forgetButton.hidden = true;
 				}
 			} );
 		} );

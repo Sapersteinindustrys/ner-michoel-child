@@ -101,6 +101,33 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 					<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Update Password', 'ner-michoel-child' ); ?></button>
 				</form>
 
+				<?php
+				// Computers that skip the emailed log in code (ner-michoel-core's login-codes.php; an older plugin has none).
+				if ( function_exists( 'ner_michoel_trusted_count' ) ) :
+					$remembered = ner_michoel_trusted_count( $user_id );
+					?>
+					<h2 class="nm-account-subhead"><?php esc_html_e( 'Remembered Computers', 'ner-michoel-child' ); ?></h2>
+					<div class="nm-account-computers" id="nm-account-computers">
+						<p class="nm-account-panel__intro" data-computers-text
+							data-text-none="<?php echo esc_attr__( 'No computer is remembered. Every log in asks for a code from your email.', 'ner-michoel-child' ); ?>">
+							<?php
+							if ( $remembered > 0 ) {
+								echo esc_html(
+									sprintf(
+										/* translators: %d: how many computers */
+										_n( '%d computer is remembered. It logs in without asking for a code.', '%d computers are remembered. They log in without asking for a code.', $remembered, 'ner-michoel-child' ),
+										$remembered
+									)
+								);
+							} else {
+								esc_html_e( 'No computer is remembered. Every log in asks for a code from your email.', 'ner-michoel-child' );
+							}
+							?>
+						</p>
+						<button type="button" class="nm-contact-form__submit nm-account-computers__forget" id="nm-account-forget-computers"<?php echo $remembered > 0 ? '' : ' hidden'; ?>><?php esc_html_e( 'Forget Remembered Computers', 'ner-michoel-child' ); ?></button>
+					</div>
+				<?php endif; ?>
+
 				<p class="nm-account-logout">
 					<a href="<?php echo esc_url( wp_logout_url( home_url( '/account/' ) ) ); ?>"><?php esc_html_e( 'Log Out', 'ner-michoel-child' ); ?></a>
 				</p>
@@ -228,10 +255,10 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 				<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Create Account', 'ner-michoel-child' ); ?></button>
 			</form>
 
-			<?php // The code step: shown by account.js after sign-up (and when a not-yet-confirmed account logs in). ?>
+			<?php // The code step: shown by account.js after sign-up, when a not-yet-confirmed account logs in, and at every log in from a computer that isn't remembered. ?>
 			<form id="nm-account-verify-form" method="post" class="nm-contact-form nm-account-panel nm-verify" data-panel="verify" hidden novalidate>
 				<h2 class="nm-verify__title"><?php esc_html_e( 'Check your email', 'ner-michoel-child' ); ?></h2>
-				<p class="nm-account-panel__intro">
+				<p class="nm-account-panel__intro" data-verify-mode="signup">
 					<?php
 					printf(
 						/* translators: %s: the person's email address */
@@ -240,11 +267,20 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 					);
 					?>
 				</p>
+				<p class="nm-account-panel__intro" data-verify-mode="login" hidden>
+					<?php
+					printf(
+						/* translators: %s: the person's email address, partly hidden */
+						esc_html__( 'We sent a 6-digit code to %s to make sure it’s you. Enter it here to log in.', 'ner-michoel-child' ),
+						'<strong data-verify-email></strong>'
+					);
+					?>
+				</p>
 				<label class="nm-contact-form__field">
 					<?php esc_html_e( '6-digit code', 'ner-michoel-child' ); ?>
 					<input type="text" name="code" class="nm-verify__code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]*" maxlength="12" placeholder="123456" required />
 				</label>
-				<p class="nm-verify__hint">
+				<p class="nm-verify__hint" data-verify-mode="signup">
 						<?php
 						// Who the email says it is from (ner-michoel-core's ner_michoel_email_sender_name(); an older plugin doesn't have it).
 						$verify_sender = function_exists( 'ner_michoel_email_sender_name' ) ? ner_michoel_email_sender_name() : '';
@@ -259,11 +295,35 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 						}
 						?>
 					</p>
-				<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Verify & Continue', 'ner-michoel-child' ); ?></button>
+				<p class="nm-verify__hint" data-verify-mode="login" hidden>
+					<?php
+					if ( $verify_sender ) {
+						printf(
+							/* translators: %s: who the email is from (Yeshivas Toras Moshe) */
+							esc_html__( 'Look for an email from %s. Can’t find it? Check your spam folder. The code works for 10 minutes.', 'ner-michoel-child' ),
+							'<strong>' . esc_html( $verify_sender ) . '</strong>'
+						);
+					} else {
+						esc_html_e( 'Can’t find it? Check your spam folder. The code works for 10 minutes.', 'ner-michoel-child' );
+					}
+					?>
+				</p>
+				<?php // Log in only: remember this computer so the next log in here skips the code. account.js fills in the number of days. ?>
+				<label class="nm-contact-form__check nm-verify__remember" data-verify-mode="login" hidden>
+					<input type="checkbox" name="remember" value="1" checked />
+					<span data-verify-remember
+						data-text-one="<?php echo esc_attr__( 'Remember this computer for %d day, so I don’t need a code here next time', 'ner-michoel-child' ); ?>"
+						data-text-many="<?php echo esc_attr__( 'Remember this computer for %d days, so I don’t need a code here next time', 'ner-michoel-child' ); ?>"><?php esc_html_e( 'Remember this computer, so I don’t need a code here next time', 'ner-michoel-child' ); ?></span>
+				</label>
+				<button type="submit" class="nm-contact-form__submit"
+					data-signup-text="<?php echo esc_attr__( 'Verify & Continue', 'ner-michoel-child' ); ?>"
+					data-login-text="<?php echo esc_attr__( 'Log In', 'ner-michoel-child' ); ?>"><?php esc_html_e( 'Verify & Continue', 'ner-michoel-child' ); ?></button>
 				<div class="nm-verify__links">
 					<button type="button" class="nm-verify__link" data-verify-resend><?php esc_html_e( 'Resend code', 'ner-michoel-child' ); ?></button>
 					<span aria-hidden="true">·</span>
-					<a href="#" class="nm-account-link" data-verify-restart><?php esc_html_e( 'Wrong email? Start over', 'ner-michoel-child' ); ?></a>
+					<a href="#" class="nm-account-link" data-verify-restart
+						data-signup-text="<?php echo esc_attr__( 'Wrong email? Start over', 'ner-michoel-child' ); ?>"
+						data-login-text="<?php echo esc_attr__( 'Back to Log In', 'ner-michoel-child' ); ?>"><?php esc_html_e( 'Wrong email? Start over', 'ner-michoel-child' ); ?></a>
 				</div>
 				<?php // Only shown when every code for this sign-up has been sent: a reset link confirms the email too. ?>
 				<p class="nm-verify__hint" data-verify-forgot-wrap hidden>

@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.68' );
+define( 'NER_MICHOEL_VERSION', '0.2.69' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -207,6 +207,18 @@ function ner_michoel_email_verification_support() {
 	add_theme_support( 'nm-email-verification' );
 }
 add_action( 'after_setup_theme', 'ner_michoel_email_verification_support' );
+
+/**
+ * Tells ner-michoel-core that the Account page has the sign-in code step (the same
+ * "enter your code" form, page-templates/account.php and assets/js/account.js), so
+ * a log in asks for an emailed 6-digit code unless the computer is remembered.
+ * Until a theme says this the plugin sends people to wp-login.php instead of
+ * emailing a code this page could not take, so the two can be updated in either order.
+ */
+function ner_michoel_login_code_support() {
+	add_theme_support( 'nm-login-code' );
+}
+add_action( 'after_setup_theme', 'ner_michoel_login_code_support' );
 
 /**
  * Opens the two Google Fonts connections at the top of the head on pages that load

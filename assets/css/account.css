@@ -277,6 +277,32 @@
 	margin-top: 3px;
 }
 
+/* The code step's "remember this computer" box (log in only), and the profile's
+   Remembered Computers section. */
+.nm-verify .nm-verify__remember {
+	margin: -2px 0 0;
+	font-size: 0.9rem;
+	color: var(--nm-text-muted);
+}
+
+/* Their own display rules would otherwise beat the hidden attribute. */
+.nm-verify .nm-verify__remember[hidden],
+.nm-account-computers .nm-account-computers__forget[hidden] {
+	display: none;
+}
+
+.nm-account-computers {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	margin: 0 0 8px;
+}
+
+.nm-account-computers .nm-account-panel__intro {
+	margin: 0;
+}
+
 /* Continue a series (History tab): series, last shiur played, and a Play that
    queues the rest of the series in order. */
 .nm-continue-grid {
