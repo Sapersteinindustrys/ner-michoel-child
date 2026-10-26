@@ -310,10 +310,11 @@ function ner_michoel_home_new_data() {
 			$photo = get_the_post_thumbnail_url( $post, 'thumbnail' );
 			$parts = ner_michoel_theme_mazal_parts( $post );
 
-			// "Name (years)" and what the Mazal Tov is. No date: an announcement is not shown with when it was posted.
+			// The words before the name, "Name (years)", and what the Mazal Tov is. No date: an announcement is not shown with when it was posted.
 			$data['mazal'][] = array(
+				'before'    => $parts['before'],
 				'lead'      => $parts['lead'],
-				'rest'      => $parts['rest'],
+				'after'     => $parts['after'],
 				'type'      => $type ? $type->name : '',
 				'type_slug' => $type ? sanitize_html_class( $type->slug ) : '',
 				'photo'     => $photo ? $photo : '',

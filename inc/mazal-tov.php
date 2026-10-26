@@ -18,16 +18,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * The two pieces of an announcement to print: 'lead' (the name with his years, shown
- * bold) and 'rest' (what the Mazal Tov is). Plain text: escape it where it is printed.
+ * The pieces of an announcement to print, in reading order: 'before' (words ahead of the
+ * name, like "Mazel tov to Rabbi & Mrs."), 'lead' (the name with his years, shown bold) and
+ * 'after' (what the Mazal Tov is). Plain text: escape it where it is printed.
  */
 function ner_michoel_theme_mazal_parts( $post ) {
 	$post = get_post( $post );
 	if ( ! $post ) {
-		return array( 'lead' => '', 'rest' => '' );
+		return array( 'before' => '', 'lead' => '', 'after' => '' );
 	}
 	if ( function_exists( 'ner_michoel_mazal_tov_parts' ) ) {
-		return ner_michoel_mazal_tov_parts( $post );
+		$parts = ner_michoel_mazal_tov_parts( $post );
+		// A plugin from before the name could sit in the middle only knows lead and rest.
+		return array(
+			'before' => isset( $parts['before'] ) ? $parts['before'] : '',
+			'lead'   => $parts['lead'],
+			'after'  => isset( $parts['after'] ) ? $parts['after'] : ( isset( $parts['rest'] ) ? $parts['rest'] : '' ),
+		);
 	}
 	$relationship = function_exists( 'ner_michoel_get_mazal_tov_relationship' ) ? ner_michoel_get_mazal_tov_relationship( $post->ID ) : '';
 	$years        = function_exists( 'ner_michoel_get_mazal_tov_years' ) ? ner_michoel_get_mazal_tov_years( $post->ID ) : '';
@@ -35,7 +42,15 @@ function ner_michoel_theme_mazal_parts( $post ) {
 	if ( '' !== $years ) {
 		$lead .= ' (' . $years . ')';
 	}
-	return array( 'lead' => $lead, 'rest' => '' );
+	return array( 'before' => '', 'lead' => $lead, 'after' => '' );
+}
+
+/**
+ * The kinds of simcha a visitor can pick on the share form: the admin's presets, as id => name.
+ * Empty when there are none (or the plugin is behind), and the form then asks for the words itself.
+ */
+function ner_michoel_mazal_share_choices() {
+	return function_exists( 'ner_michoel_mazal_tov_share_choices' ) ? ner_michoel_mazal_tov_share_choices() : array();
 }
 
 /** The name of an announcement's type ("Birth"), '' when it has none. */

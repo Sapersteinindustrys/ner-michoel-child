@@ -247,7 +247,7 @@ $site_name  = ner_michoel_site_name();
 									<p class="hn-mt__type"><?php echo esc_html( $mazal['type'] ); ?></p>
 								<?php endif; ?>
 								<p class="hn-mt__name">
-									<strong class="hn-mt__lead"><?php echo esc_html( $mazal['lead'] ); ?></strong><?php if ( '' !== $mazal['rest'] ) : ?> <span class="hn-mt__rest"><?php echo esc_html( $mazal['rest'] ); ?></span><?php endif; ?>
+									<?php if ( '' !== $mazal['before'] ) : ?><span class="hn-mt__rest"><?php echo esc_html( $mazal['before'] ); ?></span> <?php endif; ?><strong class="hn-mt__lead"><?php echo esc_html( $mazal['lead'] ); ?></strong><?php if ( '' !== $mazal['after'] ) : ?> <span class="hn-mt__rest"><?php echo esc_html( $mazal['after'] ); ?></span><?php endif; ?>
 								</p>
 							</div>
 						</li>
