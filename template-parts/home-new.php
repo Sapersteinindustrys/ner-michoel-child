@@ -104,6 +104,8 @@ $site_name  = ner_michoel_site_name();
 	}
 	?>
 
+	<?php get_template_part( 'template-parts/home-week' ); // This week's parsha and the Yom Tov in season (inc/week.php). ?>
+
 	<div class="hn-main">
 
 		<section class="hn-panel hn-feed" aria-labelledby="hn-feed-title">
