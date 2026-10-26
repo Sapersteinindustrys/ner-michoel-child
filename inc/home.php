@@ -305,20 +305,18 @@ function ner_michoel_home_new_data() {
 			)
 		);
 		foreach ( $mazal as $post ) {
-			$types     = taxonomy_exists( 'mazal_tov_type' ) ? get_the_terms( $post, 'mazal_tov_type' ) : false;
-			$type      = ( $types && ! is_wp_error( $types ) ) ? $types[0] : null;
-			$timestamp = (int) get_post_time( 'U', true, $post );
-			$photo     = get_the_post_thumbnail_url( $post, 'thumbnail' );
+			$types = taxonomy_exists( 'mazal_tov_type' ) ? get_the_terms( $post, 'mazal_tov_type' ) : false;
+			$type  = ( $types && ! is_wp_error( $types ) ) ? $types[0] : null;
+			$photo = get_the_post_thumbnail_url( $post, 'thumbnail' );
+			$parts = ner_michoel_theme_mazal_parts( $post );
 
+			// "Name (years)" and what the Mazal Tov is. No date: an announcement is not shown with when it was posted.
 			$data['mazal'][] = array(
-				'name'         => get_the_title( $post ),
-				'relationship' => function_exists( 'ner_michoel_get_mazal_tov_relationship' ) ? ner_michoel_get_mazal_tov_relationship( $post->ID ) : '',
-				'years'        => function_exists( 'ner_michoel_get_mazal_tov_years' ) ? ner_michoel_get_mazal_tov_years( $post->ID ) : '',
-				'type'         => $type ? $type->name : '',
-				'type_slug'    => $type ? sanitize_html_class( $type->slug ) : '',
-				'photo'        => $photo ? $photo : '',
-				'when'         => ner_michoel_home_when( $timestamp ),
-				'iso'          => $timestamp ? gmdate( 'c', $timestamp ) : '',
+				'lead'      => $parts['lead'],
+				'rest'      => $parts['rest'],
+				'type'      => $type ? $type->name : '',
+				'type_slug' => $type ? sanitize_html_class( $type->slug ) : '',
+				'photo'     => $photo ? $photo : '',
 			);
 		}
 	}

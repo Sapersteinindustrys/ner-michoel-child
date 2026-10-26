@@ -38,8 +38,6 @@ if ( post_type_exists( 'mazal_tov' ) ) {
 	);
 	$mazal_tovs = $mt_query->posts;
 }
-
-$has_mazal_tov_type_tax = taxonomy_exists( 'mazal_tov_type' );
 ?>
 
 <div class="nm-app<?php echo 'classic' === $layout ? ' nm-app--classic' : ''; ?>">
@@ -74,39 +72,19 @@ $has_mazal_tov_type_tax = taxonomy_exists( 'mazal_tov_type' );
 		<?php endif; ?>
 	</section>
 
-	<?php if ( $mazal_tovs ) : ?>
+	<?php if ( $mazal_tovs || ner_michoel_mazal_share_ready() ) : ?>
 	<section class="sh-section">
 		<h2 class="sh-section__title"><?php esc_html_e( 'Mazal Tov', 'ner-michoel-child' ); ?></h2>
+		<?php if ( ner_michoel_mazal_share_ready() ) : ?>
+			<p class="sh-mazal-tov-section__actions"><?php ner_michoel_mazal_share_button( 'sh-mazal-tov-share-btn' ); ?></p>
+		<?php endif; ?>
 		<div class="sh-mazal-tov-list">
 			<?php foreach ( $mazal_tovs as $mt ) : ?>
-				<?php
-				$relationship = function_exists( 'ner_michoel_get_mazal_tov_relationship' ) ? ner_michoel_get_mazal_tov_relationship( $mt->ID ) : '';
-				$years        = function_exists( 'ner_michoel_get_mazal_tov_years' ) ? ner_michoel_get_mazal_tov_years( $mt->ID ) : '';
-				$type_name    = '';
-				if ( $has_mazal_tov_type_tax ) {
-					$type_terms = get_the_terms( $mt->ID, 'mazal_tov_type' );
-					if ( $type_terms && ! is_wp_error( $type_terms ) ) {
-						$type_name = $type_terms[0]->name;
-					}
-				}
-				?>
-				<div class="sh-mazal-tov-item">
-					<?php if ( $type_name ) : ?>
-						<span class="sh-mazal-tov-item__type"><?php echo esc_html( $type_name ); ?></span>
-					<?php endif; ?>
-					<span class="sh-mazal-tov-item__name">
-						<?php if ( $relationship ) : ?>
-							<?php echo esc_html( $relationship ); ?>
-						<?php endif; ?>
-						<?php echo esc_html( get_the_title( $mt ) ); ?>
-						<?php if ( $years ) : ?>
-							<span class="sh-mazal-tov-item__years">(<?php echo esc_html( $years ); ?>)</span>
-						<?php endif; ?>
-					</span>
-				</div>
+				<?php get_template_part( 'template-parts/mazal-tov-item', null, array( 'post' => $mt ) ); ?>
 			<?php endforeach; ?>
 		</div>
 	</section>
+	<?php get_template_part( 'template-parts/mazal-tov-share' ); ?>
 	<?php endif; ?>
 </div>
 

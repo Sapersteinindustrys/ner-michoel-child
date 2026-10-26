@@ -245,21 +245,8 @@ $site_name  = ner_michoel_site_name();
 									<p class="hn-mt__type"><?php echo esc_html( $mazal['type'] ); ?></p>
 								<?php endif; ?>
 								<p class="hn-mt__name">
-									<?php if ( $mazal['relationship'] ) : ?>
-										<span class="hn-mt__rel"><?php echo esc_html( $mazal['relationship'] ); ?></span>
-									<?php endif; ?>
-									<?php echo esc_html( $mazal['name'] ); ?>
+									<strong class="hn-mt__lead"><?php echo esc_html( $mazal['lead'] ); ?></strong><?php if ( '' !== $mazal['rest'] ) : ?> <span class="hn-mt__rest"><?php echo esc_html( $mazal['rest'] ); ?></span><?php endif; ?>
 								</p>
-								<?php if ( $mazal['years'] || $mazal['when'] ) : ?>
-									<p class="hn-mt__meta">
-										<?php if ( $mazal['years'] ) : ?>
-											<span><?php echo esc_html( $mazal['years'] ); ?></span>
-										<?php endif; ?>
-										<?php if ( $mazal['when'] ) : ?>
-											<time datetime="<?php echo esc_attr( $mazal['iso'] ); ?>"><?php echo esc_html( $mazal['when'] ); ?></time>
-										<?php endif; ?>
-									</p>
-								<?php endif; ?>
 							</div>
 						</li>
 					<?php endforeach; ?>
@@ -271,7 +258,8 @@ $site_name  = ner_michoel_site_name();
 			<footer class="hn-mazal__foot">
 				<p class="hn-mazal__ask"><?php esc_html_e( 'Have a simcha to share?', 'ner-michoel-child' ); ?></p>
 				<div class="hn-mazal__actions">
-					<a class="hn-btn hn-btn--gold" href="<?php echo esc_url( $urls['contact'] ); ?>"><?php esc_html_e( 'Send us your news', 'ner-michoel-child' ); ?></a>
+					<?php // Opens the share form over the page (assets/js/mazal-tov-share.js); a plain link to Contact until it does, or on a plugin that can't take one. ?>
+						<?php ner_michoel_mazal_share_button( 'hn-btn hn-btn--gold' ); ?>
 					<?php if ( $home['mazal'] && $urls['mazal'] ) : ?>
 						<a class="hn-more" href="<?php echo esc_url( $urls['mazal'] ); ?>"><?php esc_html_e( 'All announcements', 'ner-michoel-child' ); ?> <?php echo ner_michoel_line_icon( 'arrow-right' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></a>
 					<?php endif; ?>
@@ -280,6 +268,7 @@ $site_name  = ner_michoel_site_name();
 					<a class="hn-mazal__admin" href="<?php echo esc_url( $urls['post_mazal'] ); ?>">+ <?php esc_html_e( 'Post a Mazal Tov', 'ner-michoel-child' ); ?></a>
 				<?php endif; ?>
 			</footer>
+			<?php get_template_part( 'template-parts/mazal-tov-share' ); ?>
 		</aside>
 
 	</div>
