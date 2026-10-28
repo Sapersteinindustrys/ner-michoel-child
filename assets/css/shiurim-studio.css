@@ -64,14 +64,6 @@ body.sh-layout-studio.is-shiurim {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-/* Bottom placements of the layout switch go above the player bar, as in Modern
-   (custom.css) and 24Six (shiurim-navigation.css). */
-body.is-shiurim.sh-layout-studio .sh-layout-toggle--bottom-left,
-body.is-shiurim.sh-layout-studio .sh-layout-toggle--bottom-center,
-body.is-shiurim.sh-layout-studio .sh-layout-toggle--bottom-right {
-	bottom: calc(var(--sh-player-height) + var(--nm-toggle-offset));
-}
-
 /* Artwork with no picture: navy, with the serif initial. */
 body.sh-layout-studio .sh-placeholder-art {
 	background: linear-gradient(150deg, var(--st-navy-2), var(--nm-look-hero-3, #0e1b33));
@@ -769,6 +761,20 @@ body.sh-layout-studio .shiurim-app button:focus-visible {
 .st .st-row__meta > span + span::before {
 	content: "·";
 	margin-right: 8px;
+	color: var(--st-faint);
+}
+
+/* The shiur's date, English then Hebrew, on a line of its own under the speaker
+   and series (each date stays whole: .sh-dates__eng / __heb don't wrap). */
+.st .st-row__dates {
+	min-width: 0;
+	color: var(--st-muted);
+	font-size: 0.82rem;
+	line-height: 1.45;
+}
+
+.st .st-row__dates .sh-dates__sep {
+	margin: 0 2px;
 	color: var(--st-faint);
 }
 

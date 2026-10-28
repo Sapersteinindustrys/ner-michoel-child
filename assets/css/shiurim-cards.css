@@ -129,7 +129,7 @@
 	color: var(--sh-text, #fff);
 }
 
-/* Page links under a long track list (a topic page), on the dark layouts. */
+/* Page links under a long track list (a topic page). */
 .shiurim-app:not(.shiurim-app--classic) .sh-classic-pagination {
 	margin-top: 20px;
 }

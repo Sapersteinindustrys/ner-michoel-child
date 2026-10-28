@@ -78,7 +78,6 @@ $title_empty    = __( 'Search shiurim', 'ner-michoel-child' );
 
 			<?php
 			$labels      = function_exists( 'ner_michoel_shiur_search_labels' ) ? ner_michoel_shiur_search_labels( $term ) : array();
-			$is_carousel = '24six' === ner_michoel_get_layout();
 			$current     = null;
 			$shown       = 0;
 			?>
@@ -93,12 +92,12 @@ $title_empty    = __( 'Search shiurim', 'ner-michoel-child' );
 					// A new tier: close the previous group and open this one's heading.
 					if ( $label !== $current ) {
 						if ( null !== $current ) {
-							ner_michoel_render_card_collection_end( $is_carousel );
+							ner_michoel_render_card_collection_end( false );
 							echo '</section>';
 						}
 						echo '<section class="sh-section">';
 						echo '<h2 class="sh-section__title">' . esc_html( $label ) . '</h2>';
-						ner_michoel_render_card_collection_start( $is_carousel );
+						ner_michoel_render_card_collection_start( false );
 						$current = $label;
 					}
 
@@ -119,7 +118,7 @@ $title_empty    = __( 'Search shiurim', 'ner-michoel-child' );
 				endwhile;
 
 				if ( null !== $current ) {
-					ner_michoel_render_card_collection_end( $is_carousel );
+					ner_michoel_render_card_collection_end( false );
 					echo '</section>';
 				}
 				?>

@@ -1,11 +1,9 @@
 <?php
 /**
  * A topic's page: every shiur tagged with it (ner-michoel-core includes/topics.php).
- * Layouts as on the series page:
- * - Modern / 24Six: a header with Play All, the topic's shiurim as a track list
- *   (40 a page, newest first: some topics have over a thousand), then on the
- *   first page its written shiurim, as cards.
- * - Classic: the plain table, paged the same way.
+ * A header with Play All, the topic's shiurim as a track list (40 a page, newest
+ * first: some topics have over a thousand), then on the first page its written
+ * shiurim, as cards.
  *
  * Under the header is a search box for this topic (ner_michoel_render_topic_search(),
  * inc/search.php), which looks through all of the topic's shiurim, not just the
@@ -18,32 +16,14 @@ get_header();
 global $wp_query;
 $term = get_queried_object();
 
-if ( 'classic' === ner_michoel_get_layout() ) :
-	?>
-	<div class="shiurim-app shiurim-app--classic">
-		<?php ner_michoel_render_return_link(); ?>
-		<header class="sh-page-header">
-			<h1><?php echo esc_html( $term->name ); ?></h1>
-		</header>
-		<?php ner_michoel_render_topic_search( $term ); ?>
-		<div data-topic-browse>
-			<?php ner_michoel_render_classic_table( $wp_query, true, true ); ?>
-			<?php ner_michoel_render_classic_pagination( $wp_query ); ?>
-		</div>
-	</div>
-	<?php
-	get_footer();
-	return;
-endif;
-
 $shiurim     = $wp_query->posts;
 if ( $shiurim && function_exists( 'ner_michoel_prime_shiur_caches' ) ) {
 	// The track list builds a track for each shiur: load their data in a few queries first.
 	ner_michoel_prime_shiur_caches( wp_list_pluck( $shiurim, 'ID' ) );
 }
 $is_first    = max( 1, (int) get_query_var( 'paged' ) ) === 1;
-// Swipeable rows in 24Six, and in Studio, which takes them from 24Six.
-$is_carousel = in_array( ner_michoel_get_layout(), array( '24six', 'studio' ), true );
+// Swipeable rows (the written shiurim cards).
+$is_carousel = true;
 $label       = function_exists( 'ner_michoel_topic_season_label' ) ? ner_michoel_topic_season_label( $term->term_id ) : '';
 $found       = (int) $wp_query->found_posts;
 

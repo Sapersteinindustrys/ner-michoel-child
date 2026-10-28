@@ -1,8 +1,7 @@
 /*
  * Live search on the Shiurim search page (search-shiurim.php, shiur-live-search.js).
- * Colours come from the app shell's variables (body.is-nm-app in custom.css), so
- * it reads on the dark Modern and 24Six layouts. Classic only redefines the text
- * colours there, so it gets its own light surface and border below.
+ * Colours come from the app shell's variables (body.is-nm-app in custom.css and
+ * the Studio look in shiurim-studio.css).
  */
 
 .nm-live-search {
@@ -11,11 +10,6 @@
 
 .nm-live-search[hidden] {
 	display: none;
-}
-
-body.sh-layout-classic .nm-live-search {
-	--sh-surface: #fff;
-	--sh-border: #c9d1d9;
 }
 
 .nm-live-search__query,

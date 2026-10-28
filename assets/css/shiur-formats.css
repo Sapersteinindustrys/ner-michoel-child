@@ -1,0 +1,157 @@
+/*
+ * One shiur in more than one format (inc/shiur-formats.php).
+ *
+ * Two pieces, both drawn in currentColor so they suit every look the site
+ * has (Modern, 24Six, Studio, Classic, the reading room, the homepage):
+ * - .nm-fmts: the small "Audio · Written" label on a list row or card;
+ * - .nm-formats: the Listen / Watch / Read switch on a shiur's own page.
+ */
+
+/* ---------- the label on lists and cards ---------- */
+
+.nm-fmts {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 6px;
+	margin-top: 4px;
+	font-size: 0.72rem;
+	font-style: normal;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	line-height: 1;
+	text-decoration: none;
+	text-transform: none;
+	white-space: nowrap;
+}
+
+/* In a grid (the Studio and homepage rows) the label sits on its own line,
+   as wide as its chips, not stretched across the row. */
+.nm-fmts {
+	justify-self: start;
+	align-self: start;
+}
+
+.nm-fmt {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 7px 3px 6px;
+	border: 1px solid rgba(128, 128, 128, 0.45);
+	border-radius: 999px;
+	color: inherit;
+	opacity: 0.85;
+}
+
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+	.nm-fmt {
+		border-color: color-mix(in srgb, currentColor 35%, transparent);
+	}
+}
+
+.nm-fmt__icon {
+	flex: 0 0 auto;
+	width: 12px;
+	height: 12px;
+}
+
+/* A title with badges, in the Classic table: the label follows on the same line. */
+.sh-classic-table .nm-fmts {
+	margin: 0 0 0 8px;
+	vertical-align: middle;
+}
+
+/* A written sheet: under the speaker's name, inside the paper. */
+.nm-sheet__body .nm-fmts {
+	margin-top: 10px;
+	color: var(--rr-muted, inherit);
+}
+
+/* ---------- the switch on a shiur's own page ---------- */
+
+.nm-formats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px;
+	width: fit-content;
+	max-width: 100%;
+	margin: 14px 0 6px;
+	padding: 3px;
+	border: 1px solid rgba(128, 128, 128, 0.45);
+	border-radius: 999px;
+}
+
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+	.nm-formats {
+		border-color: color-mix(in srgb, currentColor 30%, transparent);
+	}
+}
+
+.nm-formats .nm-formats__opt {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 40px;
+	padding: 0 18px;
+	border-radius: 999px;
+	color: inherit;
+	font-size: 0.92rem;
+	font-weight: 600;
+	line-height: 1;
+	text-decoration: none;
+}
+
+.nm-formats .nm-formats__opt .nm-fmt__icon {
+	width: 16px;
+	height: 16px;
+}
+
+.nm-formats a.nm-formats__opt:hover,
+.nm-formats a.nm-formats__opt:focus-visible {
+	background: rgba(128, 128, 128, 0.18);
+	color: inherit;
+	text-decoration: none;
+}
+
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+	.nm-formats a.nm-formats__opt:hover,
+	.nm-formats a.nm-formats__opt:focus-visible {
+		background: color-mix(in srgb, currentColor 12%, transparent);
+	}
+}
+
+.nm-formats a.nm-formats__opt:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 1px;
+}
+
+/* The page you are on. */
+.nm-formats .nm-formats__opt.is-current {
+	background: rgba(128, 128, 128, 0.28);
+	box-shadow: inset 0 0 0 1.5px currentColor;
+	cursor: default;
+}
+
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+	.nm-formats .nm-formats__opt.is-current {
+		background: color-mix(in srgb, currentColor 16%, transparent);
+	}
+}
+
+/* A written shiur's header is centred: so is the switch, with a little room before the buttons below it. */
+.nm-formats.nm-formats--doc {
+	margin: 18px auto 4px;
+}
+
+/* On a phone the switch spans the width and each option takes its share. */
+@media (max-width: 520px) {
+	.nm-formats {
+		width: 100%;
+	}
+
+	.nm-formats .nm-formats__opt {
+		flex: 1 1 0;
+		padding: 0 10px;
+	}
+}

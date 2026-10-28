@@ -471,9 +471,9 @@
 	// across a reload, otherwise taken from the referrer).
 	window.history.replaceState( keepEntryState(), '', window.location.href );
 
-	// Exposed so custom.js's layout-toggle can re-fetch the current page
-	// through the router (keeping #sh-player alive) instead of
-	// window.location.reload() when the visitor switches layout.
+	// Exposed so a script (and the tests) can re-fetch the current page
+	// through the router, keeping #sh-player alive, instead of
+	// window.location.reload().
 	window.nmRouterNavigate = navigate;
 
 	// Exposed for the tests: where Back would go, for the inputs given.

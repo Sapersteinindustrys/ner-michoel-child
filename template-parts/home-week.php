@@ -13,12 +13,28 @@ $occasions = function_exists( 'ner_michoel_home_week_data' ) ? ner_michoel_home_
 if ( ! $occasions ) {
 	return;
 }
+$switch = function_exists( 'ner_michoel_home_week_switch' ) ? ner_michoel_home_week_switch() : null;
 ?>
 
 <div class="hn-week">
+	<?php if ( $switch ) : ?>
+		<?php /* In the weeks Chutz La'aretz and Eretz Yisroel read different parshiyos: both boxes are here, one hidden, and these buttons swap them (assets/js/home-week.js, which also unhides the buttons: without script the first place's box stays). */ ?>
+		<div class="hn-region" data-hn-region data-default="<?php echo esc_attr( $switch['default'] ); ?>" hidden>
+			<p class="hn-region__label" id="hn-region-label"><?php esc_html_e( 'The parsha differs this week:', 'ner-michoel-child' ); ?></p>
+			<div class="hn-region__buttons" role="group" aria-labelledby="hn-region-label">
+				<?php foreach ( $switch['labels'] as $region => $label ) : ?>
+					<?php $is_first = $region === $switch['default']; ?>
+					<button type="button" class="hn-region__btn<?php echo $is_first ? ' is-active' : ''; ?>" data-hn-region-set="<?php echo esc_attr( $region ); ?>" aria-pressed="<?php echo $is_first ? 'true' : 'false'; ?>"><?php echo esc_html( $label ); ?></button>
+				<?php endforeach; ?>
+			</div>
+			<?php foreach ( $switch['notes'] as $region => $note ) : ?>
+				<p class="hn-region__note" data-hn-region-note="<?php echo esc_attr( $region ); ?>" role="status"<?php echo $region === $switch['default'] ? '' : ' hidden'; ?>><?php echo esc_html( $note ); ?></p>
+			<?php endforeach; ?>
+		</div>
+	<?php endif; ?>
 	<?php foreach ( $occasions as $index => $occasion ) : ?>
 		<?php $title_id = 'hn-week-title-' . (int) $index; ?>
-		<section class="hn-panel hn-occasion hn-occasion--<?php echo esc_attr( $occasion['type'] ); ?>" aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
+		<section class="hn-panel hn-occasion hn-occasion--<?php echo esc_attr( $occasion['type'] ); ?>"<?php echo $occasion['region'] ? ' data-hn-region-panel="' . esc_attr( $occasion['region'] ) . '"' : ''; ?><?php echo $occasion['hidden'] ? ' hidden' : ''; ?> aria-labelledby="<?php echo esc_attr( $title_id ); ?>">
 			<div class="hn-occasion__intro">
 				<p class="hn-occasion__kicker"><?php echo esc_html( $occasion['kicker'] ); ?></p>
 				<h2 class="hn-occasion__title" id="<?php echo esc_attr( $title_id ); ?>">
@@ -55,6 +71,7 @@ if ( ! $occasions ) {
 											<span class="hn-row__sefer"><?php echo esc_html( $row['sefer'] ); ?></span>
 										<?php endif; ?>
 									</span>
+									<?php ner_michoel_render_format_chips( $row['id'] ); ?>
 								</span>
 								<span class="hn-row__side">
 									<?php if ( $row['is_new'] ) : ?>
@@ -89,6 +106,7 @@ if ( ! $occasions ) {
 											<span><?php echo esc_html( $row['series'] ); ?></span>
 										<?php endif; ?>
 									</span>
+									<?php ner_michoel_render_format_chips( $row['id'] ); ?>
 								</span>
 								<span class="hn-row__side">
 									<?php if ( $row['is_new'] ) : ?>

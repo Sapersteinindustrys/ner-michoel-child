@@ -1,11 +1,10 @@
 <?php
 /**
- * Studio: the fourth Shiurim layout ('studio' in ner_michoel_get_layout()).
+ * Studio: the Shiurim look.
  *
  * The new homepage's look (template-parts/home-new.php, assets/css/home.css)
  * brought to the Shiurim pages: light panels, a navy and gold hero, serif
- * headings. From Modern it keeps the clean grid and lists; from 24Six the
- * swipeable rows. The Shiurim home (archive-shiur.php) gets its own page
+ * headings, clean grids and lists, and swipeable rows. The Shiurim home (archive-shiur.php) gets its own page
  * (template-parts/shiurim-studio.php): a hero with search, the newest shiurim
  * and the speakers side by side, what's in season, the series in rows by
  * category, and the topics. The other Shiurim pages keep their markup and
@@ -20,10 +19,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * True on a Shiurim page in the Studio layout.
+ * True on a Shiurim page.
  */
 function ner_michoel_is_studio() {
-	return 'studio' === ner_michoel_get_layout() && ner_michoel_is_shiurim_context();
+	return ner_michoel_is_shiurim_context();
 }
 
 /**
@@ -107,6 +106,7 @@ function ner_michoel_studio_shiur( $post ) {
 	$timestamp = (int) get_post_time( 'U', true, $post );
 	$is_video  = function_exists( 'ner_michoel_shiur_is_video' ) && ner_michoel_shiur_is_video( $post->ID );
 	$track     = $is_video ? array() : ner_michoel_build_track_queue( array( $post ) );
+	$dates     = ner_michoel_get_shiur_dates( $post );
 
 	return array(
 		'id'        => $post->ID,
@@ -122,6 +122,8 @@ function ner_michoel_studio_shiur( $post ) {
 		'is_new'    => $timestamp && ( time() - $timestamp ) <= 14 * DAY_IN_SECONDS,
 		'when'      => ner_michoel_studio_when( $timestamp ),
 		'iso'       => $timestamp ? gmdate( 'c', $timestamp ) : '',
+		'date_eng'  => $dates['eng'],
+		'date_heb'  => $dates['heb'],
 		'length'    => function_exists( 'ner_michoel_get_shiur_duration' ) ? ner_michoel_studio_length( ner_michoel_get_shiur_duration( $post->ID ) ) : '',
 		'track'     => $track,
 		'queue_url' => ( $track && function_exists( 'ner_michoel_queue_url' ) ) ? ner_michoel_queue_url(
@@ -460,6 +462,10 @@ function ner_michoel_studio_shiur_row( $row ) {
 					<span><?php echo esc_html( $row['series'] ); ?></span>
 				<?php endif; ?>
 			</span>
+			<?php if ( ! empty( $row['date_eng'] ) ) : ?>
+				<span class="st-row__dates"><span class="sh-dates__eng"><?php echo esc_html( $row['date_eng'] ); ?></span><?php if ( ! empty( $row['date_heb'] ) ) : ?> <span class="sh-dates__sep" aria-hidden="true">&middot;</span> <span class="sh-dates__heb"><?php echo esc_html( $row['date_heb'] ); ?></span><?php endif; ?></span>
+			<?php endif; ?>
+			<?php ner_michoel_render_format_chips( $row['id'] ); ?>
 		</a>
 		<span class="st-row__side">
 			<?php if ( $row['is_new'] ) : ?>

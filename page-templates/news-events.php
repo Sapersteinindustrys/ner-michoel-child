@@ -4,7 +4,7 @@
  *
  * Combines News & Events (native WP Posts, category "news") with
  * Mazal Tov announcements on one page, matching the original site's
- * /index/news-events-mazal-tov. Two layouts, toggled top-right.
+ * /index/news-events-mazal-tov.
  *
  * Mazal Tov depends on a `mazal_tov` CPT the backend session hasn't
  * shipped yet, so that section is written defensively (post_type_exists
@@ -13,8 +13,6 @@
  */
 
 get_header();
-
-$layout = ner_michoel_get_layout();
 
 $news_query = new WP_Query(
 	array(
@@ -40,7 +38,7 @@ if ( post_type_exists( 'mazal_tov' ) ) {
 }
 ?>
 
-<div class="nm-app<?php echo 'classic' === $layout ? ' nm-app--classic' : ''; ?>">
+<div class="nm-app">
 	<header class="sh-page-header">
 		<h1><?php the_title(); ?></h1>
 	</header>

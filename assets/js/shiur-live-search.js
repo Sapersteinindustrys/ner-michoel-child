@@ -81,6 +81,28 @@
 		return new Date( ts * 1000 ).toLocaleDateString( undefined, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' } );
 	}
 
+	// The same day on the Hebrew calendar, "15 Cheshvan 5787", with the month
+	// spelled as the lists on the page do (ner_michoel_hebrew_date_label() in
+	// ner-michoel-core). Browsers have the calendar built in; one without it
+	// shows the English date alone.
+	var HEBREW_MONTHS = { Tishri: 'Tishrei', Heshvan: 'Cheshvan', Tevet: 'Teves', Tamuz: 'Tammuz' };
+	var hebrewFormat;
+	function formatHebrewDate( ts ) {
+		try {
+			hebrewFormat = hebrewFormat || new Intl.DateTimeFormat( 'en-u-ca-hebrew', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' } );
+			var part = {};
+			hebrewFormat.formatToParts( new Date( ts * 1000 ) ).forEach( function ( p ) {
+				part[ p.type ] = p.value;
+			} );
+			if ( ! part.day || ! part.month || ! part.year ) {
+				return '';
+			}
+			return part.day + ' ' + ( HEBREW_MONTHS[ part.month ] || part.month ) + ' ' + part.year;
+		} catch ( e ) {
+			return '';
+		}
+	}
+
 	/*
 	 * A list of results, a few at a time: the rows, the "Show more" button and the
 	 * count line. Shared by the search page and the topic box. Close matches come
@@ -90,6 +112,16 @@
 		var KIND = { a: t( 'audio', 'Audio' ), v: t( 'video', 'Video' ), w: t( 'written', 'Written' ) };
 		var found = { matches: [], exact: 0, close: 0 };
 		var shown = 0;
+
+		// "Audio", or "Audio + Written" for a shiur that comes in more than one format (the index's f key).
+		function kindLabel( it ) {
+			if ( it.f && it.f.length > 1 ) {
+				return it.f.split( '' ).map( function ( kind ) {
+					return KIND[ kind ] || '';
+				} ).filter( Boolean ).join( ' + ' );
+			}
+			return KIND[ it.c ] || '';
+		}
 
 		function row( it ) {
 			var li       = document.createElement( 'li' );
@@ -107,7 +139,8 @@
 				data.speakers[ it.a ] || '',
 				data.series[ it.s ] || '',
 				formatDate( it.t ),
-				KIND[ it.c ] || '',
+				formatHebrewDate( it.t ),
+				kindLabel( it ),
 				it.d || ''
 			].filter( Boolean ).join( ' · ' );
 			li.appendChild( meta );

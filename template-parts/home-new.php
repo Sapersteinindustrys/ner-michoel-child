@@ -145,6 +145,7 @@ $site_name  = ner_michoel_site_name();
 											<span><?php echo esc_html( $row['series'] ); ?></span>
 										<?php endif; ?>
 									</span>
+									<?php ner_michoel_render_format_chips( $row['id'] ); ?>
 								</span>
 								<span class="hn-row__side">
 									<?php if ( $row['is_new'] ) : ?>
@@ -183,6 +184,7 @@ $site_name  = ner_michoel_site_name();
 											<span class="hn-row__sefer"><?php echo esc_html( $row['sefer'] ); ?></span>
 										<?php endif; ?>
 									</span>
+									<?php ner_michoel_render_format_chips( $row['id'] ); ?>
 								</span>
 								<span class="hn-row__side">
 									<?php if ( $row['is_new'] ) : ?>

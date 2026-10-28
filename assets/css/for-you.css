@@ -1,19 +1,17 @@
 /*
  * "For you" (inc/for-you.php): a signed-in listener's own shelf.
  *
- *   1. Modern, 24Six, and the pages that use Modern's markup (also Studio's
- *      For you page): .sh-foryou
+ *   1. The For you page (the Shiurim markup): .sh-foryou
  *   2. Studio's Shiurim home: .st-foryou
  *   3. The New homepage: .hn-foryou
- *   4. Classic: .sh-classic-foryou
  *
- * Part 1 reads the app's own colour variables (--sh-text, --sh-accent, ...), so
- * it follows whichever layout is on. Parts 2 and 3 use Studio's and the
- * homepage's own tokens. Rules sit two or three classes deep, to outrank Astra's
- * element styles (h2, ul, a:hover, button) and each layout's own skin.
+ * Part 1 reads the app's own colour variables (--sh-text, --sh-accent, ...).
+ * Parts 2 and 3 use Studio's and the homepage's own tokens. Rules sit two or
+ * three classes deep, to outrank Astra's element styles (h2, ul, a:hover,
+ * button) and the look's own skin.
  */
 
-/* 1. Modern, 24Six and the generic Shiurim markup ------------------------------ */
+/* 1. The For you page ----------------------------------------------------------- */
 
 body.is-nm-app .shiurim-app .sh-foryou__bar {
 	display: flex;
@@ -62,17 +60,6 @@ body.is-nm-app .shiurim-app .sh-foryou .sh-foryou__more:focus {
 /* Play All sits beside its heading rather than under it. */
 body.is-nm-app .shiurim-app .sh-foryou__bar .sh-play-all {
 	margin: 0;
-}
-
-/* The row's arrows, on Modern's light page: white on the accent colour when pressed or focused. */
-body.sh-layout-stream.is-shiurim .shiurim-app .sh-foryou .sh-carousel__nav {
-	box-shadow: none;
-}
-
-body.sh-layout-stream.is-shiurim .shiurim-app .sh-foryou .sh-carousel__nav:hover,
-body.sh-layout-stream.is-shiurim .shiurim-app .sh-foryou .sh-carousel__nav:focus-visible {
-	background: var(--sh-accent);
-	color: #fff;
 }
 
 /* 2. Studio ----------------------------------------------------------------------- */
@@ -324,57 +311,4 @@ body.sh-layout-stream.is-shiurim .shiurim-app .sh-foryou .sh-carousel__nav:focus
 		margin-right: 16px;
 		margin-left: 16px;
 	}
-}
-
-/* 4. Classic ---------------------------------------------------------------------- */
-
-.shiurim-app--classic .sh-classic-foryou {
-	margin: 0 0 24px;
-	padding: 16px 20px 12px;
-	border: 1px solid var(--nm-border, rgba(0, 0, 0, 0.1));
-	border-radius: var(--nm-radius, 8px);
-	background: var(--nm-surface, #f7f7f7);
-}
-
-.shiurim-app--classic .sh-classic-foryou__head {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	justify-content: space-between;
-	gap: 4px 16px;
-}
-
-.shiurim-app--classic .sh-classic-foryou h2 {
-	margin: 0;
-	font-size: 1.15rem;
-}
-
-.shiurim-app--classic .sh-classic-foryou h3 {
-	margin: 14px 0 4px;
-	color: var(--nm-text-muted, #666);
-	font-size: 0.78rem;
-	font-weight: 700;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-}
-
-.shiurim-app--classic .sh-classic-foryou__lede {
-	margin: 4px 0 0;
-	color: var(--nm-text-muted, #666);
-	font-size: 0.92rem;
-}
-
-.shiurim-app--classic .sh-classic-foryou ul {
-	margin: 0 0 4px;
-	padding-left: 18px;
-}
-
-.shiurim-app--classic .sh-classic-foryou li {
-	margin: 3px 0;
-}
-
-.shiurim-app--classic .sh-classic-foryou .sh-classic-foryou__meta {
-	margin-left: 8px;
-	color: var(--nm-text-muted, #666);
-	font-size: 0.88rem;
 }

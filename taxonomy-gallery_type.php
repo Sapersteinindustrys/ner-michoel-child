@@ -2,7 +2,7 @@
 /**
  * One gallery-type section — this is what the nav actually links to
  * (/galleries/photo/, /galleries/video/, /galleries/videoshiurim/),
- * not the generic post-type archive. Two layouts, toggled top-right.
+ * not the generic post-type archive.
  */
 
 get_header();
@@ -16,7 +16,6 @@ $labels = array(
 );
 $title = isset( $labels[ $term->slug ] ) ? $labels[ $term->slug ] : $term->name;
 
-$layout    = ner_michoel_get_layout();
 $galleries = new WP_Query(
 	array(
 		'post_type'      => 'gallery',
@@ -34,36 +33,13 @@ $galleries = new WP_Query(
 );
 ?>
 
-<div class="nm-app<?php echo 'classic' === $layout ? ' nm-app--classic' : ''; ?>">
+<div class="nm-app">
 	<header class="sh-page-header">
 		<h1><?php echo esc_html( $title ); ?></h1>
 	</header>
 
 	<?php if ( ! $galleries->have_posts() ) : ?>
 		<p class="sh-empty"><?php esc_html_e( 'No galleries yet.', 'ner-michoel-child' ); ?></p>
-	<?php elseif ( 'classic' === $layout ) : ?>
-		<div class="sh-classic-gallery-grid">
-			<?php
-			while ( $galleries->have_posts() ) :
-				$galleries->the_post();
-				$cover = ner_michoel_get_gallery_cover_url( get_the_ID() );
-				?>
-				<a class="sh-classic-gallery-card" href="<?php the_permalink(); ?>">
-					<div class="sh-classic-gallery-card__art">
-						<?php if ( $cover ) : ?>
-							<img src="<?php echo esc_url( $cover ); ?>" alt="" loading="lazy" />
-						<?php else : ?>
-							<?php echo ner_michoel_placeholder_art( get_the_title() ); ?>
-						<?php endif; ?>
-					</div>
-					<div class="sh-classic-gallery-card__title"><?php the_title(); ?></div>
-					<div class="sh-classic-gallery-card__meta"><?php echo esc_html( ner_michoel_gallery_card_subtitle( get_the_ID() ) ); ?></div>
-				</a>
-				<?php
-			endwhile;
-			wp_reset_postdata();
-			?>
-		</div>
 	<?php else : ?>
 		<div class="sh-grid">
 			<?php

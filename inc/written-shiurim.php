@@ -136,6 +136,8 @@ function ner_michoel_written_data( $post, $full = false ) {
 		'pdf_url'      => $pdf_url,
 		'download_url' => function_exists( 'ner_michoel_get_written_shiur_download_url' ) ? ner_michoel_get_written_shiur_download_url( $post->ID ) : '',
 		'filesize'     => $filesize,
+		// Every format this shiur comes in, as "aw" (audio and written), or '' (inc/shiur-formats.php).
+		'formats'      => function_exists( 'ner_michoel_get_shiur_format_kinds' ) ? ner_michoel_get_shiur_format_kinds( $post->ID ) : '',
 	);
 }
 
@@ -337,6 +339,7 @@ function ner_michoel_render_written_sheet( $item, $variant = '' ) {
 				<?php if ( $item['speaker'] ) : ?>
 					<p class="nm-sheet__by" data-slot="by"><?php echo esc_html( $item['speaker']->name ); ?></p>
 				<?php endif; ?>
+				<?php echo function_exists( 'ner_michoel_format_chips_markup' ) ? ner_michoel_format_chips_markup( isset( $item['formats'] ) ? $item['formats'] : '', true ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in ner_michoel_format_chips_markup(). ?>
 			</div>
 
 			<footer class="nm-sheet__foot">
@@ -674,6 +677,7 @@ function ner_michoel_render_written_templates() {
 		'pdf_url'      => '',
 		'download_url' => '#',
 		'filesize'     => 0,
+		'formats'      => 'avw',
 	);
 	$week    = array(
 		'items' => array(),
@@ -735,6 +739,10 @@ function ner_michoel_written_index( $weeks ) {
 			}
 			if ( $item['download_url'] ) {
 				$row['w'] = wp_make_link_relative( $item['download_url'] );
+			}
+			// The formats it comes in ("aw"), when more than one: written-library.js shows them on the sheet.
+			if ( ! empty( $item['formats'] ) && strlen( $item['formats'] ) > 1 ) {
+				$row['o'] = $item['formats'];
 			}
 			if ( $flags ) {
 				$row['f'] = $flags;
@@ -827,15 +835,11 @@ function ner_michoel_written_related( $post_id ) {
 
 /**
  * The reading room needs the whole library in one query: it renders the
- * first weeks and indexes the rest for the script. Classic keeps
- * WordPress's own pagination, and the server search (search-written.php)
- * its own ranking and limit.
+ * first weeks and indexes the rest for the script. The server search
+ * (search-written.php) keeps its own ranking and limit.
  */
 function ner_michoel_written_archive_query( $query ) {
 	if ( is_admin() || ! $query->is_main_query() || $query->is_search() || ! $query->is_post_type_archive( 'written_shiur' ) ) {
-		return;
-	}
-	if ( 'classic' === ner_michoel_get_layout() ) {
 		return;
 	}
 	$query->set( 'posts_per_page', -1 );

@@ -6,11 +6,9 @@
  */
 
 get_header();
-
-$layout = ner_michoel_get_layout();
 ?>
 
-<div class="nm-app<?php echo 'classic' === $layout ? ' nm-app--classic' : ''; ?>">
+<div class="nm-app">
 	<header class="sh-page-header">
 		<h1><?php esc_html_e( 'Mazal Tov', 'ner-michoel-child' ); ?></h1>
 	</header>

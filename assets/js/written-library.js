@@ -265,6 +265,20 @@
 			fill( el, 'summary', it.x );
 			fill( el, 'by', speakers[ it.a ] );
 
+			// The formats this shiur comes in ("aw"): keep a chip for each, or drop the whole label.
+			var formats = slot( el, 'formats' );
+			if ( formats ) {
+				if ( it.o ) {
+					Array.prototype.forEach.call( formats.querySelectorAll( '[data-fmt]' ), function ( chip ) {
+						if ( it.o.indexOf( chip.getAttribute( 'data-fmt' ) ) === -1 ) {
+							chip.parentNode.removeChild( chip );
+						}
+					} );
+				} else {
+					formats.parentNode.removeChild( formats );
+				}
+			}
+
 			var date = slot( el, 'date' );
 			date.textContent = it.d;
 			date.setAttribute( 'datetime', new Date( it.t * 1000 ).toISOString() );

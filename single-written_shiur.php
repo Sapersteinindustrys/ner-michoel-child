@@ -21,7 +21,7 @@ while ( have_posts() ) :
 	$series  = $item['series'] ? get_term_link( $item['series'] ) : '';
 	$speaker = $item['speaker'] ? get_term_link( $item['speaker'] ) : '';
 	?>
-	<div class="nm-app nm-written-page nm-reading-room nm-reading nm-accent--<?php echo esc_attr( $item['slug'] ); ?><?php echo 'classic' === ner_michoel_get_layout() ? ' nm-app--classic' : ''; ?>">
+	<div class="nm-app nm-written-page nm-reading-room nm-reading nm-accent--<?php echo esc_attr( $item['slug'] ); ?>">
 		<?php ner_michoel_render_back_button(); ?>
 
 		<nav class="nm-crumbs" aria-label="<?php esc_attr_e( 'Breadcrumb', 'ner-michoel-child' ); ?>">
@@ -60,6 +60,8 @@ while ( have_posts() ) :
 					<span><?php echo esc_html( sprintf( /* translators: %s: file size, e.g. 175 KB */ __( 'PDF · %s', 'ner-michoel-child' ), size_format( $item['filesize'], 0 ) ) ); ?></span>
 				<?php endif; ?>
 			</p>
+
+			<?php ner_michoel_render_format_switch( get_the_ID(), 'nm-formats--doc' ); ?>
 
 			<div class="nm-doc__actions">
 				<?php if ( $item['pdf_url'] ) : ?>

@@ -38,63 +38,6 @@
 	}
 }
 
-.sh-written-list {
-	border-top: 1px solid var(--sh-border);
-}
-
-.sh-written-row {
-	display: grid;
-	grid-template-columns: 120px minmax(0, 1fr) auto;
-	align-items: center;
-	gap: 16px;
-	padding: 16px 0;
-	border-bottom: 1px solid var(--sh-border);
-}
-
-.sh-written-row__date {
-	color: var(--sh-text-muted);
-	font-size: 0.85rem;
-}
-
-.sh-written-row__title {
-	margin: 0 0 4px;
-	font-size: 1.05rem;
-}
-
-.sh-written-row__title a {
-	color: var(--sh-text);
-	text-decoration: none;
-}
-
-.sh-written-row__title a:hover,
-.sh-written-row__title a:focus-visible {
-	color: var(--sh-accent);
-}
-
-.sh-written-row__meta {
-	margin: 0;
-	color: var(--sh-text-muted);
-	font-size: 0.9rem;
-}
-
-.sh-written-row__summary {
-	margin: 6px 0 0;
-	color: var(--sh-text-muted);
-	font-size: 0.9rem;
-	line-height: 1.45;
-}
-
-.sh-written-row__pdf {
-	white-space: nowrap;
-}
-
-@media (max-width: 560px) {
-	.sh-written-row {
-		grid-template-columns: minmax(0, 1fr);
-		gap: 6px;
-	}
-}
-
 /* Written Shiurim search box (inc/search.php: ner_michoel_render_written_search_form()). */
 .sh-written-search {
 	display: flex;
@@ -199,7 +142,7 @@
 }
 
 /* ==========================================================================
-   The reading room (Modern and 24Six): archive-written_shiur.php,
+   The reading room: archive-written_shiur.php,
    single-written_shiur.php, search-written.php, markup in
    inc/written-shiurim.php. Warm paper and ink, a serif for titles, and an
    accent colour per Sefer.

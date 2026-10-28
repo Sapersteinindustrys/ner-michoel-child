@@ -127,7 +127,86 @@
 	color: var(--hn-navy-2);
 }
 
+/* In the weeks Chutz La'aretz and Eretz Yisroel read different parshiyos: buttons that swap the two
+   parsha boxes (assets/js/home-week.js). They start hidden; the script shows them. */
+.hn .hn-occasion[hidden] {
+	display: none;
+}
+
+.hn .hn-region {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 14px;
+	min-width: 0;
+}
+
+.hn .hn-region[hidden] {
+	display: none;
+}
+
+.hn .hn-region__label {
+	margin: 0;
+	color: var(--hn-muted);
+	font-size: 0.9rem;
+	line-height: 1.4;
+}
+
+.hn .hn-region__buttons {
+	display: inline-flex;
+	gap: 2px;
+	padding: 4px;
+	border-radius: 999px;
+	background: var(--hn-line-soft);
+}
+
+.hn .hn-region .hn-region__btn {
+	margin: 0;
+	padding: 9px 16px;
+	border: 0;
+	border-radius: 999px;
+	background: transparent;
+	box-shadow: none;
+	color: var(--hn-muted);
+	font-family: var(--hn-sans);
+	font-size: 0.86rem;
+	font-weight: 650;
+	line-height: 1.2;
+	cursor: pointer;
+	transition: background-color 0.18s var(--hn-ease), color 0.18s var(--hn-ease), box-shadow 0.18s var(--hn-ease);
+}
+
+.hn .hn-region .hn-region__btn:hover,
+.hn .hn-region .hn-region__btn:focus {
+	background: transparent;
+	color: var(--hn-ink);
+}
+
+.hn .hn-region .hn-region__btn.is-active,
+.hn .hn-region .hn-region__btn.is-active:hover,
+.hn .hn-region .hn-region__btn.is-active:focus {
+	background: #fff;
+	color: var(--hn-ink);
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 2px 8px -2px rgba(15, 23, 42, 0.14);
+}
+
+.hn .hn-region__note {
+	flex-basis: 100%;
+	margin: 0;
+	color: var(--hn-ink-2);
+	font-size: 0.9rem;
+	line-height: 1.45;
+}
+
+.hn .hn-region__note[hidden] {
+	display: none;
+}
+
 @media (max-width: 760px) {
+	.hn .hn-region .hn-region__btn {
+		min-height: 44px;
+	}
+
 	.hn .hn-occasion {
 		grid-template-columns: minmax(0, 1fr);
 	}

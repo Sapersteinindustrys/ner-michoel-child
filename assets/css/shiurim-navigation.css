@@ -1,11 +1,9 @@
 /*
  * Shiurim-section navigation: the Back link above each page's header
- * (ner_michoel_render_back_button() in inc/template-tags.php), the layout
- * toggle's position when the player bar is showing, and the header menu's
- * Home item (inc/navigation.php), which the home page hides.
+ * (ner_michoel_render_back_button() in inc/template-tags.php) and the header
+ * menu's Home item (inc/navigation.php), which the home page hides.
  *
- * Kept out of custom.css so this file can be read on its own. It loads
- * after custom.css, so the toggle rule below wins on equal specificity.
+ * Kept out of custom.css so this file can be read on its own.
  */
 
 .sh-back-row {
@@ -55,28 +53,9 @@ body.home .main-header-menu .menu-item.nm-menu-home {
 	display: none !important;
 }
 
-/* On a phone the layout buttons are fixed over the top right, above the header
-   (their z-index is higher than the header's), so they sat on the first row of
-   the open menu. That row is Home now, and the middle of it was under them.
-   Hidden while the menu is open (Astra puts ast-main-header-nav-open on the body). */
-body.ast-main-header-nav-open .sh-layout-toggle {
-	display: none;
-}
-
 /* The site footer doesn't belong on Shiurim pages: the player bar and the
    page's own navigation already sit at the bottom. */
 body.is-shiurim .site-footer,
 body.is-shiurim #colophon {
 	display: none;
-}
-
-/*
- * 24Six now has the player bar too (see ner_michoel_render_player_bar()),
- * so the bottom-placed layout toggle needs the same clearance Modern
- * already gets. custom.css only sets that for .sh-layout-stream.
- */
-body.is-shiurim.sh-layout-24six .sh-layout-toggle--bottom-left,
-body.is-shiurim.sh-layout-24six .sh-layout-toggle--bottom-center,
-body.is-shiurim.sh-layout-24six .sh-layout-toggle--bottom-right {
-	bottom: calc(var(--sh-player-height) + var(--nm-toggle-offset));
 }

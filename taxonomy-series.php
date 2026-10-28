@@ -1,29 +1,11 @@
 <?php
 /**
- * A series' page. Two layouts, toggled top-right:
- * - Modern (default): Spotify "Album" page equivalent.
- * - Classic: a plain filterable/sortable list of this series' shiurim.
+ * A series' page: a header with Play All, then its shiurim as a track list.
  */
 
 get_header();
 
 $term = get_queried_object();
-
-if ( 'classic' === ner_michoel_get_layout() ) :
-	$classic_query = ner_michoel_get_classic_query( array( 'series_term' => $term->term_id ) );
-	?>
-	<div class="shiurim-app shiurim-app--classic">
-			<?php ner_michoel_render_return_link(); ?>
-		<header class="sh-page-header">
-			<h1><?php echo esc_html( $term->name ); ?></h1>
-		</header>
-		<?php ner_michoel_render_classic_table( $classic_query, true, false ); ?>
-		<?php ner_michoel_render_classic_pagination( $classic_query ); ?>
-	</div>
-	<?php
-	get_footer();
-	return;
-endif;
 
 $shiurim = ner_michoel_get_series_shiurim( $term->term_id );
 $image   = ner_michoel_get_series_cover_url( $term->term_id );

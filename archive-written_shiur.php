@@ -2,52 +2,16 @@
 /**
  * Written Shiurim archive (/written-shiurim/).
  *
- * Modern and 24Six: the reading room, week by week, the latest week as a
- * feature spread, with instant search and author/Sefer/year filters
- * (inc/written-shiurim.php, assets/js/written-library.js). The first weeks
- * are rendered here; the rest of the library comes as a compact JSON index
- * that the script filters and renders from as you scroll, so a library of
- * thousands stays light. A link with filters in it is filtered here too,
- * the same way the script does it, so it doesn't open on the whole library.
- *
- * Classic: the plain dated list, paginated.
+ * The reading room, week by week, the latest week as a feature spread, with
+ * instant search and author/Sefer/year filters (inc/written-shiurim.php,
+ * assets/js/written-library.js). The first weeks are rendered here; the rest
+ * of the library comes as a compact JSON index that the script filters and
+ * renders from as you scroll, so a library of thousands stays light. A link
+ * with filters in it is filtered here too, the same way the script does it, so
+ * it doesn't open on the whole library.
  */
 
 get_header();
-
-$layout = ner_michoel_get_layout();
-
-if ( 'classic' === $layout ) :
-	?>
-	<div class="nm-app nm-written-page nm-app--classic">
-		<?php ner_michoel_render_back_button(); ?>
-		<header class="sh-page-header">
-			<h1><?php post_type_archive_title(); ?></h1>
-		</header>
-
-		<?php ner_michoel_render_written_search_form(); ?>
-
-		<?php if ( have_posts() ) : ?>
-			<section class="sh-section">
-				<div class="sh-written-list">
-					<?php
-					while ( have_posts() ) :
-						the_post();
-						ner_michoel_render_written_row( get_the_ID() );
-					endwhile;
-					?>
-				</div>
-			</section>
-
-			<?php the_posts_pagination(); ?>
-		<?php else : ?>
-			<p class="sh-empty"><?php esc_html_e( 'No written shiurim yet.', 'ner-michoel-child' ); ?></p>
-		<?php endif; ?>
-	</div>
-	<?php
-	get_footer();
-	return;
-endif;
 
 $written_posts = $GLOBALS['wp_query']->posts;
 ner_michoel_written_prime( $written_posts );

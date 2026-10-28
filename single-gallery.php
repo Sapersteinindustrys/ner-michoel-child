@@ -1,14 +1,9 @@
 <?php
 /**
  * A single gallery. Branches on gallery_type (photo vs. video/
- * shiurim-video — see ner_michoel_get_gallery_type()). Two layouts,
- * toggled top-right, both branches:
- * - Modern (default): photo = slider (stage + thumbnail strip, see
- *   .sh-gallery-slider in assets/js/custom.js); video = stacked
- *   oEmbed players.
- * - Classic: photo = plain thumbnail grid; video = same stacked
- *   oEmbed players (there's no meaningfully different "plain" video
- *   list — the embed itself is the content either way).
+ * shiurim-video — see ner_michoel_get_gallery_type()): photo = slider
+ * (stage + thumbnail strip, see .sh-gallery-slider in assets/js/custom.js);
+ * video = stacked oEmbed players.
  */
 
 get_header();
@@ -16,15 +11,14 @@ get_header();
 while ( have_posts() ) :
 	the_post();
 
-	$type   = ner_michoel_get_gallery_type( get_the_ID() );
-	$layout = ner_michoel_get_layout();
+	$type     = ner_michoel_get_gallery_type( get_the_ID() );
 	$is_video = in_array( $type, array( 'video', 'videoshiurim' ), true );
 	?>
 
-	<div class="nm-app<?php echo 'classic' === $layout ? ' nm-app--classic' : ''; ?>">
+	<div class="nm-app">
 		<header class="sh-page-header">
 			<h1><?php the_title(); ?></h1>
-			<p class="<?php echo 'classic' === $layout ? 'sh-classic-meta' : 'sh-hero__meta'; ?>">
+			<p class="sh-hero__meta">
 				<?php echo esc_html( get_the_date() ); ?>
 				<?php if ( ! $is_video ) : ?>
 					<?php $count = ner_michoel_get_gallery_image_count( get_the_ID() ); ?>
@@ -79,16 +73,6 @@ while ( have_posts() ) :
 			if ( ! $images ) :
 				?>
 				<p class="sh-empty"><?php esc_html_e( 'No photos uploaded yet.', 'ner-michoel-child' ); ?></p>
-				<?php
-			elseif ( 'classic' === $layout ) :
-				?>
-				<div class="sh-classic-photo-grid">
-					<?php foreach ( $images as $image ) : ?>
-						<a href="<?php echo esc_url( $image['url'] ); ?>" target="_blank" rel="noopener">
-							<img src="<?php echo esc_url( $image['thumb'] ); ?>" alt="<?php echo esc_attr( $image['alt'] ); ?>" loading="lazy" />
-						</a>
-					<?php endforeach; ?>
-				</div>
 				<?php
 			else :
 				?>

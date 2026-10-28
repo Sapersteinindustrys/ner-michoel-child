@@ -12,7 +12,7 @@
  *     and like, leaving out what they've heard. With no listening or likes yet
  *     it's simply the newest shiurim.
  *
- * It appears on the Shiurim home in every layout, as a page of its own
+ * It appears on the Shiurim home, as a page of its own
  * (?sh_view=foryou, linked from the Shiurim navigation), and on the homepage.
  * Nothing is printed for a visitor who isn't signed in, so the public pages are
  * the same as before. Every call into the core plugin is guarded, so a theme
@@ -55,7 +55,7 @@ function ner_michoel_is_for_you_view() {
 /**
  * Its stylesheet, for any page a signed-in listener might land on or be swapped
  * onto by the page router (nm-router.js), which doesn't load a page's styles.
- * After the layouts' own (priority 21 to 23), so it can adjust them.
+ * After the look's own (priority 21 to 23), so it can adjust them.
  */
 function ner_michoel_enqueue_for_you_assets() {
 	if ( ! ner_michoel_for_you_available() ) {
@@ -251,8 +251,7 @@ function ner_michoel_for_you_play( $post ) {
 }
 
 /* ------------------------------------------------------------------
- * Modern, 24Six, and the pages that use Modern's markup (also Studio's
- * For you page): the same cards as the Series and Recent views.
+ * The For you page: the same cards as the Series and Recent views.
  * ------------------------------------------------------------------ */
 
 /**
@@ -294,45 +293,7 @@ function ner_michoel_for_you_shiur_card( $post ) {
 }
 
 /**
- * The shelf on the Shiurim home in Modern and 24Six: the series to continue,
- * then picks, in one row that scrolls sideways (the same row 24Six uses for
- * its series). A grid would leave a lone card on a second row at some widths;
- * a row fits every screen. "See all" opens the page.
- */
-function ner_michoel_render_for_you_shelf() {
-	if ( ! ner_michoel_for_you_available() ) {
-		return;
-	}
-	$data = ner_michoel_for_you_data();
-	if ( ! $data['continue'] && ! $data['picks'] ) {
-		return;
-	}
-
-	$continue = array_slice( $data['continue'], 0, 6 );
-	$picks    = array_slice( $data['picks'], 0, max( 0, 12 - count( $continue ) ) );
-	?>
-	<section class="sh-section sh-foryou" id="for-you" aria-labelledby="sh-foryou-title">
-		<div class="sh-foryou__bar">
-			<div class="sh-foryou__titles">
-				<h2 class="sh-section__title" id="sh-foryou-title"><?php esc_html_e( 'For you', 'ner-michoel-child' ); ?></h2>
-				<p class="sh-foryou__lede"><?php echo esc_html( ner_michoel_for_you_greeting() . '. ' . ner_michoel_for_you_lede() ); ?></p>
-			</div>
-			<a class="sh-foryou__more" href="<?php echo esc_url( $data['url'] ); ?>"><?php esc_html_e( 'See all', 'ner-michoel-child' ); ?> <span aria-hidden="true">&rarr;</span></a>
-		</div>
-		<?php ner_michoel_render_card_collection_start( true ); ?>
-			<?php foreach ( $continue as $item ) : ?>
-				<?php ner_michoel_for_you_continue_card( $item ); ?>
-			<?php endforeach; ?>
-			<?php foreach ( $picks as $post ) : ?>
-				<?php ner_michoel_for_you_shiur_card( $post ); ?>
-			<?php endforeach; ?>
-		<?php ner_michoel_render_card_collection_end( true ); ?>
-	</section>
-	<?php
-}
-
-/**
- * The For you page (?sh_view=foryou) in Modern, 24Six and Studio: the series to
+ * The For you page (?sh_view=foryou): the series to
  * continue, the picks as a track list with Play All, and what they've liked.
  */
 function ner_michoel_render_for_you_page( $is_carousel ) {
@@ -475,90 +436,6 @@ function ner_michoel_render_for_you_studio() {
 		<?php endif; ?>
 	</section>
 	<?php
-}
-
-/* ------------------------------------------------------------------
- * Classic: plain links, since Classic has no player.
- * ------------------------------------------------------------------ */
-
-/**
- * A short list above the Classic library, or all of it on the For you page
- * ($full).
- */
-function ner_michoel_render_for_you_classic( $full = false ) {
-	if ( ! ner_michoel_for_you_available() ) {
-		return;
-	}
-	$data     = ner_michoel_for_you_data();
-	$continue = array_slice( $data['continue'], 0, $full ? 6 : 3 );
-	$picks    = array_slice( $data['picks'], 0, $full ? 12 : 5 );
-	if ( ! $continue && ! $picks ) {
-		return;
-	}
-	?>
-	<section class="sh-classic-foryou" aria-labelledby="sh-classic-foryou-title">
-		<div class="sh-classic-foryou__head">
-			<h2 id="sh-classic-foryou-title"><?php esc_html_e( 'For you', 'ner-michoel-child' ); ?></h2>
-			<?php if ( ! $full ) : ?>
-				<a href="<?php echo esc_url( $data['url'] ); ?>"><?php esc_html_e( 'See all', 'ner-michoel-child' ); ?> &rarr;</a>
-			<?php endif; ?>
-		</div>
-		<p class="sh-classic-foryou__lede"><?php echo esc_html( ner_michoel_for_you_greeting() . '. ' . ner_michoel_for_you_lede() ); ?></p>
-
-		<?php if ( $continue ) : ?>
-			<h3><?php esc_html_e( 'Continue your series', 'ner-michoel-child' ); ?></h3>
-			<ul>
-				<?php foreach ( $continue as $item ) : ?>
-					<li>
-						<a href="<?php echo esc_url( $item['link'] ); ?>"><?php echo esc_html( $item['name'] ); ?></a>
-						&mdash;
-						<?php esc_html_e( 'left off at', 'ner-michoel-child' ); ?>
-						<a href="<?php echo esc_url( get_permalink( $item['shiur'] ) ); ?>"><?php echo esc_html( $item['left_off'] ); ?></a>
-					</li>
-				<?php endforeach; ?>
-			</ul>
-		<?php endif; ?>
-
-		<?php if ( $picks ) : ?>
-			<h3><?php esc_html_e( 'Picked for you', 'ner-michoel-child' ); ?></h3>
-			<ul>
-				<?php foreach ( $picks as $post ) : ?>
-					<?php
-					$speakers = get_the_terms( $post, 'speaker' );
-					$speaker  = ( $speakers && ! is_wp_error( $speakers ) ) ? $speakers[0]->name : '';
-					?>
-					<li>
-						<a href="<?php echo esc_url( get_permalink( $post ) ); ?>"><?php echo esc_html( get_the_title( $post ) ); ?></a>
-						<?php if ( $speaker ) : ?>
-							<span class="sh-classic-foryou__meta"><?php echo esc_html( $speaker ); ?></span>
-						<?php endif; ?>
-					</li>
-				<?php endforeach; ?>
-			</ul>
-		<?php endif; ?>
-	</section>
-	<?php
-}
-
-/**
- * The For you page in Classic: the whole list, or why there isn't one.
- */
-function ner_michoel_render_for_you_classic_page() {
-	if ( ! is_user_logged_in() ) {
-		?>
-		<p class="sh-empty">
-			<?php esc_html_e( 'Sign in to see shiurim picked for you.', 'ner-michoel-child' ); ?>
-			<a href="<?php echo esc_url( home_url( '/account/' ) ); ?>"><?php esc_html_e( 'Sign in', 'ner-michoel-child' ); ?></a>
-		</p>
-		<?php
-		return;
-	}
-	$data = ner_michoel_for_you_data();
-	if ( ! $data['continue'] && ! $data['picks'] ) {
-		echo '<p class="sh-empty">' . esc_html__( 'Nothing here yet. Play or like a shiur and it will show up here.', 'ner-michoel-child' ) . '</p>';
-		return;
-	}
-	ner_michoel_render_for_you_classic( true );
 }
 
 /* ------------------------------------------------------------------

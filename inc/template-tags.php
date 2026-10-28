@@ -22,7 +22,7 @@ function ner_michoel_is_shiurim_context() {
 /**
  * Written shiurim (PDF lectures): their own archive and single page, but
  * not a Shiurim page — no player bar, no audio queue. They sit in the
- * app look and show the layout toggle, like Galleries do.
+ * app look, like Galleries do.
  */
 function ner_michoel_is_written_context() {
 	return is_post_type_archive( 'written_shiur' ) || is_singular( 'written_shiur' );
@@ -94,39 +94,9 @@ function ner_michoel_render_topic_chips( $post_id ) {
 }
 
 /**
- * One row in a written-shiurim list: date, title, speaker, and a Read PDF
- * link when a PDF is attached. Expects to be called inside the loop, or
- * with an explicit post ID.
- */
-function ner_michoel_render_written_row( $post_id ) {
-	$speaker_terms = get_the_terms( $post_id, 'speaker' );
-	$speaker       = ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) ? $speaker_terms[0]->name : '';
-	$pdf_url       = function_exists( 'ner_michoel_get_written_shiur_download_url' ) ? ner_michoel_get_written_shiur_download_url( $post_id ) : '';
-	?>
-	<article class="sh-written-row">
-		<div class="sh-written-row__date"><?php echo esc_html( get_the_date( '', $post_id ) ); ?></div>
-		<div class="sh-written-row__body">
-			<h3 class="sh-written-row__title"><a href="<?php echo esc_url( get_permalink( $post_id ) ); ?>"><?php echo esc_html( get_the_title( $post_id ) ); ?></a></h3>
-			<?php if ( $speaker ) : ?>
-				<p class="sh-written-row__meta"><?php echo esc_html( $speaker ); ?></p>
-			<?php endif; ?>
-			<?php $first_line = ner_michoel_written_first_line( $post_id ); ?>
-			<?php if ( $first_line ) : ?>
-				<p class="sh-written-row__summary"><?php echo esc_html( $first_line ); ?></p>
-			<?php endif; ?>
-		</div>
-		<?php if ( $pdf_url ) : ?>
-			<a class="sh-download-link sh-written-row__pdf" href="<?php echo esc_url( $pdf_url ); ?>"><?php esc_html_e( 'Download PDF', 'ner-michoel-child' ); ?></a>
-		<?php endif; ?>
-	</article>
-	<?php
-}
-
-/**
- * True on any page that carries the Modern/Classic layout toggle:
- * Shiurim, Written Shiurim, Galleries, or the News & Events page. Mazal
- * Tov has no context of its own — it's a section inside the News & Events
- * page, not a separate archive.
+ * True on any page in the app look: Shiurim, Written Shiurim, Galleries, or
+ * the News & Events page. Mazal Tov has no context of its own — it's a section
+ * inside the News & Events page, not a separate archive.
  */
 function ner_michoel_is_app_context() {
 	return ner_michoel_is_shiurim_context()
@@ -136,43 +106,25 @@ function ner_michoel_is_app_context() {
 }
 
 /**
- * Which layout to render:
- * - 'stream'  — "Modern": the Spotify/app-style visual language (grid browsing)
- * - 'classic' — the plain filterable/sortable library style
- * - 'studio'  — the default. The new homepage's light look on the Shiurim
- *   pages, with Modern's lists and 24Six's swipeable rows
- *   (inc/shiurim-studio.php, assets/css/shiurim-studio.css). The Shiurim home
- *   has its own page; the other pages keep their markup and take the look
- *   from the CSS.
- * - '24six'   — carousel/swimlane browsing (horizontal-scrolling rows
- *   of Series/Speakers instead of a wrapping grid), inspired by
- *   24six.app's layout specifically, not its color scheme — reuses
- *   the same dark palette as 'stream'. Shiurim-only: archive-shiur.php
- *   and taxonomy-speaker.php are the only templates that branch on
- *   this value; taxonomy-series.php and single-shiur.php show one
- *   collection's contents rather than browsing multiple collections,
- *   so there's nothing meaningful to turn into a carousel there —
- *   they render the same as 'stream' for any non-'classic' value.
- * Shared site-wide across Shiurim, Galleries, and News & Events so
- * the top-right toggle is one global choice, not a per-section
- * setting (Galleries/News & Events don't have a '24six'-specific
- * layout of their own yet — they just render their 'stream' markup
- * for that value, same as taxonomy-series.php/single-shiur.php do).
- * Persisted in a cookie so the server can render the right templates
- * directly instead of shipping all of them to the client. A visitor who
- * hasn't picked one (no cookie, or a value that isn't one of the four) gets
- * Studio; picking Modern sets the cookie to 'stream' and keeps it.
+ * The layout the site renders: 'studio', the new homepage's light look on the
+ * Shiurim pages (inc/shiurim-studio.php, assets/css/shiurim-studio.css), with
+ * the Series, Speaker and Topic pages keeping their markup and taking the look
+ * from the CSS. It is the only one. Modern, Classic and 24Six, and the switch
+ * between them, were taken out. The function stays so a caller that still asks
+ * gets the one answer, and so the body and the player bar keep the
+ * `sh-layout-studio` and `sh-player--studio` classes that shiurim-studio.css
+ * and player-sheet.css are written against. A leftover nm_layout cookie from
+ * the old switch is ignored.
  */
 function ner_michoel_get_layout() {
-	$layout = isset( $_COOKIE['nm_layout'] ) ? sanitize_key( wp_unslash( $_COOKIE['nm_layout'] ) ) : '';
-	return in_array( $layout, array( 'stream', 'classic', '24six', 'studio' ), true ) ? $layout : 'studio';
+	return 'studio';
 }
 
 /**
- * Adds `is-nm-app` plus the active layout as a body class on every
- * toggle-carrying template (and `is-shiurim` specifically for the
- * Shiurim ones), so custom.css can scope each layout's styles without
- * touching the rest of the (Astra-styled) site.
+ * Adds `is-nm-app` plus the layout as a body class on every app-look
+ * template (and `is-shiurim` specifically for the Shiurim ones), so
+ * custom.css and shiurim-studio.css can scope their styles without touching
+ * the rest of the (Astra-styled) site.
  */
 function ner_michoel_app_body_class( $classes ) {
 	if ( ner_michoel_is_app_context() ) {
@@ -185,38 +137,6 @@ function ner_michoel_app_body_class( $classes ) {
 	return $classes;
 }
 add_filter( 'body_class', 'ner_michoel_app_body_class' );
-
-/**
- * Top-right switch between the four layouts. Flipping it sets the
- * layout cookie and reloads, since each layout is a genuinely
- * different template (not a client-side CSS skin) — see the branches
- * at the top of each app-context template.
- *
- * Printed inside #content (astra_content_top), not at the top of the
- * body: nm-router.js swaps #content and nothing outside it. Printed on
- * wp_body_open, the switch was missing for anyone who reached a Shiurim
- * page by clicking a link from another page, it stayed on screen after
- * they left, and after a switch it kept marking the old layout as active
- * (and ignored a click on that one). It's position: fixed, so where it
- * sits in the markup doesn't change where it shows.
- */
-function ner_michoel_render_layout_toggle() {
-	if ( ! ner_michoel_is_app_context() ) {
-		return;
-	}
-	$layout   = ner_michoel_get_layout();
-	$position = function_exists( 'ner_michoel_get_layout_toggle_position' ) ? ner_michoel_get_layout_toggle_position() : 'top-right';
-	$opacity  = function_exists( 'ner_michoel_get_layout_toggle_opacity' ) ? ner_michoel_get_layout_toggle_opacity() : 100;
-	?>
-	<div class="sh-layout-toggle sh-layout-toggle--<?php echo esc_attr( $position ); ?>" style="--nm-toggle-bg-alpha: <?php echo esc_attr( $opacity / 100 ); ?>;" role="group" aria-label="<?php esc_attr_e( 'Layout', 'ner-michoel-child' ); ?>">
-		<button type="button" class="sh-layout-toggle__option<?php echo 'stream' === $layout ? ' is-active' : ''; ?>" data-layout="stream"><?php esc_html_e( 'Modern', 'ner-michoel-child' ); ?></button>
-		<button type="button" class="sh-layout-toggle__option<?php echo 'classic' === $layout ? ' is-active' : ''; ?>" data-layout="classic"><?php esc_html_e( 'Classic', 'ner-michoel-child' ); ?></button>
-		<button type="button" class="sh-layout-toggle__option<?php echo '24six' === $layout ? ' is-active' : ''; ?>" data-layout="24six"><?php esc_html_e( '24Six', 'ner-michoel-child' ); ?></button>
-		<button type="button" class="sh-layout-toggle__option<?php echo 'studio' === $layout ? ' is-active' : ''; ?>" data-layout="studio"><?php esc_html_e( 'Studio', 'ner-michoel-child' ); ?></button>
-	</div>
-	<?php
-}
-add_action( 'astra_content_top', 'ner_michoel_render_layout_toggle' );
 
 /**
  * Small inline icon set for the player controls — kept as literal SVG
@@ -303,9 +223,9 @@ function ner_michoel_art_placeholder( $kind = 'audio' ) {
 /**
  * Fallback "cover art" for a speaker/series/shiur with no image set —
  * a tile showing its first letter, styled entirely in CSS. --hue gives
- * each name its own tint where a layout uses it (Modern, in
- * shiurim-modern.css); the same name always gets the same one, matching
- * the homepage's initials (ner_michoel_home_hue()).
+ * each name its own tint where the look uses it; the same name always
+ * gets the same one, matching the homepage's initials
+ * (ner_michoel_home_hue()).
  */
 function ner_michoel_placeholder_art( $label = '' ) {
 	$initial = $label ? mb_substr( trim( $label ), 0, 1 ) : '♪';
@@ -406,15 +326,13 @@ function ner_michoel_render_back_button( $label = '', $parent = '' ) {
 }
 
 /**
- * Opens a collection of media cards as either the wrapping grid
- * (Modern/'stream') or a horizontal-scrolling carousel row ('24six')
- * — the cards themselves (ner_michoel_render_media_card()) are
- * identical either way, only the container differs. Pair with
- * ner_michoel_render_card_collection_end(). $is_carousel is passed in
- * rather than read from ner_michoel_get_layout() here, since a page
- * may want the grid even in carousel mode (not currently the case,
- * but keeps this a dumb layout primitive rather than baking in
- * "24six" as a concept it needs to know about).
+ * Opens a collection of media cards as either the wrapping grid or a
+ * horizontal-scrolling carousel row — the cards themselves
+ * (ner_michoel_render_media_card()) are identical either way, only the
+ * container differs. Pair with ner_michoel_render_card_collection_end().
+ * $is_carousel is passed in by the page, which knows whether it wants the
+ * swipeable row (a speaker or topic page) or the grid (the Recent and For
+ * you views, search results).
  */
 function ner_michoel_render_card_collection_start( $is_carousel ) {
 	if ( $is_carousel ) {
@@ -440,6 +358,25 @@ function ner_michoel_render_card_collection_end( $is_carousel ) {
 		<?php
 	} else {
 		echo '</div>';
+	}
+}
+
+/**
+ * Prev/next + page-number links under a paged list of shiurim (the topic
+ * page's track list).
+ */
+function ner_michoel_render_classic_pagination( WP_Query $query ) {
+	$links = paginate_links(
+		array(
+			'total'     => $query->max_num_pages,
+			'current'   => max( 1, get_query_var( 'paged' ) ?: 1 ),
+			'prev_text' => __( '&laquo; Prev', 'ner-michoel-child' ),
+			'next_text' => __( 'Next &raquo;', 'ner-michoel-child' ),
+			'type'      => 'list',
+		)
+	);
+	if ( $links ) {
+		echo '<nav class="sh-classic-pagination">' . $links . '</nav>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
 
@@ -473,7 +410,7 @@ function ner_michoel_get_shiur_badges( $post_id ) {
 
 /**
  * Renders whatever ner_michoel_get_shiur_badges() returns as small
- * pill labels. Shared by tracklist rows, the classic table, the
+ * pill labels. Shared by tracklist rows, the
  * single-shiur hero, and the homepage's recent-shiurim cards, so a
  * new badge type only needs adding in one place.
  */
@@ -487,6 +424,62 @@ function ner_michoel_render_shiur_badges( $post_id ) {
 		echo '<span class="sh-badge sh-badge--' . esc_attr( $badge['key'] ) . '">' . esc_html( $badge['label'] ) . '</span>';
 	}
 	echo '</span>';
+}
+
+/**
+ * A shiur's date both ways, for the lists: the English date the site has
+ * always shown (get_the_date(), "Oct 26, 2026") and the Hebrew date for the
+ * same day ("15 Cheshvan 5787", from ner-michoel-core's calendar). Both come
+ * from the post's own date, so a list agrees with the single shiur page and
+ * the search results; the Hebrew day changes at midnight here, not at nightfall.
+ * 'heb' is '' when the post has no date or the calendar isn't there (an older
+ * core), so a list shows the English date alone then.
+ *
+ * @return array{eng:string,heb:string,iso:string}
+ */
+function ner_michoel_get_shiur_dates( $post = null ) {
+	static $hebrew = array();
+
+	$none = array(
+		'eng' => '',
+		'heb' => '',
+		'iso' => '',
+	);
+	$post = get_post( $post );
+	if ( ! $post || ! preg_match( '/^(\d{4})-(\d{2})-(\d{2})/', (string) $post->post_date, $day ) || ! checkdate( (int) $day[2], (int) $day[3], (int) $day[1] ) ) {
+		return $none;
+	}
+
+	$key = $day[1] . '-' . $day[2] . '-' . $day[3];
+	if ( ! isset( $hebrew[ $key ] ) ) {
+		$hebrew[ $key ] = '';
+		if ( function_exists( 'ner_michoel_hebrew_date_label' ) && function_exists( 'ner_michoel_fixed_from_gregorian' ) ) {
+			$hebrew[ $key ] = ner_michoel_hebrew_date_label( ner_michoel_fixed_from_gregorian( (int) $day[1], (int) $day[2], (int) $day[3] ) );
+		}
+	}
+
+	return array(
+		'eng' => (string) get_the_date( '', $post ),
+		'heb' => $hebrew[ $key ],
+		'iso' => $key,
+	);
+}
+
+/**
+ * The two dates as one inline piece, "Oct 26, 2026 · 15 Cheshvan 5787", each
+ * date kept whole so a narrow column wraps between them, not inside one.
+ * Returns '' when the shiur has no date; already escaped.
+ */
+function ner_michoel_get_shiur_dates_html( $post = null ) {
+	$dates = ner_michoel_get_shiur_dates( $post );
+	if ( '' === $dates['eng'] ) {
+		return '';
+	}
+	$html = '<span class="sh-dates"><time class="sh-dates__eng" datetime="' . esc_attr( $dates['iso'] ) . '">' . esc_html( $dates['eng'] ) . '</time>';
+	if ( '' !== $dates['heb'] ) {
+		$html .= ' <span class="sh-dates__sep" aria-hidden="true">&middot;</span> <span class="sh-dates__heb">' . esc_html( $dates['heb'] ) . '</span>';
+	}
+	return $html . '</span>';
 }
 
 /**
@@ -594,6 +587,12 @@ function ner_michoel_render_media_card( $args ) {
 		<?php if ( $args['subtitle'] ) : ?>
 			<div class="sh-card__subtitle"><?php echo esc_html( $args['subtitle'] ); ?></div>
 		<?php endif; ?>
+		<?php
+		if ( $args['save_id'] ) {
+			// A shiur or written shiur card (the others pass no save_id): say so when it comes in more than one format.
+			ner_michoel_render_format_chips( $args['save_id'] );
+		}
+		?>
 		<?php if ( $args['tags'] ) : ?>
 			<div class="sh-card__tags">
 				<?php foreach ( (array) $args['tags'] as $tag ) : ?>
@@ -668,15 +667,14 @@ function ner_michoel_render_library_card( $post_id ) {
 		<?php if ( $speaker ) : ?>
 			<div class="nm-home-shiur-card__meta"><?php echo esc_html( $speaker->name ); ?></div>
 		<?php endif; ?>
+		<?php ner_michoel_render_format_chips( $post_id ); ?>
 	</a>
 	<?php
 }
 
 /**
- * Persistent left-hand nav for the Shiurim archive (Modern layout
- * only — Classic already has its own flat toolbar, and 24Six's
- * horizontal-carousel rows don't leave room for a sidebar without
- * redesigning the carousel itself). Search + a "Recent" view (the one
+ * Persistent left-hand nav for the Shiurim archive's Recent and For you
+ * views (the Shiurim home is Studio's own page, without it). Search + a "Recent" view (the one
  * thing here without its own existing page) + every Series/Speaker,
  * which already have real archive pages (taxonomy-series.php /
  * taxonomy-speaker.php) to link straight to.
@@ -764,6 +762,7 @@ function ner_michoel_render_track_row( $shiur, $index, $show_speaker = true ) {
 	$speaker_terms = get_the_terms( $shiur, 'speaker' );
 	$speaker_name  = ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) ? $speaker_terms[0]->name : '';
 	$cover         = get_the_post_thumbnail_url( $shiur, 'thumbnail' );
+	$dates_html    = ner_michoel_get_shiur_dates_html( $shiur );
 
 	if ( ner_michoel_shiur_is_video( $shiur->ID ) ) {
 		?>
@@ -781,6 +780,10 @@ function ner_michoel_render_track_row( $shiur, $index, $show_speaker = true ) {
 				<?php if ( $show_speaker && $speaker_name ) : ?>
 					<div class="sh-track__speaker"><?php echo esc_html( $speaker_name ); ?></div>
 				<?php endif; ?>
+				<?php if ( $dates_html ) : ?>
+					<div class="sh-track__when"><?php echo $dates_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in ner_michoel_get_shiur_dates_html(). ?></div>
+				<?php endif; ?>
+				<?php ner_michoel_render_format_chips( $shiur->ID ); ?>
 			</div>
 			<div class="sh-track__duration"><?php esc_html_e( 'Watch', 'ner-michoel-child' ); ?></div>
 		</a>
@@ -806,6 +809,10 @@ function ner_michoel_render_track_row( $shiur, $index, $show_speaker = true ) {
 			<?php if ( $show_speaker && $speaker_name ) : ?>
 				<div class="sh-track__speaker"><?php echo esc_html( $speaker_name ); ?></div>
 			<?php endif; ?>
+			<?php if ( $dates_html ) : ?>
+				<div class="sh-track__when"><?php echo $dates_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in ner_michoel_get_shiur_dates_html(). ?></div>
+			<?php endif; ?>
+			<?php ner_michoel_render_format_chips( $shiur->ID ); ?>
 		</div>
 		<div class="sh-track__duration"><?php echo esc_html( ner_michoel_get_shiur_duration( $shiur->ID ) ); ?><?php
 			// Like this shiur from its row. The heart sits in the duration cell so the
@@ -874,21 +881,15 @@ function ner_michoel_render_tracklist( $shiurim, $show_speaker = true ) {
  * carries on while browsing the whole site). It stays hidden until
  * something plays, or custom.js restores the last shiur on a page load.
  *
- * Shown in Modern ('stream'), 24Six and Studio. Every play control (cards,
- * Play All, tracklist rows) is wired to this bar, and custom.js exits early
- * without it, so 24Six had no playback at all until this covered it too.
- * Classic doesn't get it: its audio is plain links.
+ * Every play control (cards, Play All, tracklist rows) is wired to this bar,
+ * and custom.js exits early without it.
  *
- * The layout is on the bar as a class (sh-player--stream, --24six,
- * --studio), so it looks the same on every page, not only on the Shiurim
- * pages (assets/css/player-sheet.css). custom.js updates the class when the
- * layout is switched.
+ * The layout is on the bar as a class (sh-player--studio), so it looks the
+ * same on every page, not only on the Shiurim pages
+ * (assets/css/player-sheet.css).
  */
 function ner_michoel_render_player_bar() {
 	$layout = ner_michoel_get_layout();
-	if ( 'classic' === $layout ) {
-		return;
-	}
 	?>
 	<div class="sh-player sh-player--<?php echo esc_attr( $layout ); ?>" id="sh-player" hidden>
 		<audio id="sh-audio" preload="metadata"></audio>
@@ -957,25 +958,6 @@ function ner_michoel_enqueue_shiurim_card_styles() {
 	);
 }
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_shiurim_card_styles', 21 );
-
-/**
- * Modern's look on the Shiurim pages (assets/css/shiurim-modern.css): the
- * same markup and navigation, in a light theme. After the card, navigation
- * and player-sheet styles, which it adjusts (and after the live search's,
- * which is queued earlier at priority 22 on the search page).
- */
-function ner_michoel_enqueue_modern_styles() {
-	if ( 'stream' !== ner_michoel_get_layout() || ! ner_michoel_is_shiurim_context() ) {
-		return;
-	}
-	wp_enqueue_style(
-		'ner-michoel-shiurim-modern',
-		NER_MICHOEL_URI . '/assets/css/shiurim-modern.css',
-		array( 'ner-michoel-shiurim-cards', 'ner-michoel-shiurim-navigation', 'ner-michoel-player-sheet' ),
-		NER_MICHOEL_VERSION
-	);
-}
-add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_modern_styles', 23 );
 
 /**
  * "Continue series" card for the Account page. It shows the series and the

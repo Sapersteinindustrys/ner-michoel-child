@@ -5,8 +5,8 @@
  * --ast-global-color-1, etc.) where possible so changes stay in sync
  * with Customizer color/typography settings.
  *
- * Everything below `body.is-nm-app` is the shared Modern/Classic
- * layout system used by Shiurim (archive-shiur.php, taxonomy-speaker/
+ * Everything below `body.is-nm-app` is the shared
+ * app look used by Shiurim (archive-shiur.php, taxonomy-speaker/
  * series.php, single-shiur.php), Galleries, and the News & Events
  * page. It's scoped to that body class so it never leaks into the
  * rest of the (light, Astra-styled) site — only the accent color is
@@ -39,7 +39,7 @@
  * Modern button treatment for anything outside the app UI (below) — core
  * WP block buttons, Astra's `.button`, and plain form submits on the
  * static pages. Astra's own defaults are square-ish and flat; this brings
- * them in line with `.nm-home-btn` / `.sh-classic-toolbar__apply` so the
+ * them in line with `.nm-home-btn` so the
  * whole site reads as one design instead of "app UI" vs "everything else".
  */
 .entry-content .button,
@@ -93,8 +93,7 @@
    to ~160px. The menu itself was Astra's fallback (every page, A-Z);
    the real "Main Menu" now drives it.
 
-   --nm-header-h is the one source for the bar's height; the fixed
-   Modern/Classic/24Six toggle on app pages uses it to clear the bar.
+   --nm-header-h is the one source for the bar's height.
    --------------------------------------------------------------- */
 
 :root {
@@ -496,11 +495,8 @@ body.is-shiurim {
 
 /* Room for the bar on every other page while it's showing, so it never
    covers the footer. custom.js puts nm-has-player on <html> because the
-   router (nm-router.js) replaces body's classes on every page change.
-   Classic's Shiurim pages set no padding of their own (no bar is printed
-   there), but one carried over from another layout still needs room. */
-html.nm-has-player body:not(.is-shiurim),
-html.nm-has-player body.sh-layout-classic.is-shiurim {
+   router (nm-router.js) replaces body's classes on every page change. */
+html.nm-has-player body:not(.is-shiurim) {
 	padding-bottom: var(--sh-player-height);
 }
 
@@ -610,8 +606,7 @@ body.is-nm-app .ast-article-single {
 }
 
 /* Touch screens: 16px at least, so iPhone Safari doesn't zoom the page
-   in when the field is tapped (see the note at the Classic phone rules).
-   The same for Modern's version of this field in shiurim-modern.css. */
+   in when the field is tapped. */
 @media (pointer: coarse) {
 	.sh-sidebar__search input[type="search"] {
 		font-size: 16px;
@@ -751,7 +746,7 @@ body.is-nm-app .ast-article-single {
 	gap: 18px;
 }
 
-/* 24Six layout — same cards as .sh-grid above, horizontal-scrolling
+/* Carousel row — same cards as .sh-grid above, horizontal-scrolling
    carousel row instead of a wrapping grid (see
    ner_michoel_render_card_collection_start() in inc/template-tags.php).
    Native scroll-snap + touch scrolling; the prev/next buttons (hidden
@@ -1296,6 +1291,33 @@ body.is-nm-app .ast-article-single {
 	white-space: nowrap;
 }
 
+/* A shiur's date, English then Hebrew ("Oct 26, 2026 · 15 Cheshvan 5787"), in
+   every list (ner_michoel_get_shiur_dates_html()). Each date stays whole, so a
+   narrow place wraps between the two instead of inside one. */
+.sh-dates__eng,
+.sh-dates__heb {
+	white-space: nowrap;
+}
+
+.sh-track__when {
+	color: var(--sh-text-muted);
+	font-size: 0.8rem;
+	line-height: 1.4;
+}
+
+/* A narrow track row (a phone): the two dates one above the other, instead of
+   a dot left hanging at the end of the first line. */
+@media (max-width: 600px) {
+	.sh-track__when .sh-dates__eng,
+	.sh-track__when .sh-dates__heb {
+		display: block;
+	}
+
+	.sh-track__when .sh-dates__sep {
+		display: none;
+	}
+}
+
 .sh-track__duration {
 	color: var(--sh-text-muted);
 	font-size: 0.85rem;
@@ -1360,8 +1382,8 @@ body.is-nm-app .ast-article-single {
    app pages (body.is-nm-app). So every var() here carries the app's dark
    default as its fallback: elsewhere (the homepage, About, Contact,
    Account) the colours used to fall through to Astra's dark body text,
-   unreadable on the black bar. Modern's and Studio's looks for the bar
-   are in player-sheet.css (.sh-player--stream, .sh-player--studio).
+   unreadable on the black bar. Studio's look for the bar is in
+   player-sheet.css (.sh-player--studio).
    --------------------------------------------------------------- */
 
 .sh-player {
@@ -2016,378 +2038,6 @@ body.is-nm-app .ast-article-single {
 	}
 }
 
-/* ---------------------------------------------------------------
-   24Six layout — matching how 24six.app actually presents a row.
-
-   Its cards carry no chrome at all: artwork sits directly on the
-   page background with the title and subtitle beneath it, and the
-   artwork itself is noticeably larger than in a boxed grid. Dropping
-   the surface fill/border/padding is most of the difference; the
-   rest is size and type weight.
-
-   Scoped to body.sh-layout-24six (see ner_michoel_app_body_class())
-   so the Modern grid keeps its boxed cards.
-   --------------------------------------------------------------- */
-
-body.sh-layout-24six .sh-card {
-	background: transparent !important;
-	border: none !important;
-	padding: 0 !important;
-}
-
-body.sh-layout-24six .sh-card__art {
-	border-radius: 6px;
-	margin-bottom: 12px;
-	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-}
-
-body.sh-layout-24six .sh-card__title {
-	font-size: 1rem;
-	font-weight: 700;
-	white-space: normal;
-	/* Two lines then ellipsis — album titles here are long enough
-	   that a single truncated line loses too much of the name. */
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	-webkit-box-orient: vertical;
-	line-height: 1.3;
-}
-
-body.sh-layout-24six .sh-card__subtitle {
-	font-size: 0.875rem;
-}
-
-/* Bigger tiles than the Modern grid, and a wider gap to match. */
-body.sh-layout-24six .sh-carousel__track {
-	gap: 26px;
-}
-
-body.sh-layout-24six .sh-carousel__track .sh-card {
-	width: 190px;
-	flex: 0 0 190px;
-}
-
-body.sh-layout-24six .sh-section__title {
-	font-size: 1.75rem;
-	font-weight: 800;
-	letter-spacing: -0.01em;
-	margin-bottom: 20px;
-}
-
-body.sh-layout-24six .sh-section {
-	margin-bottom: 52px;
-}
-
-@media (max-width: 600px) {
-	body.sh-layout-24six .sh-carousel__track .sh-card {
-		width: 150px;
-		flex: 0 0 150px;
-	}
-
-	body.sh-layout-24six .sh-section__title {
-		font-size: 1.375rem;
-	}
-}
-
-/* Layout toggle (placement + darkness admin-configurable — Site
-   Control Panel > Layout Toggle — site-wide across app-context
-   pages). --nm-toggle-bg-alpha comes from that setting via an inline
-   style on the element itself (see ner_michoel_render_layout_toggle()
-   in inc/template-tags.php); --nm-toggle-offset is purely a layout
-   convenience so every position variant and the mobile breakpoint
-   below share one distance-from-edge value instead of each needing
-   their own override. Background is a fixed dark tone (not the
-   --sh-surface app variable) since this toggle also appears in
-   Classic mode, which is intentionally light/un-themed — a dark pill
-   reads consistently against either. */
-
-.sh-layout-toggle {
-	--nm-toggle-offset: 16px;
-	position: fixed;
-	z-index: 10000;
-	display: flex;
-	max-width: calc(100vw - 24px);
-	background: rgba(20, 20, 20, var(--nm-toggle-bg-alpha, 1));
-	border: 1px solid rgba(255, 255, 255, 0.15);
-	border-radius: 999px;
-	padding: 3px;
-	gap: 2px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-}
-
-.sh-layout-toggle--top-left {
-	top: calc(var(--nm-header-h) + var(--nm-toggle-offset));
-	left: var(--nm-toggle-offset);
-}
-
-.sh-layout-toggle--top-center {
-	top: calc(var(--nm-header-h) + var(--nm-toggle-offset));
-	left: 50%;
-	transform: translateX(-50%);
-}
-
-.sh-layout-toggle--top-right {
-	top: calc(var(--nm-header-h) + var(--nm-toggle-offset));
-	right: var(--nm-toggle-offset);
-}
-
-.sh-layout-toggle--center-left {
-	top: 50%;
-	left: var(--nm-toggle-offset);
-	transform: translateY(-50%);
-}
-
-.sh-layout-toggle--center-center {
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-}
-
-.sh-layout-toggle--center-right {
-	top: 50%;
-	right: var(--nm-toggle-offset);
-	transform: translateY(-50%);
-}
-
-.sh-layout-toggle--bottom-left {
-	bottom: var(--nm-toggle-offset);
-	left: var(--nm-toggle-offset);
-}
-
-.sh-layout-toggle--bottom-center {
-	bottom: var(--nm-toggle-offset);
-	left: 50%;
-	transform: translateX(-50%);
-}
-
-.sh-layout-toggle--bottom-right {
-	bottom: var(--nm-toggle-offset);
-	right: var(--nm-toggle-offset);
-}
-
-/* Modern Shiurim pages have the fixed player bar along the bottom;
-   bottom placements go above it rather than on top of it. */
-body.is-shiurim.sh-layout-stream .sh-layout-toggle--bottom-left,
-body.is-shiurim.sh-layout-stream .sh-layout-toggle--bottom-center,
-body.is-shiurim.sh-layout-stream .sh-layout-toggle--bottom-right {
-	bottom: calc(var(--sh-player-height) + var(--nm-toggle-offset));
-}
-
-/* Any other page while the bar is showing (nm-has-player, see the
-   padding rule near the top): Written Shiurim, Galleries, News & Events.
-   Astra's scroll-to-top button goes above the bar too. */
-html.nm-has-player .sh-layout-toggle--bottom-left,
-html.nm-has-player .sh-layout-toggle--bottom-center,
-html.nm-has-player .sh-layout-toggle--bottom-right {
-	bottom: calc(var(--sh-player-height) + var(--nm-toggle-offset));
-}
-
-/* Astra's own gap is 30px (.ast-scroll-to-top-right / -left). */
-html.nm-has-player #ast-scroll-top {
-	bottom: calc(var(--sh-player-height) + 30px);
-}
-
-/* WordPress's admin toolbar (visible whenever the person checking the
-   site is logged in — i.e. constantly, for the site's own admin) is
-   fixed to the top at 32px tall on desktop, 46px on mobile. Without
-   this a top-anchored toggle sits half-hidden underneath it — doesn't
-   apply to center/bottom placements, which the admin bar never
-   overlaps. */
-body.admin-bar .sh-layout-toggle--top-left,
-body.admin-bar .sh-layout-toggle--top-center,
-body.admin-bar .sh-layout-toggle--top-right {
-	top: calc(32px + var(--nm-header-h) + var(--nm-toggle-offset));
-}
-
-@media (max-width: 782px) {
-	body.admin-bar .sh-layout-toggle--top-left,
-	body.admin-bar .sh-layout-toggle--top-center,
-	body.admin-bar .sh-layout-toggle--top-right {
-		top: calc(46px + var(--nm-header-h) + var(--nm-toggle-offset));
-	}
-}
-
-/* Same !important rationale as .sh-player__buttons above — these are
-   plain <button> elements too, so Astra's sitewide button style
-   (radius/padding/border/box-sizing) otherwise overrides the pill
-   shape and shrinks/misaligns the label. */
-.sh-layout-toggle__option {
-	border: none !important;
-	background: transparent !important;
-	/* Fixed light color rather than the --sh-text-muted app variable —
-	   this toggle's own background is now always a dark tone
-	   regardless of layout/mode (see .sh-layout-toggle above), so it
-	   needs its own independent, always-legible text color instead of
-	   inheriting whatever that variable resolves to in Classic mode's
-	   light theming. */
-	color: rgba(255, 255, 255, 0.75);
-	font-size: 0.8rem;
-	font-weight: 600;
-	padding: 6px 14px !important;
-	margin: 0;
-	box-sizing: border-box !important;
-	line-height: 1.4 !important;
-	border-radius: 999px !important;
-	white-space: nowrap;
-	cursor: pointer;
-	transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.sh-layout-toggle__option.is-active {
-	background: var(--sh-accent, #2f8f5b) !important;
-	color: #fff;
-}
-
-/* Narrow phones: three full-width pills at the default size can run
-   into the right edge or the site's own header controls, so this
-   tightens padding/font rather than wrapping (wrapping would make the
-   group jump between one and two lines depending on active label
-   width, which reads as broken rather than responsive). */
-@media (max-width: 480px) {
-	.sh-layout-toggle {
-		--nm-toggle-offset: 8px;
-		gap: 1px;
-	}
-
-	.sh-layout-toggle__option {
-		font-size: 0.7rem;
-		padding: 5px 9px !important;
-	}
-}
-
-/* Classic layout — plain library list, not scoped to the dark
-   --sh-* variables since it intentionally reads like the rest of the
-   (light, Astra-styled) site rather than the app UI. Applies to any
-   app-context page (Shiurim, Galleries, News & Events). */
-
-body.sh-layout-classic.is-nm-app {
-	/* Custom properties inherit regardless of which rule set them, so
-	   the dark --sh-text/--sh-text-muted from body.is-nm-app above
-	   would otherwise leak into Classic (near-white text on a light
-	   background) — redefine them here so any shared component that
-	   reads var(--sh-text[-muted]) renders correctly in both layouts. */
-	--sh-text: inherit;
-	--sh-text-muted: #666;
-	background: none;
-	color: inherit;
-}
-
-body.sh-layout-classic.is-shiurim {
-	padding-bottom: 0;
-}
-
-body.sh-layout-classic.is-nm-app a {
-	color: var(--nm-primary);
-}
-
-.shiurim-app--classic,
-.nm-app--classic {
-	max-width: 1000px;
-	margin: 0 auto;
-	padding: 32px 24px;
-}
-
-.shiurim-app--classic .sh-page-header h1,
-.nm-app--classic .sh-page-header h1 {
-	margin: 0 0 20px;
-}
-
-.sh-classic-toolbar {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: end;
-	gap: 16px;
-	margin-bottom: 24px;
-	padding-bottom: 16px;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.sh-classic-toolbar__field {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	font-size: 0.8rem;
-	font-weight: 600;
-}
-
-.sh-classic-toolbar__field select,
-.sh-classic-toolbar__field input {
-	font-weight: 400;
-	padding: 6px 8px;
-	border: 1px solid rgba(0, 0, 0, 0.15);
-	border-radius: 4px;
-	font-family: inherit;
-}
-
-.sh-classic-toolbar__field--search {
-	flex: 1;
-	min-width: 160px;
-}
-
-.sh-classic-toolbar__field--search input {
-	width: 100%;
-}
-
-.sh-classic-toolbar__apply {
-	padding: 7px 16px;
-	border: none;
-	border-radius: var(--nm-radius);
-	background: var(--nm-primary);
-	color: #fff;
-	cursor: pointer;
-	transition: background-color 0.15s ease;
-}
-
-.sh-classic-toolbar__apply:hover {
-	background: var(--nm-primary-hover);
-}
-
-.sh-classic-table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-bottom: 24px;
-}
-
-.sh-classic-table th,
-.sh-classic-table td {
-	text-align: left;
-	padding: 10px 12px;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-	font-size: 0.9rem;
-}
-
-.sh-classic-table th {
-	font-weight: 700;
-	color: var(--sh-text-muted, #666);
-	font-size: 0.8rem;
-	text-transform: uppercase;
-	letter-spacing: 0.03em;
-}
-
-.sh-classic-meta {
-	color: var(--sh-text-muted, #666);
-	margin: 4px 0 16px;
-}
-
-.sh-classic-related-list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-.sh-classic-related-list li {
-	display: flex;
-	justify-content: space-between;
-	gap: 12px;
-	padding: 10px 0;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.sh-classic-related-list .sh-classic-meta {
-	margin: 0;
-	flex-shrink: 0;
-}
-
 .sh-classic-pagination ul {
 	display: flex;
 	list-style: none;
@@ -2410,175 +2060,13 @@ body.sh-layout-classic.is-nm-app a {
 	border-color: transparent;
 }
 
-/* Classic on a phone. The list is a six-column table (title, speaker,
-   series, date, duration, listen) that needs roughly 560px or more; on
-   a phone it made the page wider than the screen, so the phone zoomed
-   out to fit it and the page could be dragged sideways (body's
-   overflow-x: hidden from Astra only hides the overflow on a desktop
-   window, a phone still pans). Below 720px each row is a small card:
-   the title, then speaker / series / date / duration on one wrapping
-   line, then the Play and Download links. Table semantics for screen
-   readers are kept by the role attributes in classic-view.php
-   (display: block would otherwise drop them). The filter fields go full
-   width, because a dropdown is as wide as its longest option (the live
-   site has series names over 60 characters), and are 16px so iPhone
-   Safari doesn't zoom into a field when it's tapped and stay zoomed. */
 @media (max-width: 720px) {
-	.shiurim-app--classic,
-	.nm-app--classic {
-		padding: 20px 16px;
-	}
-
-	.sh-classic-toolbar {
-		gap: 12px;
-	}
-
-	.sh-classic-toolbar__field {
-		flex: 1 1 100%;
-		min-width: 0;
-	}
-
-	.sh-classic-toolbar__field select,
-	.sh-classic-toolbar__field input {
-		box-sizing: border-box;
-		width: 100%;
-		max-width: 100%;
-		font-size: 16px;
-	}
-
-	.sh-classic-toolbar__apply {
-		flex: 1 1 100%;
-		padding: 10px 16px;
-	}
-
-	.sh-classic-table,
-	.sh-classic-table tbody {
-		display: block;
-		border: 0;
-	}
-
-	/* Column headings are redundant on a card, but stay for screen readers. */
-	.sh-classic-table thead {
-		display: block;
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
-	}
-
-	.sh-classic-table tbody tr {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		gap: 2px 14px;
-		padding: 12px 0;
-		border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-	}
-
-	.sh-classic-table tbody td {
-		display: block;
-		min-width: 0;
-		padding: 0;
-		border: 0;
-		font-size: 0.85rem;
-		color: var(--sh-text-muted, #666);
-		overflow-wrap: anywhere;
-	}
-
-	.sh-classic-table tbody td:first-child {
-		flex: 0 0 100%;
-		font-size: 1rem;
-		font-weight: 600;
-		color: inherit;
-	}
-
-	.sh-classic-table tbody td:last-child {
-		flex: 0 0 100%;
-		margin-top: 6px;
-		font-size: 0.9rem;
-		color: inherit;
-	}
-
-	/* A shiur with no speaker or series: no empty cell to leave a gap. */
-	.sh-classic-table tbody td.sh-classic-table__empty {
-		display: none;
-	}
-
 	.sh-classic-pagination ul {
 		flex-wrap: wrap;
 	}
 }
 
-/* Galleries — Classic (light card grid + plain photo grid) */
-
-.sh-classic-gallery-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-	gap: 24px;
-}
-
-.sh-classic-gallery-card {
-	display: block;
-	color: inherit;
-	text-decoration: none;
-}
-
-.sh-classic-gallery-card__art {
-	width: 100%;
-	aspect-ratio: 4 / 3;
-	border-radius: 6px;
-	overflow: hidden;
-	background: #eee;
-	margin-bottom: 10px;
-}
-
-.sh-classic-gallery-card__art img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	display: block;
-}
-
-.sh-classic-gallery-card__title {
-	font-weight: 600;
-	margin-bottom: 2px;
-}
-
-.sh-classic-gallery-card__meta {
-	font-size: 0.85rem;
-	color: var(--sh-text-muted, #666);
-}
-
-.sh-classic-photo-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-	gap: 12px;
-}
-
-.sh-classic-photo-grid a {
-	display: block;
-	aspect-ratio: 1 / 1;
-	border-radius: 4px;
-	overflow: hidden;
-	background: #eee;
-}
-
-.sh-classic-photo-grid img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	display: block;
-	transition: transform 0.15s ease;
-}
-
-.sh-classic-photo-grid a:hover img {
-	transform: scale(1.04);
-}
-
-/* Video shiurim — single-shiur.php, both layouts */
+/* Video shiurim — single-shiur.php */
 
 .sh-video-player {
 	margin-bottom: 24px;
@@ -2725,8 +2213,7 @@ body.sh-layout-classic.is-nm-app a {
 	border: none;
 }
 
-/* News & Events page — one shared markup for both layouts, colors
-   adapt via var(--sh-text[-muted]) (see the Classic override above). */
+/* News & Events page — colors adapt via var(--sh-text[-muted]). */
 
 .sh-news-list {
 	display: flex;
@@ -2807,8 +2294,8 @@ body.sh-layout-classic.is-nm-app a {
 }
 
 /* Static pages (About, Contribute, Connections, Contact) — plain
-   Astra-consistent styling, no Modern/Classic toggle: a single design
-   is enough for content that isn't browsed/filtered. */
+   Astra-consistent styling: a single design is enough for content that
+   isn't browsed/filtered. */
 
 .nm-page {
 	max-width: 800px;
@@ -3203,9 +2690,9 @@ body.sh-layout-classic.is-nm-app a {
 	margin: 0;
 }
 
-/* Homepage — deliberately warm/friendly, distinct from both the dark
-   Modern app and the plain Classic library (per the admin's request
-   that the landing page itself feel welcoming, not a data screen). */
+/* Homepage — deliberately warm/friendly, distinct from the app look
+   (per the admin's request that the landing page itself feel welcoming,
+   not a data screen). */
 
 .nm-home-btn {
 	display: inline-flex;

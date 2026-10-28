@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NER_MICHOEL_VERSION', '0.2.72' );
+define( 'NER_MICHOEL_VERSION', '0.2.73' );
 define( 'NER_MICHOEL_PATH', get_stylesheet_directory() );
 define( 'NER_MICHOEL_URI', get_stylesheet_directory_uri() );
 
@@ -254,13 +254,13 @@ add_filter( 'ner_michoel_theme_speed_features', 'ner_michoel_theme_speed_feature
  * (e.g. custom post types, ACF field registration, template tags).
  */
 require_once NER_MICHOEL_PATH . '/inc/template-tags.php';
-require_once NER_MICHOEL_PATH . '/inc/classic-view.php';
 require_once NER_MICHOEL_PATH . '/inc/updates.php';
 require_once NER_MICHOEL_PATH . '/inc/appearance.php';
 require_once NER_MICHOEL_PATH . '/inc/navigation.php';
 require_once NER_MICHOEL_PATH . '/inc/search.php';
 require_once NER_MICHOEL_PATH . '/inc/player-sheet.php';
 require_once NER_MICHOEL_PATH . '/inc/written-shiurim.php';
+require_once NER_MICHOEL_PATH . '/inc/shiur-formats.php';
 require_once NER_MICHOEL_PATH . '/inc/site-identity.php';
 require_once NER_MICHOEL_PATH . '/inc/mazal-tov.php';
 require_once NER_MICHOEL_PATH . '/inc/home.php';

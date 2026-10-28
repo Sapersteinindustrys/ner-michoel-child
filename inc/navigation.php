@@ -247,9 +247,8 @@ function ner_michoel_nav_add_home_link( $items, $args ) {
 }
 
 /**
- * Styles for the Back link on Shiurim-section pages, the layout toggle's
- * position under 24Six, and hiding the header menu's Home item on the home
- * page. See assets/css/shiurim-navigation.css.
+ * Styles for the Back link on Shiurim-section pages and hiding the header
+ * menu's Home item on the home page. See assets/css/shiurim-navigation.css.
  */
 function ner_michoel_enqueue_shiurim_navigation_styles() {
 	wp_enqueue_style(

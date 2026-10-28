@@ -283,6 +283,7 @@ function ner_michoel_home_new_data() {
 				continue;
 			}
 			$data['written'][] = array(
+				'id'      => $item['id'],
 				'title'   => $item['main'],
 				'note'    => $item['note'],
 				'link'    => $item['link'],

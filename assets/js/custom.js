@@ -62,26 +62,7 @@ function nerMichoelRecordHistory( postId ) {
 ( function () {
 	'use strict';
 
-	// Classic layout has no JS-controlled player (its "Play" is a
-	// plain link opening native browser playback), so 'play' is
-	// reported on click rather than on an actual `play` event —
-	// there's no completion signal to fire from a click, so Classic
-	// intentionally never reports 'complete' (an approximated one
-	// would be worse than an honest gap). "Download" links are
-	// deliberately not tracked here — a download isn't a listen.
-	document.addEventListener( 'click', function ( e ) {
-		var link = e.target.closest( '.sh-classic-play-link' );
-		if ( ! link ) {
-			return;
-		}
-		nerMichoelSendShiurEvent( link.getAttribute( 'data-shiur-id' ), 'play' );
-	} );
-} )();
-
-( function () {
-	'use strict';
-
-	// 24Six carousel rows (archive-shiur.php, taxonomy-speaker.php) —
+	// Carousel rows (taxonomy-speaker.php, taxonomy-topic.php, the Studio home) —
 	// prev/next buttons are progressive enhancement on top of native
 	// scroll-snap; touch/trackpad swiping already works without this.
 	document.addEventListener( 'click', function ( e ) {
@@ -95,36 +76,6 @@ function nerMichoelRecordHistory( postId ) {
 		}
 		var amount = Math.round( track.clientWidth * 0.8 );
 		track.scrollBy( { left: btn.classList.contains( 'sh-carousel__nav--prev' ) ? -amount : amount, behavior: 'smooth' } );
-	} );
-} )();
-
-( function () {
-	'use strict';
-
-	// Layout toggle (Shiurim-section pages, plus the other pages with it).
-	//
-	// The layout is a cookie the server reads. Switching re-fetches the
-	// current page through nm-router.js (so anything playing in #sh-player
-	// isn't interrupted) rather than a real page.reload() — falling back to
-	// reload() only if the router isn't present. A layout switch isn't
-	// navigation: it adds nothing to the browser's history, and it's not
-	// something Back undoes. The Back link is nm-router.js's (see "Back"
-	// there): it leaves the page.
-	function switchLayout( layout ) {
-		document.cookie = 'nm_layout=' + layout + ';path=/;max-age=31536000';
-		if ( window.nmRouterNavigate ) {
-			window.nmRouterNavigate( window.location.href, { push: false } );
-		} else {
-			window.location.reload();
-		}
-	}
-
-	document.addEventListener( 'click', function ( e ) {
-		var btn = e.target.closest( '.sh-layout-toggle__option' );
-		if ( ! btn || btn.classList.contains( 'is-active' ) ) {
-			return;
-		}
-		switchLayout( btn.getAttribute( 'data-layout' ) );
 	} );
 } )();
 
@@ -215,7 +166,7 @@ function nerMichoelRecordHistory( postId ) {
 ( function () {
 	'use strict';
 
-	// Gallery slider (Modern layout, single-gallery.php) — stage image
+	// Gallery slider (single-gallery.php) — stage image
 	// + thumbnail strip, no external library. Each .sh-gallery-slider
 	// carries its full image list as JSON so this doesn't need to walk
 	// the DOM to know what comes next/previous.
@@ -416,48 +367,7 @@ function nerMichoelRecordHistory( postId ) {
 
 	// Puts the bar away (shown while paused; closePlayer() below).
 	var elClose = document.getElementById( 'sh-player-close' );
-
-	// The bar is on every page, so it carries the visitor's layout as a class
-	// (sh-player--stream, --24six, --studio, and the same on the sheet and its
-	// backdrop) instead of taking its look from the page (player-sheet.css).
-	// The server prints the class; this keeps it right when the layout is
-	// switched, which re-fetches the page through the router but never
-	// reprints the bar.
 	var root    = document.documentElement;
-	var LAYOUTS = [ 'stream', '24six', 'studio' ];
-
-	// The layout the visitor picked (the nm_layout cookie the layout switch
-	// sets), or '' when there's none or it's one the server doesn't know: the
-	// server then used its default, which is already on the bar.
-	function chosenLayout() {
-		var value = '';
-		try {
-			var match = document.cookie.match( /(?:^|;\s*)nm_layout=([^;]*)/ );
-			value = match ? decodeURIComponent( match[1] ).toLowerCase() : '';
-		} catch ( e ) {
-			value = '';
-		}
-		return 'classic' === value || LAYOUTS.indexOf( value ) !== -1 ? value : '';
-	}
-
-	function applyLayoutLook() {
-		var layout = chosenLayout();
-		// No choice: keep the server's. Classic has no bar of its own: one still
-		// playing from another layout keeps the look it has.
-		if ( ! layout || 'classic' === layout ) {
-			return;
-		}
-		[ [ player, 'sh-player' ], [ elSheet, 'sh-sheet' ], [ elSheetBackdrop, 'sh-sheet-backdrop' ] ].forEach( function ( pair ) {
-			if ( ! pair[0] ) {
-				return;
-			}
-			LAYOUTS.forEach( function ( name ) {
-				pair[0].classList.toggle( pair[1] + '--' + name, name === layout );
-			} );
-		} );
-	}
-	applyLayoutLook();
-	document.addEventListener( 'nm:content-swapped', applyLayoutLook );
 
 	// Shows the bar, and has the page make room for it (custom.css). The flag
 	// goes on <html> because the router replaces body's classes on every swap.

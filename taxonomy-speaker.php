@@ -1,10 +1,7 @@
 <?php
 /**
- * A speaker's page. Three layouts, toggled top-right:
- * - Modern (default): Spotify "Artist" page equivalent.
- * - Classic: a plain filterable/sortable list of this speaker's shiurim.
- * - 24Six: same page, the Series section becomes a horizontal-
- *   scrolling carousel row instead of a wrapping grid.
+ * A speaker's page: the speaker's series as swipeable rows of cards, then
+ * the shiurim that are in no series as a track list.
  *
  * The series come in two groups (ner_michoel_get_speaker_series_groups(),
  * inc/speaker-series.php), each in the old site's category order: the series
@@ -16,27 +13,11 @@ get_header();
 
 $term = get_queried_object();
 
-if ( 'classic' === ner_michoel_get_layout() ) :
-	$classic_query = ner_michoel_get_classic_query( array( 'speaker_term' => $term->term_id ) );
-	?>
-	<div class="shiurim-app shiurim-app--classic">
-			<?php ner_michoel_render_return_link(); ?>
-		<header class="sh-page-header">
-			<h1><?php echo esc_html( $term->name ); ?></h1>
-		</header>
-		<?php ner_michoel_render_classic_table( $classic_query, false, true ); ?>
-		<?php ner_michoel_render_classic_pagination( $classic_query ); ?>
-	</div>
-	<?php
-	get_footer();
-	return;
-endif;
-
 $groups      = ner_michoel_get_speaker_series_groups( $term->term_id );
 $standalone  = ner_michoel_get_speaker_standalone_shiurim( $term->term_id );
 $image       = ner_michoel_get_speaker_photo_url( $term->term_id );
-// Swipeable rows in 24Six, and in Studio, which takes them from 24Six.
-$is_carousel = in_array( ner_michoel_get_layout(), array( '24six', 'studio' ), true );
+// Swipeable rows of series cards.
+$is_carousel = true;
 
 // The series, in two groups: the ones that are all this speaker's, then the ones that also
 // hold other speakers' shiurim (inc/speaker-series.php).
