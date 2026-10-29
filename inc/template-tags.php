@@ -29,6 +29,21 @@ function ner_michoel_is_written_context() {
 }
 
 /**
+ * A series' whole name ("Gemara / Bava Kamma / Perek 3"): its parents' names and its own. The site's cards, lists, sort
+ * order and search read the path out of this text, so everything that shows or splits a series name goes through here.
+ * Falls back to the term's own name when the core plugin is older than the series tree (ner_michoel_series_label()).
+ *
+ * @param WP_Term|object $term A series term.
+ * @return string
+ */
+function ner_michoel_series_full_name( $term ) {
+	if ( function_exists( 'ner_michoel_series_label' ) ) {
+		return ner_michoel_series_label( $term );
+	}
+	return ( $term && isset( $term->name ) ) ? (string) $term->name : '';
+}
+
+/**
  * A shiur's topics in the order of its series name, the way the old site listed its
  * categories ("Gemara / Bava Kamma / Perek 2": Gemara, then Bava Kamma). get_the_terms()
  * gives them A to Z, which put "Haazinu" before "Sefer Devarim" and "Bava Kamma" before
@@ -52,7 +67,7 @@ function ner_michoel_order_topics_by_series( $topics, $post_id ) {
 	};
 	$position = array();
 	foreach ( $series as $term ) {
-		foreach ( ner_michoel_topic_names_from_series( $term->name ) as $name ) {
+		foreach ( ner_michoel_topic_names_from_series( ner_michoel_series_full_name( $term ) ) as $name ) {
 			if ( ! isset( $position[ $key( $name ) ] ) ) {
 				$position[ $key( $name ) ] = count( $position );
 			}
@@ -711,7 +726,7 @@ function ner_michoel_render_shiurim_sidebar() {
 				<h3 class="sh-sidebar__group-title"><?php esc_html_e( 'Series', 'ner-michoel-child' ); ?></h3>
 				<nav class="sh-sidebar__nav sh-sidebar__nav--scroll">
 					<?php foreach ( $series_terms as $term ) : ?>
-						<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="sh-sidebar__link<?php echo is_tax( 'series', $term->term_id ) ? ' is-active' : ''; ?>"><?php echo esc_html( $term->name ); ?></a>
+						<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="sh-sidebar__link<?php echo is_tax( 'series', $term->term_id ) ? ' is-active' : ''; ?>"><?php echo esc_html( ner_michoel_series_full_name( $term ) ); ?></a>
 					<?php endforeach; ?>
 				</nav>
 			</div>
@@ -988,12 +1003,12 @@ function ner_michoel_render_continue_card( $term, $shiur ) {
 				<?php if ( $cover ) : ?>
 					<img src="<?php echo esc_url( $cover ); ?>" alt="" loading="lazy" />
 				<?php else : ?>
-					<?php echo ner_michoel_placeholder_art( $term->name ); ?>
+					<?php echo ner_michoel_placeholder_art( ner_michoel_series_full_name( $term ) ); ?>
 				<?php endif; ?>
 			</span>
 			<span class="nm-continue-card__text">
 				<span class="nm-continue-card__kicker"><?php esc_html_e( 'Continue series', 'ner-michoel-child' ); ?></span>
-				<span class="nm-continue-card__title"><?php echo esc_html( $term->name ); ?></span>
+				<span class="nm-continue-card__title"><?php echo esc_html( ner_michoel_series_full_name( $term ) ); ?></span>
 				<span class="nm-continue-card__meta">
 					<?php
 					/* translators: %s: title of the shiur the listener last played */

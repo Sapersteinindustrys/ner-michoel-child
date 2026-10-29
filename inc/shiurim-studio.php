@@ -113,7 +113,7 @@ function ner_michoel_studio_shiur( $post ) {
 		'title'     => get_the_title( $post ),
 		'link'      => get_permalink( $post ),
 		'speaker'   => $speaker ? $speaker->name : '',
-		'series'    => $serie ? ner_michoel_studio_series_title( $serie->name ) : '',
+		'series'    => $serie ? ner_michoel_studio_series_title( ner_michoel_series_full_name( $serie ) ) : '',
 		'photo'     => $photo ? $photo : '',
 		'initials'  => ner_michoel_studio_initials( $name ),
 		'hue'       => ner_michoel_studio_hue( $name ),
@@ -192,7 +192,7 @@ function ner_michoel_studio_series_rows( $terms ) {
 
 	$rows = array();
 	foreach ( $terms as $term ) {
-		$parts = ner_michoel_studio_name_parts( $term->name );
+		$parts = ner_michoel_studio_name_parts( ner_michoel_series_full_name( $term ) );
 		if ( ! $parts ) {
 			continue;
 		}
@@ -251,8 +251,8 @@ function ner_michoel_studio_series_rows( $terms ) {
 	foreach ( $rows as $key => $row ) {
 		if ( count( $row['cards'] ) < 2 ) {
 			foreach ( $row['cards'] as $card ) {
-				$card['title']   = html_entity_decode( $card['term']->name, ENT_QUOTES, 'UTF-8' );
-				$parts           = ner_michoel_studio_name_parts( $card['term']->name );
+				$card['title']   = html_entity_decode( ner_michoel_series_full_name( $card['term'] ), ENT_QUOTES, 'UTF-8' );
+				$parts           = ner_michoel_studio_name_parts( ner_michoel_series_full_name( $card['term'] ) );
 				$card['cover']     = $parts ? $parts[ count( $parts ) - 1 ] : $card['title'];
 				$card['cover_sub'] = count( $parts ) > 1 ? implode( ' · ', array_slice( $parts, 0, -1 ) ) : '';
 				$card['tone']      = ner_michoel_studio_tone( $card['cover'] );
@@ -379,7 +379,7 @@ function ner_michoel_studio_home_data() {
 		$items = ner_michoel_continue_series_for_user( get_current_user_id(), 1 );
 		if ( $items ) {
 			$continue = array(
-				'series' => ner_michoel_studio_series_title( $items[0]['term']->name ),
+				'series' => ner_michoel_studio_series_title( ner_michoel_series_full_name( $items[0]['term'] ) ),
 				'shiur'  => ner_michoel_studio_shiur( $items[0]['shiur'] ),
 			);
 		}

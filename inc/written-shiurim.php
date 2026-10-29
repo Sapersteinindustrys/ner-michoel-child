@@ -95,7 +95,7 @@ function ner_michoel_written_data( $post, $full = false ) {
 	$speaker  = ( $speakers && ! is_wp_error( $speakers ) ) ? $speakers[0] : null;
 	$series   = get_the_terms( $post->ID, 'series' );
 	$serie    = ( $series && ! is_wp_error( $series ) ) ? $series[0] : null;
-	$parts    = ner_michoel_written_series_parts( $serie ? $serie->name : '' );
+	$parts    = ner_michoel_written_series_parts( $serie ? ner_michoel_series_full_name( $serie ) : '' );
 	$title    = get_the_title( $post );
 	$split    = ner_michoel_written_title_parts( $title );
 	$year     = ner_michoel_written_year( $title );
@@ -818,9 +818,10 @@ function ner_michoel_written_related( $post_id ) {
 				'no_found_rows'  => true,
 				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 					array(
-						'taxonomy' => 'series',
-						'field'    => 'term_id',
-						'terms'    => (int) $item['series']->term_id,
+						'taxonomy'         => 'series',
+						'field'            => 'term_id',
+						'terms'            => (int) $item['series']->term_id,
+						'include_children' => false,
 					),
 				),
 			)

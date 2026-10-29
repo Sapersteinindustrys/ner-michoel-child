@@ -142,7 +142,7 @@ function ner_michoel_for_you_data() {
 		$data['continue'][] = array(
 			'term'      => $term,
 			'shiur'     => $shiur,
-			'name'      => $term->name,
+			'name'      => ner_michoel_series_full_name( $term ),
 			'link'      => $link,
 			'cover'     => function_exists( 'ner_michoel_get_series_cover_url' ) ? (string) ner_michoel_get_series_cover_url( $term->term_id ) : '',
 			'left_off'  => get_the_title( $shiur ),
@@ -368,13 +368,14 @@ function ner_michoel_render_for_you_page( $is_carousel ) {
  */
 function ner_michoel_for_you_studio_card( $item ) {
 	$term  = $item['term'];
-	$parts = ner_michoel_studio_name_parts( $term->name );
+	$full  = ner_michoel_series_full_name( $term );
+	$parts = ner_michoel_studio_name_parts( $full );
 	$cover = count( $parts ) > 1 ? array_slice( $parts, 1 ) : $parts;
-	$main  = $cover ? $cover[0] : html_entity_decode( $term->name, ENT_QUOTES, 'UTF-8' );
+	$main  = $cover ? $cover[0] : html_entity_decode( $full, ENT_QUOTES, 'UTF-8' );
 
 	return array(
 		'term'      => $term,
-		'title'     => ner_michoel_studio_series_title( $term->name ),
+		'title'     => ner_michoel_studio_series_title( $full ),
 		'kicker'    => __( 'Continue', 'ner-michoel-child' ),
 		'count'     => 0,
 		/* translators: %s: title of the shiur the listener last played */
@@ -471,7 +472,7 @@ function ner_michoel_render_for_you_home_new() {
 			<ul class="hn-continue">
 				<?php foreach ( $continue as $item ) : ?>
 					<?php
-					$name  = $item['term']->name;
+					$name  = ner_michoel_series_full_name( $item['term'] );
 					$parts = function_exists( 'ner_michoel_studio_name_parts' ) ? ner_michoel_studio_name_parts( $name ) : array();
 					$short = $parts ? implode( ' · ', count( $parts ) > 1 ? array_slice( $parts, 1 ) : $parts ) : $name;
 					$main  = $parts ? ( count( $parts ) > 1 ? $parts[1] : $parts[0] ) : $name;

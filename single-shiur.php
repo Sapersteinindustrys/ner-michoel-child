@@ -69,7 +69,7 @@ while ( have_posts() ) :
 						<a href="<?php echo esc_url( get_term_link( $speaker_terms[0] ) ); ?>"><?php echo esc_html( $speaker_terms[0]->name ); ?></a>
 					<?php endif; ?>
 					<?php if ( $series_terms && ! is_wp_error( $series_terms ) ) : ?>
-						&middot; <a href="<?php echo esc_url( get_term_link( $series_terms[0] ) ); ?>"><?php echo esc_html( $series_terms[0]->name ); ?></a>
+						&middot; <a href="<?php echo esc_url( get_term_link( $series_terms[0] ) ); ?>"><?php echo esc_html( ner_michoel_series_full_name( $series_terms[0] ) ); ?></a>
 					<?php endif; ?>
 				</p>
 				<?php ner_michoel_render_topic_chips( get_the_ID() ); ?>
@@ -107,7 +107,7 @@ while ( have_posts() ) :
 							<a href="<?php echo esc_url( get_term_link( $speaker_terms[0] ) ); ?>"><?php echo esc_html( $speaker_terms[0]->name ); ?></a>
 						<?php endif; ?>
 						<?php if ( $series_terms && ! is_wp_error( $series_terms ) ) : ?>
-							&middot; <a href="<?php echo esc_url( get_term_link( $series_terms[0] ) ); ?>"><?php echo esc_html( $series_terms[0]->name ); ?></a>
+							&middot; <a href="<?php echo esc_url( get_term_link( $series_terms[0] ) ); ?>"><?php echo esc_html( ner_michoel_series_full_name( $series_terms[0] ) ); ?></a>
 						<?php endif; ?>
 					</p>
 					<?php ner_michoel_render_topic_chips( get_the_ID() ); ?>

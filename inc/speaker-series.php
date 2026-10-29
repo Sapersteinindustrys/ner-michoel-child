@@ -314,7 +314,7 @@ function ner_michoel_get_speaker_series_groups( $speaker_term_id ) {
 	$terms = ner_michoel_sort_by_series_order(
 		$terms,
 		function ( $term ) {
-			return $term->name;
+			return ner_michoel_series_full_name( $term );
 		}
 	);
 

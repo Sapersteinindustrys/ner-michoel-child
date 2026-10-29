@@ -217,7 +217,7 @@ function ner_michoel_home_shiur_row( $post ) {
 		'title'    => get_the_title( $post ),
 		'link'     => get_permalink( $post ),
 		'speaker'  => $speaker ? $speaker->name : '',
-		'series'   => $serie ? $serie->name : '',
+		'series'   => $serie ? ner_michoel_series_full_name( $serie ) : '',
 		'photo'    => $photo ? $photo : '',
 		'initials' => ner_michoel_home_initials( $name ),
 		'hue'      => ner_michoel_home_hue( $name ),

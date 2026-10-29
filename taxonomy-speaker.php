@@ -87,7 +87,7 @@ $series_playable  = $lazy_queues && $all_series && function_exists( 'ner_michoel
 				ner_michoel_render_media_card(
 					array_merge(
 						array(
-							'title'    => $s->name,
+							'title'    => ner_michoel_series_full_name( $s ),
 							'subtitle' => ner_michoel_speaker_series_count_label( $entry ),
 							'tags'     => ner_michoel_speaker_series_tags( $entry ),
 							'image'    => ner_michoel_get_series_cover_url( $s->term_id ),
