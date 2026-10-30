@@ -9,6 +9,44 @@
 	min-width: 0;
 }
 
+/* The signed-in "For you" panel and these panels share one row (template-parts/home-new.php): one
+   column on a phone or tablet, and side by side on a computer only when both are there (.hn-duo--both).
+   Alone, either one is the only thing in the row and takes all of it. 1100px is where each half
+   is still about 500px wide, enough for the rows. */
+.hn .hn-duo {
+	display: grid;
+	gap: clamp(20px, 2.6vw, 32px);
+	min-width: 0;
+}
+
+@media (min-width: 1101px) {
+	.hn .hn-duo--both {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	/* The two boxes are the same height; the parsha and the Yom Tov share the right-hand one. */
+	.hn .hn-duo--both .hn-week {
+		display: flex;
+		flex-direction: column;
+	}
+
+	/* In half the width a title block sits above its shiurim instead of beside them. */
+	.hn .hn-duo--both .hn-occasion {
+		flex: 1 1 auto;
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: auto 1fr;
+	}
+
+	.hn .hn-duo--both .hn-occasion__list {
+		align-self: start;
+	}
+
+	.hn .hn-duo--both .hn-occasion--season .hn-occasion__intro {
+		border-right: 0;
+		border-bottom: 1px solid var(--hn-gold-line);
+	}
+}
+
 .hn .hn-occasion {
 	display: grid;
 	grid-template-columns: minmax(230px, 0.52fr) minmax(0, 1.48fr);

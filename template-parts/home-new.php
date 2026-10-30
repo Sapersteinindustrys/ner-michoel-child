@@ -98,13 +98,24 @@ $site_name  = ner_michoel_site_name();
 	<?php get_template_part( 'template-parts/live-shiur' ); ?>
 
 	<?php
-	// A signed-in listener's own shelf (inc/for-you.php).
+	// A signed-in listener's own shelf (inc/for-you.php) and this week's parsha and the Yom Tov in season
+	// (inc/week.php) share one row: side by side on a computer when both have something to show, and each takes
+	// the whole row when only one does. Each prints nothing of its own accord, so the row is built from what they print.
+	ob_start();
 	if ( function_exists( 'ner_michoel_render_for_you_home_new' ) ) {
 		ner_michoel_render_for_you_home_new();
 	}
-	?>
+	$for_you = trim( ob_get_clean() );
 
-	<?php get_template_part( 'template-parts/home-week' ); // This week's parsha and the Yom Tov in season (inc/week.php). ?>
+	ob_start();
+	get_template_part( 'template-parts/home-week' );
+	$week_box = trim( ob_get_clean() );
+	?>
+	<?php if ( '' !== $for_you || '' !== $week_box ) : ?>
+		<div class="hn-duo<?php echo ( '' !== $for_you && '' !== $week_box ) ? ' hn-duo--both' : ''; ?>">
+			<?php echo $for_you . $week_box; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup the two renderers already escaped. ?>
+		</div>
+	<?php endif; ?>
 
 	<div class="hn-main">
 
