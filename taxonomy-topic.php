@@ -120,7 +120,7 @@ $written = $is_first ? get_posts(
 						array(
 							'title'    => get_the_title( $item ),
 							'subtitle' => ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) ? $speaker_terms[0]->name : '',
-							'image'    => get_the_post_thumbnail_url( $item, 'medium' ),
+							'image'    => ner_michoel_shiur_art( $item, 'medium' ),
 							'link'     => get_permalink( $item ),
 							'kicker'   => __( 'Written', 'ner-michoel-child' ),
 							'save_id'  => $item->ID,

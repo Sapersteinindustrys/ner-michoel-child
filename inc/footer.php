@@ -1,8 +1,7 @@
 <?php
 /**
- * The site footer: the title, links to the pages, the Contribute button and the
- * Amazon Smile link that an administrator sets in the Control Panel (Homepage &
- * Look > Footer; ner-michoel-core, includes/footer-settings.php). Styles in
+ * The site footer: the title, links to the pages and the Contribute button that
+ * an administrator sets in the Control Panel (Homepage & Look > Footer; ner-michoel-core, includes/footer-settings.php). Styles in
  * assets/css/footer.css.
  *
  * It is printed on every page, just before Astra's own footer (#colophon), and
@@ -80,9 +79,6 @@ function ner_michoel_render_site_footer() {
 	$buttons = '';
 	if ( ! empty( $footer['contribute'] ) ) {
 		$buttons .= ner_michoel_footer_link_html( $footer['contribute'], 'nm-footer__btn nm-footer__btn--primary' );
-	}
-	if ( ! empty( $footer['smile'] ) ) {
-		$buttons .= ner_michoel_footer_link_html( $footer['smile'], 'nm-footer__btn' );
 	}
 
 	$links = '';

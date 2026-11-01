@@ -204,10 +204,7 @@ function ner_michoel_home_shiur_row( $post ) {
 	$serie    = ( $series && ! is_wp_error( $series ) ) ? $series[0] : null;
 
 	// The shiur's own picture, then its speaker's photo, then initials.
-	$photo = get_the_post_thumbnail_url( $post, 'thumbnail' );
-	if ( ! $photo && $speaker && function_exists( 'ner_michoel_get_speaker_photo_url' ) ) {
-		$photo = ner_michoel_get_speaker_photo_url( $speaker->term_id );
-	}
+	$photo = ner_michoel_shiur_art( $post, 'thumbnail' );
 
 	$timestamp = (int) get_post_time( 'U', true, $post );
 	$name      = $speaker ? $speaker->name : get_the_title( $post );

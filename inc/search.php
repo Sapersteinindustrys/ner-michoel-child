@@ -63,6 +63,10 @@ function ner_michoel_enqueue_shiur_live_search() {
 			'audio'     => __( 'Audio', 'ner-michoel-child' ),
 			'video'     => __( 'Video', 'ner-michoel-child' ),
 			'written'   => __( 'Written', 'ner-michoel-child' ),
+			// The table's Listen / Watch / Read column.
+			'listen'    => __( 'Listen', 'ner-michoel-child' ),
+			'watch'     => __( 'Watch', 'ner-michoel-child' ),
+			'read'      => __( 'Read', 'ner-michoel-child' ),
 			// The heading above the results that match with a letter or two off or swapped.
 			'closeOne'  => __( '1 close match · spelled a little differently', 'ner-michoel-child' ),
 			/* translators: %s: number of close matches */

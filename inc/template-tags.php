@@ -236,6 +236,29 @@ function ner_michoel_art_placeholder( $kind = 'audio' ) {
 }
 
 /**
+ * A shiur's square picture: its own image, else its speaker's photo (core
+ * 0.9.41+, ner_michoel_get_shiur_art_url()), else '' for the letter tile.
+ */
+function ner_michoel_shiur_art( $post, $size = 'thumbnail' ) {
+	if ( function_exists( 'ner_michoel_get_shiur_art_url' ) ) {
+		return ner_michoel_get_shiur_art_url( $post, $size );
+	}
+	$url = get_the_post_thumbnail_url( $post, $size );
+	return $url ? $url : '';
+}
+
+/**
+ * A series' square picture: its own cover, else its main speaker's photo
+ * (core 0.9.41+, ner_michoel_get_series_art_url()), else ''.
+ */
+function ner_michoel_series_art( $term_id ) {
+	if ( function_exists( 'ner_michoel_get_series_art_url' ) ) {
+		return ner_michoel_get_series_art_url( $term_id );
+	}
+	return function_exists( 'ner_michoel_get_series_cover_url' ) ? (string) ner_michoel_get_series_cover_url( $term_id ) : '';
+}
+
+/**
  * Fallback "cover art" for a speaker/series/shiur with no image set —
  * a tile showing its first letter, styled entirely in CSS. --hue gives
  * each name its own tint where the look uses it; the same name always
@@ -646,10 +669,7 @@ function ner_michoel_render_library_card( $post_id ) {
 	$speaker_terms = get_the_terms( $post_id, 'speaker' );
 	$speaker       = ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) ? $speaker_terms[0] : null;
 
-	$cover = get_the_post_thumbnail_url( $post_id, 'medium' );
-	if ( ! $cover && $speaker && function_exists( 'ner_michoel_get_speaker_photo_url' ) ) {
-		$cover = ner_michoel_get_speaker_photo_url( $speaker->term_id );
-	}
+	$cover = ner_michoel_shiur_art( $post_id, 'medium' );
 
 	$show_save = is_user_logged_in() && function_exists( 'ner_michoel_is_post_saved_by_user' );
 	$is_saved  = $show_save && ner_michoel_is_post_saved_by_user( $post_id );
@@ -701,7 +721,8 @@ function ner_michoel_render_shiurim_sidebar() {
 	$is_recent     = isset( $_GET['sh_view'] ) && 'recent' === $_GET['sh_view']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$is_foryou     = function_exists( 'ner_michoel_is_for_you_view' ) && ner_michoel_is_for_you_view();
 	$show_foryou   = function_exists( 'ner_michoel_for_you_available' ) && ner_michoel_for_you_available();
-	$is_all        = is_post_type_archive( 'shiur' ) && ! $is_recent && ! $is_foryou;
+	$is_table      = is_search() && isset( $_GET['vw'] ) && 'table' === $_GET['vw']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$is_all        = is_post_type_archive( 'shiur' ) && ! $is_recent && ! $is_foryou && ! $is_table;
 	?>
 	<aside class="sh-sidebar">
 		<form class="sh-sidebar__search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
@@ -712,6 +733,8 @@ function ner_michoel_render_shiurim_sidebar() {
 
 		<nav class="sh-sidebar__nav">
 			<a href="<?php echo esc_url( $shiurim_url ); ?>" class="sh-sidebar__link<?php echo $is_all ? ' is-active' : ''; ?>"><?php esc_html_e( 'All Shiurim', 'ner-michoel-child' ); ?></a>
+			<?php // The live search as a table of every shiur that filters as you type (search-shiurim.php). ?>
+			<a href="<?php echo esc_url( add_query_arg( array( 'post_type' => 'shiur', 's' => '', 'vw' => 'table' ), home_url( '/' ) ) ); ?>" class="sh-sidebar__link<?php echo $is_table ? ' is-active' : ''; ?>"><?php esc_html_e( 'Shiur Table', 'ner-michoel-child' ); ?></a>
 			<?php if ( $show_foryou ) : ?>
 				<a href="<?php echo esc_url( ner_michoel_for_you_url() ); ?>" class="sh-sidebar__link<?php echo $is_foryou ? ' is-active' : ''; ?>"><?php esc_html_e( 'For you', 'ner-michoel-child' ); ?></a>
 			<?php endif; ?>
@@ -776,7 +799,7 @@ function ner_michoel_shiur_is_video( $post_id ) {
 function ner_michoel_render_track_row( $shiur, $index, $show_speaker = true ) {
 	$speaker_terms = get_the_terms( $shiur, 'speaker' );
 	$speaker_name  = ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) ? $speaker_terms[0]->name : '';
-	$cover         = get_the_post_thumbnail_url( $shiur, 'thumbnail' );
+	$cover         = ner_michoel_shiur_art( $shiur, 'thumbnail' );
 	$dates_html    = ner_michoel_get_shiur_dates_html( $shiur );
 
 	if ( ner_michoel_shiur_is_video( $shiur->ID ) ) {
@@ -994,7 +1017,7 @@ function ner_michoel_render_continue_card( $term, $shiur ) {
 		$queue     = ner_michoel_build_track_queue( ner_michoel_series_rest_for_shiur( $shiur ) );
 		$queue_url = '';
 	}
-	$cover  = ner_michoel_get_series_cover_url( $term->term_id );
+	$cover  = ner_michoel_series_art( $term->term_id );
 	$link   = get_term_link( $term );
 	?>
 	<div class="nm-continue-card">

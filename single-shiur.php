@@ -18,7 +18,7 @@ while ( have_posts() ) :
 	$audio_url     = ner_michoel_get_shiur_audio_url( get_the_ID() );
 	$speaker_terms = get_the_terms( get_the_ID(), 'speaker' );
 	$series_terms  = get_the_terms( get_the_ID(), 'series' );
-	$poster        = get_the_post_thumbnail_url( get_the_ID(), 'large' );
+	$poster        = ner_michoel_shiur_art( get_the_ID(), 'large' );
 	$download_url  = function_exists( 'ner_michoel_get_shiur_download_url' )
 		? ner_michoel_get_shiur_download_url( get_the_ID() )
 		: ( $is_video ? $video_url : $audio_url );

@@ -144,7 +144,7 @@ function ner_michoel_for_you_data() {
 			'shiur'     => $shiur,
 			'name'      => ner_michoel_series_full_name( $term ),
 			'link'      => $link,
-			'cover'     => function_exists( 'ner_michoel_get_series_cover_url' ) ? (string) ner_michoel_get_series_cover_url( $term->term_id ) : '',
+			'cover'     => ner_michoel_series_art( $term->term_id ),
 			'left_off'  => get_the_title( $shiur ),
 			'track'     => $track,
 			'queue_url' => $queue_url,
@@ -283,7 +283,7 @@ function ner_michoel_for_you_shiur_card( $post ) {
 			array(
 				'title'    => get_the_title( $post ),
 				'subtitle' => ( $speakers && ! is_wp_error( $speakers ) ) ? $speakers[0]->name : '',
-				'image'    => get_the_post_thumbnail_url( $post, 'medium' ),
+				'image'    => ner_michoel_shiur_art( $post, 'medium' ),
 				'link'     => get_permalink( $post ),
 				'save_id'  => $post->ID,
 			),
@@ -380,7 +380,7 @@ function ner_michoel_for_you_studio_card( $item ) {
 		'count'     => 0,
 		/* translators: %s: title of the shiur the listener last played */
 		'meta'      => sprintf( __( 'Left off at: %s', 'ner-michoel-child' ), $item['left_off'] ),
-		'image'     => $item['cover'],
+		'image'     => function_exists( 'ner_michoel_get_series_cover_url' ) ? (string) ner_michoel_get_series_cover_url( $term->term_id ) : '', // Studio's series cards keep their drawn name cover.
 		'cover'     => $main,
 		'cover_sub' => implode( ' · ', array_slice( $cover, 1 ) ),
 		'tone'      => ner_michoel_studio_tone( $main ),

@@ -81,6 +81,16 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 						<?php esc_html_e( 'Email', 'ner-michoel-child' ); ?>
 						<input type="email" value="<?php echo esc_attr( $account['email'] ); ?>" disabled />
 					</label>
+					<?php if ( array_key_exists( 'phone', $account ) ) : // Core with alumni contact details. ?>
+					<label class="nm-contact-form__field">
+						<?php esc_html_e( 'Phone', 'ner-michoel-child' ); ?>
+						<input type="tel" name="phone" value="<?php echo esc_attr( $account['phone'] ); ?>" autocomplete="tel" maxlength="40" />
+					</label>
+					<label class="nm-contact-form__field">
+						<?php esc_html_e( 'Address', 'ner-michoel-child' ); ?>
+						<textarea name="address" rows="3" autocomplete="street-address" maxlength="400"><?php echo esc_textarea( $account['address'] ); ?></textarea>
+					</label>
+					<?php endif; ?>
 					<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Save Changes', 'ner-michoel-child' ); ?></button>
 				</form>
 

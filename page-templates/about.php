@@ -6,6 +6,11 @@
  * history, the Rabbi Michoel Weiner memorial section, and Ner
  * Michoel's own founding. No layout toggle; a static page doesn't
  * benefit from a Modern/Classic split the way browsable content does.
+ *
+ * Once the page has been opened from the Control Panel (Homepage & Look >
+ * About Page, ner-michoel-core includes/site-pages.php), the page's own
+ * content is shown instead of the text below, so it can be edited. Until
+ * then (or with an older core) the text below shows, as before.
  */
 
 get_header();
@@ -26,6 +31,11 @@ get_header();
 			</figure>
 		<?php endif; ?>
 
+		<?php if ( function_exists( 'ner_michoel_about_uses_page_content' ) && ner_michoel_about_uses_page_content( get_the_ID() ) ) : ?>
+		<div class="nm-page__content entry-content">
+			<?php the_content(); ?>
+		</div>
+		<?php else : ?>
 		<div class="nm-page__content entry-content">
 			<h2><?php esc_html_e( 'Yeshivas Toras Moshe', 'ner-michoel-child' ); ?></h2>
 			<p><?php esc_html_e( 'Yeshivas Toras Moshe was founded in Jerusalem in 1982 by Rav Moshe Meiselman shlita, as a memorial to Rav Moshe Soloveitchik zt"l. The Yeshiva has experienced tremendous growth. With 130 bochurim and 50 avreichim in the kollel, enrollment is at an all-time high.', 'ner-michoel-child' ); ?></p>
@@ -38,6 +48,7 @@ get_header();
 			<p><?php esc_html_e( 'Reb Michoel studied under some of the most prominent Torah scholars of his generation and was known for his meticulous scholarship. His diligence in learning was legendary; he would sit for long hours, toiling in the understanding of Torah with complete focus. His commentaries on Talmudic texts are noted for their halakhic precision.', 'ner-michoel-child' ); ?></p>
 			<p><?php esc_html_e( 'Alongside his intensity in learning, Reb Michoel possessed an extraordinary sense of humor, and maintained a joyful home centered on spiritual service.', 'ner-michoel-child' ); ?></p>
 		</div>
+		<?php endif; ?>
 		<?php
 	endwhile;
 	?>

@@ -62,9 +62,37 @@ $title_empty    = __( 'Search shiurim', 'ner-michoel-child' );
 						<span class="screen-reader-text"><?php esc_html_e( 'Year', 'ner-michoel-child' ); ?></span>
 						<select data-live-year><option value=""><?php esc_html_e( 'All years', 'ner-michoel-child' ); ?></option></select>
 					</label>
+					<label>
+						<span class="screen-reader-text"><?php esc_html_e( 'Kind', 'ner-michoel-child' ); ?></span>
+						<select data-live-kind>
+							<option value=""><?php esc_html_e( 'Audio, video and written', 'ner-michoel-child' ); ?></option>
+							<option value="a"><?php esc_html_e( 'Audio', 'ner-michoel-child' ); ?></option>
+							<option value="v"><?php esc_html_e( 'Video', 'ner-michoel-child' ); ?></option>
+							<option value="w"><?php esc_html_e( 'Written', 'ner-michoel-child' ); ?></option>
+						</select>
+					</label>
 				</div>
-				<p class="nm-live-search__count" data-live-count aria-live="polite"></p>
+				<div class="nm-live-search__bar">
+					<p class="nm-live-search__count" data-live-count aria-live="polite"></p>
+					<div class="nm-live-search__views" role="group" aria-label="<?php esc_attr_e( 'Show results as', 'ner-michoel-child' ); ?>">
+						<button type="button" data-live-view="list" aria-pressed="false"><?php esc_html_e( 'List', 'ner-michoel-child' ); ?></button>
+						<button type="button" data-live-view="table" aria-pressed="false"><?php esc_html_e( 'Table', 'ner-michoel-child' ); ?></button>
+					</div>
+				</div>
 				<ul class="nm-live-results" data-live-results></ul>
+				<div class="nm-live-table-wrap" data-live-table-wrap hidden>
+					<table class="nm-live-table">
+						<thead>
+							<tr>
+								<th scope="col"><?php esc_html_e( 'Title', 'ner-michoel-child' ); ?></th>
+								<th scope="col"><?php esc_html_e( 'Magid Shiur', 'ner-michoel-child' ); ?></th>
+								<th scope="col"><?php esc_html_e( 'Date', 'ner-michoel-child' ); ?></th>
+								<th scope="col"><?php esc_html_e( 'Listen / Watch / Read', 'ner-michoel-child' ); ?></th>
+							</tr>
+						</thead>
+						<tbody data-live-table></tbody>
+					</table>
+				</div>
 				<button type="button" class="nm-live-search__more" data-live-more hidden><?php esc_html_e( 'Show more', 'ner-michoel-child' ); ?></button>
 			</div>
 
@@ -108,7 +136,7 @@ $title_empty    = __( 'Search shiurim', 'ner-michoel-child' );
 						array(
 							'title'    => get_the_title( $shiur ),
 							'subtitle' => $speaker_name,
-							'image'    => get_the_post_thumbnail_url( $shiur, 'medium' ),
+							'image'    => ner_michoel_shiur_art( $shiur, 'medium' ),
 							'link'     => get_permalink( $shiur ),
 							'queue'    => ner_michoel_build_track_queue( ner_michoel_series_rest_for_shiur( $shiur ) ), // a series shiur plays the rest of its series in order
 							'save_id'  => $shiur->ID,

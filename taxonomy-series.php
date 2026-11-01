@@ -8,7 +8,7 @@ get_header();
 $term = get_queried_object();
 
 $shiurim = ner_michoel_get_series_shiurim( $term->term_id );
-$image   = ner_michoel_get_series_cover_url( $term->term_id );
+$image   = ner_michoel_series_art( $term->term_id );
 $queue   = ner_michoel_build_track_queue( $shiurim );
 
 // The series directly inside this one that have shiurim in them or below them. (The site's lists skip a series that

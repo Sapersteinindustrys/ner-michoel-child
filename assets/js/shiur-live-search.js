@@ -6,8 +6,12 @@
  * per keystroke. The matching and ranking are shiur-search-engine.js's: full
  * matches first, then close matches (a letter or two off, or swapped) after them.
  *
- * - Search page: also changes with the speaker, series, topic and year filters,
- *   and keeps them in the URL. If the index can't be loaded, the page reloads as
+ * - Search page: also changes with the speaker, series, topic, year and kind
+ *   (audio / video / written) filters, and keeps them in the URL. The results
+ *   show as a list or as a table (Title, Magid Shiur, Date, Listen / Watch /
+ *   Read), like the shiur table on torasmoshe.org: the table on a computer and
+ *   the list on a phone unless the reader picks the other one (kept in the URL
+ *   as vw= and remembered in the browser). If the index can't be loaded, the page reloads as
  *   the plain search (?nm_plain=1), which the server ranks.
  * - Topic page: searches only that topic's shiurim and written shiurim, across
  *   all of its pages, in place of the page's own lists while there is something
@@ -108,8 +112,13 @@
 	 * count line. Shared by the search page and the topic box. Close matches come
 	 * after the full ones, under a heading that says how many there are.
 	 */
-	function resultsList( data, list, moreBtn, countEl ) {
+	function resultsList( data, list, moreBtn, countEl, table ) {
 		var KIND = { a: t( 'audio', 'Audio' ), v: t( 'video', 'Video' ), w: t( 'written', 'Written' ) };
+		var VERB = { a: t( 'listen', 'Listen' ), v: t( 'watch', 'Watch' ), w: t( 'read', 'Read' ) };
+		// table: { body: <tbody>, wrap: its box, on: function () { true while the table shows } }.
+		var asTable = function () {
+			return !! ( table && table.on() );
+		};
 		var found = { matches: [], exact: 0, close: 0 };
 		var shown = 0;
 
@@ -148,13 +157,84 @@
 			return li;
 		}
 
+		// One table row: the title (with its series under it), the speaker, the date
+		// (English, Hebrew under it) and the kinds it comes in, each with its icon.
+		function tableRow( it ) {
+			var tr = document.createElement( 'tr' );
+
+			var title         = document.createElement( 'td' );
+			title.className   = 'nm-live-table__title';
+			var link          = document.createElement( 'a' );
+			link.href         = it.u;
+			link.textContent  = it.m;
+			title.appendChild( link );
+			if ( data.series[ it.s ] ) {
+				var series         = document.createElement( 'span' );
+				series.className   = 'nm-live-table__sub';
+				series.textContent = data.series[ it.s ];
+				title.appendChild( series );
+			}
+			tr.appendChild( title );
+
+			var speaker         = document.createElement( 'td' );
+			speaker.textContent = data.speakers[ it.a ] || '';
+			tr.appendChild( speaker );
+
+			var date         = document.createElement( 'td' );
+			date.className   = 'nm-live-table__date';
+			date.textContent = formatDate( it.t );
+			var hebrew       = formatHebrewDate( it.t );
+			if ( hebrew ) {
+				var heb         = document.createElement( 'span' );
+				heb.className   = 'nm-live-table__sub';
+				heb.textContent = hebrew;
+				date.appendChild( heb );
+			}
+			tr.appendChild( date );
+
+			var kinds       = document.createElement( 'td' );
+			kinds.className = 'nm-live-table__kinds';
+			( it.f && it.f.length > 1 ? it.f : it.c ).split( '' ).forEach( function ( kind ) {
+				if ( ! VERB[ kind ] ) {
+					return;
+				}
+				var tag         = document.createElement( 'span' );
+				tag.className   = 'nm-live-table__kind nm-live-table__kind--' + kind;
+				tag.textContent = VERB[ kind ];
+				tag.title       = KIND[ kind ];
+				kinds.appendChild( tag );
+			} );
+			if ( it.d ) {
+				var length         = document.createElement( 'span' );
+				length.className   = 'nm-live-table__length';
+				length.textContent = it.d;
+				kinds.appendChild( length );
+			}
+			tr.appendChild( kinds );
+
+			return tr;
+		}
+
 		function closeHeading() {
+			if ( asTable() ) {
+				var tr          = document.createElement( 'tr' );
+				tr.className    = 'nm-live-table__divider';
+				var cell        = document.createElement( 'td' );
+				cell.colSpan    = 4;
+				cell.textContent = closeText();
+				tr.appendChild( cell );
+				return tr;
+			}
 			var li       = document.createElement( 'li' );
 			li.className = 'nm-live-results__divider';
-			li.textContent = 1 === found.close
+			li.textContent = closeText();
+			return li;
+		}
+
+		function closeText() {
+			return 1 === found.close
 				? t( 'closeOne', '1 close match · spelled a little differently' )
 				: format( t( 'closeMany', '%s close matches · spelled a little differently' ), [ found.close.toLocaleString() ] );
-			return li;
 		}
 
 		function updateCount( none ) {
@@ -179,9 +259,9 @@
 				if ( i === found.exact && found.close ) {
 					fragment.appendChild( closeHeading() );
 				}
-				fragment.appendChild( row( found.matches[ i ].it ) );
+				fragment.appendChild( asTable() ? tableRow( found.matches[ i ].it ) : row( found.matches[ i ].it ) );
 			}
-			list.appendChild( fragment );
+			( asTable() ? table.body : list ).appendChild( fragment );
 			shown          = end;
 			moreBtn.hidden = shown >= found.matches.length;
 			updateCount( none );
@@ -195,12 +275,24 @@
 				found            = result;
 				none             = message;
 				list.textContent = '';
+				if ( table ) {
+					table.body.textContent = '';
+					table.wrap.hidden      = ! asTable() || ! result.matches.length;
+					list.hidden            = asTable();
+				}
 				shown            = 0;
 				showMore();
+			},
+			// Shows the same results again, from the top (after a switch between list and table).
+			redraw: function () {
+				this.show( found, none );
 			},
 			clear: function () {
 				found            = { matches: [], exact: 0, close: 0 };
 				list.textContent = '';
+				if ( table ) {
+					table.body.textContent = '';
+				}
 				shown            = 0;
 				moreBtn.hidden   = true;
 				countEl.textContent = '';
@@ -224,6 +316,11 @@
 		var seriesEl  = root.querySelector( '[data-live-series]' );
 		var topicEl   = root.querySelector( '[data-live-topic]' );
 		var yearEl    = root.querySelector( '[data-live-year]' );
+		var kindEl    = root.querySelector( '[data-live-kind]' );
+		var tableBody = root.querySelector( '[data-live-table]' );
+		var tableWrap = root.querySelector( '[data-live-table-wrap]' );
+		var viewBtns  = Array.prototype.slice.call( root.querySelectorAll( '[data-live-view]' ) );
+		var viewMode  = 'list';
 		var countEl   = root.querySelector( '[data-live-count]' );
 		var list      = root.querySelector( '[data-live-results]' );
 		var moreBtn   = root.querySelector( '[data-live-more]' );
@@ -301,8 +398,12 @@
 				topicEl.value = params.get( 'tp' ) || '';
 			}
 			yearEl.value    = params.get( 'yr' ) || '';
+			if ( kindEl ) {
+				kindEl.value = params.get( 'ty' ) || '';
+			}
+			setView( params.get( 'vw' ) || savedView() || ( window.matchMedia && window.matchMedia( '(min-width: 760px)' ).matches ? 'table' : 'list' ) );
 			// An option that isn't in the index (an old link) falls back to "All".
-			[ speakerEl, seriesEl, topicEl, yearEl ].forEach( function ( select ) {
+			[ speakerEl, seriesEl, topicEl, yearEl, kindEl ].forEach( function ( select ) {
 				if ( select && select.selectedIndex < 0 ) {
 					select.value = '';
 				}
@@ -314,7 +415,7 @@
 			params.set( 's', input.value );
 			params.set( 'post_type', 'shiur' );
 			params.delete( 'nm_plain' );
-			[ [ 'by', speakerEl.value ], [ 'sr', seriesEl.value ], [ 'tp', topicEl ? topicEl.value : '' ], [ 'yr', yearEl.value ] ].forEach( function ( pair ) {
+			[ [ 'by', speakerEl.value ], [ 'sr', seriesEl.value ], [ 'tp', topicEl ? topicEl.value : '' ], [ 'yr', yearEl.value ], [ 'ty', kindEl ? kindEl.value : '' ], [ 'vw', tableBody ? viewMode : '' ] ].forEach( function ( pair ) {
 				if ( pair[ 1 ] ) {
 					params.set( pair[ 0 ], pair[ 1 ] );
 				} else {
@@ -334,6 +435,44 @@
 				: ( titleEl.getAttribute( 'data-title-empty' ) || '' );
 		}
 
+		// List or table. Only where the page has the table (an older page doesn't).
+		function setView( mode ) {
+			viewMode = tableBody && 'table' === mode ? 'table' : 'list';
+			viewBtns.forEach( function ( btn ) {
+				btn.setAttribute( 'aria-pressed', btn.getAttribute( 'data-live-view' ) === viewMode ? 'true' : 'false' );
+			} );
+		}
+
+		function savedView() {
+			try {
+				return window.localStorage.getItem( 'nmShiurView' ) || '';
+			} catch ( e ) {
+				return '';
+			}
+		}
+
+		function saveView() {
+			try {
+				window.localStorage.setItem( 'nmShiurView', viewMode );
+			} catch ( e ) {}
+		}
+
+		// Only the shiurim that come in this kind (its own, or one of its formats).
+		function onlyKind( result, kind ) {
+			if ( ! kind ) {
+				return result;
+			}
+			var exact = 0;
+			var keep  = result.matches.filter( function ( match, i ) {
+				var ok = -1 !== ( match.it.f || match.it.c ).indexOf( kind );
+				if ( ok && i < result.exact ) {
+					exact++;
+				}
+				return ok;
+			} );
+			return { matches: keep, exact: exact, close: keep.length - exact };
+		}
+
 		function run() {
 			writeUrl();
 			updateTitle();
@@ -345,7 +484,7 @@
 				topic: topicEl ? topicEl.value : '',
 				year: yearEl.value
 			} );
-			view.show( result, t( 'none', 'No shiurim match these words and filters. Try fewer or different words.' ) );
+			view.show( onlyKind( result, kindEl ? kindEl.value : '' ), t( 'none', 'No shiurim match these words and filters. Try fewer or different words.' ) );
 		}
 
 		function schedule() {
@@ -359,10 +498,34 @@
 		loadIndex( root.getAttribute( 'data-index-url' ) )
 			.then( function ( prepared ) {
 				data = prepared;
-				view = resultsList( data, list, moreBtn, countEl );
+				view = resultsList(
+					data,
+					list,
+					moreBtn,
+					countEl,
+					tableBody && tableWrap ? {
+						body: tableBody,
+						wrap: tableWrap,
+						on: function () {
+							return 'table' === viewMode;
+						}
+					} : null
+				);
 				fillFilters();
 				readUrl();
 				run();
+
+				if ( kindEl ) {
+					kindEl.addEventListener( 'change', run );
+				}
+				viewBtns.forEach( function ( btn ) {
+					btn.addEventListener( 'click', function () {
+						setView( btn.getAttribute( 'data-live-view' ) );
+						saveView();
+						writeUrl();
+						view.redraw();
+					} );
+				} );
 
 				input.addEventListener( 'input', schedule );
 				speakerEl.addEventListener( 'change', run );

@@ -87,7 +87,7 @@ $series_playable = $lazy_queues && $has_series && function_exists( 'ner_michoel_
 								array(
 									'title'    => get_the_title( $shiur ),
 									'subtitle' => $speaker_name,
-									'image'    => get_the_post_thumbnail_url( $shiur, 'medium' ),
+									'image'    => ner_michoel_shiur_art( $shiur, 'medium' ),
 									'link'     => get_permalink( $shiur ),
 									'save_id'  => $shiur->ID,
 								),

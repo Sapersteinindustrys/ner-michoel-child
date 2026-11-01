@@ -180,3 +180,166 @@
 [data-topic-browse][hidden] {
 	display: none !important;
 }
+
+/*
+ * The results as a table (Title, Magid Shiur, Date, Listen / Watch / Read), the
+ * other way to show the live search, like the shiur table on torasmoshe.org.
+ * shiur-live-search.js fills it; the List / Table buttons switch.
+ */
+.nm-live-search__bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	column-gap: 16px;
+}
+
+.nm-live-search__views {
+	display: inline-flex;
+	border: 1px solid var(--sh-border, #c9d1d9);
+	border-radius: 999px;
+	overflow: hidden;
+}
+
+.nm-live-search__views button {
+	padding: 6px 14px;
+	border: 0;
+	background: var(--sh-surface, #fff);
+	color: var(--sh-text, inherit);
+	font: inherit;
+	font-size: 0.88rem;
+	cursor: pointer;
+}
+
+.nm-live-search__views button + button {
+	border-left: 1px solid var(--sh-border, #c9d1d9);
+}
+
+.nm-live-search__views button[aria-pressed="true"] {
+	background: var(--sh-accent, #1d4ed8);
+	color: #fff;
+}
+
+.nm-live-search__views button:focus-visible {
+	outline: 2px solid var(--sh-accent, #1d4ed8);
+	outline-offset: 2px;
+}
+
+.nm-live-results[hidden],
+.nm-live-table-wrap[hidden] {
+	display: none;
+}
+
+.nm-live-table-wrap {
+	overflow-x: auto;
+}
+
+.nm-live-table {
+	width: 100%;
+	margin: 0;
+	border: 0;
+	border-collapse: collapse;
+	font-size: 0.92rem;
+}
+
+.nm-live-table th {
+	padding: 8px 10px;
+	border: 0;
+	border-bottom: 2px solid var(--sh-border, #e5e7eb);
+	color: var(--sh-text-muted, #5b6470);
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-align: left;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+.nm-live-table td {
+	padding: 9px 10px;
+	border: 0;
+	border-bottom: 1px solid var(--sh-border, #e5e7eb);
+	vertical-align: top;
+}
+
+.nm-live-table tbody tr:hover {
+	background: var(--sh-surface-2, rgba(0, 0, 0, 0.03));
+}
+
+/* Two classes, to beat body.is-nm-app a { color: inherit } in custom.css. */
+.nm-live-search .nm-live-table__title a {
+	color: var(--sh-text, inherit);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.nm-live-search .nm-live-table__title a:hover,
+.nm-live-search .nm-live-table__title a:focus-visible {
+	color: var(--sh-accent, #1d4ed8);
+}
+
+.nm-live-table__sub {
+	display: block;
+	margin-top: 2px;
+	color: var(--sh-text-muted, #5b6470);
+	font-size: 0.82rem;
+}
+
+.nm-live-table__date {
+	white-space: nowrap;
+}
+
+.nm-live-table__kinds {
+	white-space: nowrap;
+}
+
+.nm-live-table__kind {
+	display: inline-block;
+	margin: 0 4px 4px 0;
+	padding: 2px 8px;
+	border: 1px solid var(--sh-border, #c9d1d9);
+	border-radius: 999px;
+	font-size: 0.8rem;
+}
+
+.nm-live-table__length {
+	display: block;
+	color: var(--sh-text-muted, #5b6470);
+	font-size: 0.8rem;
+}
+
+.nm-live-table__divider td {
+	padding-top: 18px;
+	color: var(--sh-text-muted, #5b6470);
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+/* A phone: the speaker and the date go under the title, in the same cell's row. */
+@media (max-width: 640px) {
+	.nm-live-table thead {
+		display: none;
+	}
+
+	.nm-live-table tr {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		padding: 8px 0;
+		border-bottom: 1px solid var(--sh-border, #e5e7eb);
+	}
+
+	.nm-live-table td {
+		padding: 2px 0;
+		border: 0;
+	}
+
+	.nm-live-table td:first-child {
+		grid-column: 1 / -1;
+	}
+
+	.nm-live-table__divider td {
+		grid-column: 1 / -1;
+	}
+}

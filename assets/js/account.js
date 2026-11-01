@@ -229,6 +229,13 @@
 				pref_new_shiur_alerts: signupForm.pref_new_shiur_alerts.checked,
 				website: signupForm.website.value // honeypot — always blank for real visitors
 			} ) ).then( function ( result ) {
+				if ( result.ok && result.data.success && result.data.alumni_pending ) {
+					// Alumni only: the office approves this account first.
+					setFormBusy( signupForm, false );
+					signupForm.reset();
+					notice( noticeEl, result.data.message, false );
+					return;
+				}
 				if ( result.ok && result.data.success && ! result.data.verify ) {
 					window.location.reload();
 					return;
@@ -389,14 +396,14 @@
 	}
 
 	/** The sign-up can't be continued from here (another tab or a new code replaced it): back to Log In, which picks it up again. */
-	function verifySessionEnded( message ) {
+	function verifySessionEnded( message, isError ) {
 		var email = pending ? pending.email : '';
 		writePending( null );
 		pending = null;
 		window.clearInterval( resendTimer );
 		resendTimer = null;
 		showPanel( 'login' );
-		notice( noticeBox, message, true );
+		notice( noticeBox, message, false !== isError );
 		if ( loginForm ) {
 			loginForm.password.value = '';
 			if ( email ) {
@@ -452,6 +459,11 @@
 				}
 				if ( 'invalid_session' === data.code ) {
 					verifySessionEnded( data.message );
+					return;
+				}
+				if ( 'alumni_pending' === data.code ) {
+					// Email confirmed; the office looks at the account before it can log in.
+					verifySessionEnded( data.message, false );
 					return;
 				}
 				setVerifyBusy( false );
@@ -554,7 +566,14 @@
 		profileForm.addEventListener( 'submit', function ( e ) {
 			e.preventDefault();
 			var noticeEl = document.getElementById( 'nm-account-notice' );
-			postAccount( 'account-update-profile', { name: profileForm.name.value } ).then( function ( result ) {
+			var fields = { name: profileForm.name.value };
+			if ( profileForm.phone ) {
+				fields.phone = profileForm.phone.value;
+			}
+			if ( profileForm.address ) {
+				fields.address = profileForm.address.value;
+			}
+			postAccount( 'account-update-profile', fields ).then( function ( result ) {
 				notice( noticeEl, result.ok ? 'Saved.' : ( result.data.message || 'Something went wrong.' ), ! result.ok );
 			} );
 		} );
