@@ -64,6 +64,9 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 			<p id="nm-account-notice" class="nm-form-notice" role="status" aria-live="polite" hidden></p>
 
 			<div class="nm-account-panel" data-panel="profile">
+				<?php if ( function_exists( 'ner_michoel_alumni_can_view' ) && ner_michoel_alumni_can_view() ) : // The Alumni section (core alumni-section.php): the way in for alumni. ?>
+					<p class="nm-account-alumni"><a href="<?php echo esc_url( ner_michoel_alumni_url() ); ?>"><?php esc_html_e( 'Open the Alumni section', 'ner-michoel-child' ); ?> &rarr;</a></p>
+				<?php endif; ?>
 				<div class="nm-account-avatar">
 					<img id="nm-account-avatar-preview" class="nm-account-avatar__img" src="<?php echo esc_url( $account['avatarUrl'] ); ?>" width="96" height="96" alt="" />
 					<label class="nm-account-avatar__upload">

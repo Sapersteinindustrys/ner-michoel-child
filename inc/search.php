@@ -78,6 +78,19 @@ function ner_michoel_enqueue_shiur_live_search() {
 }
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_shiur_live_search', 22 );
 
+/** The Alumni section's page and shiur pages (alumni.php, single-alumni_shiur.php). */
+function ner_michoel_enqueue_alumni_section() {
+	$is_page = function_exists( 'ner_michoel_is_alumni_page' ) && ner_michoel_is_alumni_page();
+	if ( ! $is_page && ! is_singular( 'alumni_shiur' ) ) {
+		return;
+	}
+	wp_enqueue_style( 'ner-michoel-alumni', NER_MICHOEL_URI . '/assets/css/alumni.css', array(), NER_MICHOEL_VERSION );
+	if ( $is_page ) {
+		wp_enqueue_script( 'ner-michoel-alumni', NER_MICHOEL_URI . '/assets/js/alumni.js', array(), NER_MICHOEL_VERSION, true );
+	}
+}
+add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_alumni_section', 22 );
+
 /**
  * True on a Shiurim search results page (the sidebar's search form sends
  * post_type=shiur with the term).

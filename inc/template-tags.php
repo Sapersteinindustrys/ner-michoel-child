@@ -735,6 +735,9 @@ function ner_michoel_render_shiurim_sidebar() {
 			<a href="<?php echo esc_url( $shiurim_url ); ?>" class="sh-sidebar__link<?php echo $is_all ? ' is-active' : ''; ?>"><?php esc_html_e( 'All Shiurim', 'ner-michoel-child' ); ?></a>
 			<?php // The live search as a table of every shiur that filters as you type (search-shiurim.php). ?>
 			<a href="<?php echo esc_url( add_query_arg( array( 'post_type' => 'shiur', 's' => '', 'vw' => 'table' ), home_url( '/' ) ) ); ?>" class="sh-sidebar__link<?php echo $is_table ? ' is-active' : ''; ?>"><?php esc_html_e( 'Shiur Table', 'ner-michoel-child' ); ?></a>
+			<?php if ( function_exists( 'ner_michoel_alumni_can_view_quick' ) && ner_michoel_alumni_can_view_quick() ) : // Only alumni (and staff) see the way in. ?>
+				<a href="<?php echo esc_url( ner_michoel_alumni_url() ); ?>" class="sh-sidebar__link"><?php esc_html_e( 'Alumni', 'ner-michoel-child' ); ?></a>
+			<?php endif; ?>
 			<?php if ( $show_foryou ) : ?>
 				<a href="<?php echo esc_url( ner_michoel_for_you_url() ); ?>" class="sh-sidebar__link<?php echo $is_foryou ? ' is-active' : ''; ?>"><?php esc_html_e( 'For you', 'ner-michoel-child' ); ?></a>
 			<?php endif; ?>

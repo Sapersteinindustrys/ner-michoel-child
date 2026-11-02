@@ -1,0 +1,34 @@
+/* The Alumni section (alumni.php, single-alumni_shiur.php). */
+.nm-alumni { max-width: 1040px; margin: 0 auto; padding: 24px 16px 48px; }
+.nm-alumni__kicker { margin: 0 0 4px; font-size: 0.85rem; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.7; }
+.nm-alumni__header h1 { margin: 0 0 16px; }
+.nm-alumni__h { font-size: 1.25rem; margin: 8px 0 12px; }
+.nm-alumni__gate { max-width: 560px; padding: 20px 22px; border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 12px; }
+.nm-alumni__button { display: inline-block; width: auto; padding-left: 24px; padding-right: 24px; text-decoration: none; }
+.nm-alumni__search { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+.nm-alumni__query { flex: 1 1 260px; min-width: 0; padding: 10px 14px; border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 999px; font-size: 1rem; }
+.nm-alumni__search select { padding: 9px 12px; border-radius: 999px; border: 1px solid rgba(0, 0, 0, 0.2); }
+.nm-alumni__count { margin: 6px 0 10px; font-size: 0.9rem; opacity: 0.75; }
+.nm-alumni__wrap { overflow-x: auto; }
+.nm-alumni__table { width: 100%; border-collapse: collapse; border: 0; font-size: 0.95rem; }
+.nm-alumni__table th, .nm-alumni__table td { border: 0; border-bottom: 1px solid rgba(0, 0, 0, 0.08); padding: 10px 8px; text-align: start; vertical-align: top; }
+.nm-alumni__table th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.7; }
+.nm-alumni__table tr[hidden] { display: none; }
+.nm-alumni__title a { font-weight: 600; text-decoration: none; }
+.nm-alumni__date, .nm-alumni__kind { white-space: nowrap; }
+.nm-alumni__dur { opacity: 0.6; font-size: 0.85em; margin-inline-start: 4px; }
+.nm-alumni__back a { text-decoration: none; }
+.nm-alumni__meta { opacity: 0.75; margin-top: 0; }
+.nm-alumni__audio, .nm-alumni__video-file { width: 100%; margin: 12px 0 20px; }
+.nm-alumni__video { position: relative; padding-top: 56.25%; margin: 12px 0 20px; }
+.nm-alumni__video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+@media (max-width: 640px) {
+	.nm-alumni__table thead { display: none; }
+	.nm-alumni__table, .nm-alumni__table tbody, .nm-alumni__table tr, .nm-alumni__table td { display: block; width: 100%; }
+	.nm-alumni__table tr { padding: 10px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
+	.nm-alumni__table tr[hidden] { display: none; }
+	.nm-alumni__table td { border: 0; padding: 2px 0; }
+	.nm-alumni__table td.nm-alumni__series, .nm-alumni__table td.nm-alumni__date { font-size: 0.85rem; opacity: 0.75; display: inline; width: auto; }
+	.nm-alumni__table td.nm-alumni__series:not(:empty) + td.nm-alumni__date::before { content: " · "; }
+	.nm-alumni__kind { margin-top: 4px; }
+}
