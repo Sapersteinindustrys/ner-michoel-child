@@ -1322,3 +1322,7 @@
 		transform: none;
 	}
 }
+
+/* A homepage shiur plays where it is; its title opens its page (custom.js). */
+.hn [data-play-queue] [data-open-page] { cursor: pointer; }
+.hn [data-play-queue] [data-open-page]:hover { text-decoration: underline; }

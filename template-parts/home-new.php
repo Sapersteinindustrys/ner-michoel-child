@@ -81,11 +81,11 @@ $site_name  = ner_michoel_site_name();
 			<?php endif; ?>
 
 			<?php if ( $newest ) : ?>
-				<a class="hn-now" href="<?php echo esc_url( $newest['link'] ); ?>">
+				<a class="hn-now" href="<?php echo esc_url( $newest['link'] ); ?>"<?php echo ner_michoel_home_play_attrs( $newest ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built. ?>>
 					<span class="hn-now__play" aria-hidden="true"><?php echo ner_michoel_icon( $newest['is_video'] ? 'video' : 'play' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 					<span class="hn-now__text">
 						<span class="hn-now__label"><?php esc_html_e( 'Newest shiur', 'ner-michoel-child' ); ?></span>
-						<span class="hn-now__title"><?php echo esc_html( $newest['title'] ); ?></span>
+						<span class="hn-now__title" data-open-page><?php echo esc_html( $newest['title'] ); ?></span>
 						<?php if ( $newest['speaker'] ) : ?>
 							<span class="hn-now__meta"><?php echo esc_html( $newest['speaker'] ); ?></span>
 						<?php endif; ?>
@@ -137,7 +137,7 @@ $site_name  = ner_michoel_site_name();
 				<ol class="hn-list" id="hn-list-listen"<?php echo $home['written'] ? ' role="tabpanel" aria-labelledby="hn-tab-listen"' : ''; ?>>
 					<?php foreach ( $home['shiurim'] as $row ) : ?>
 						<li class="hn-row">
-							<a class="hn-row__link" href="<?php echo esc_url( $row['link'] ); ?>">
+							<a class="hn-row__link" href="<?php echo esc_url( $row['link'] ); ?>"<?php echo ner_michoel_home_play_attrs( $row ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built. ?>>
 								<span class="hn-row__art"<?php echo $row['photo'] ? '' : ' style="--hue: ' . (int) $row['hue'] . '"'; ?>>
 									<?php if ( $row['photo'] ) : ?>
 										<img src="<?php echo esc_url( $row['photo'] ); ?>" alt="" loading="lazy" decoding="async" width="56" height="56" />
@@ -147,7 +147,7 @@ $site_name  = ner_michoel_site_name();
 									<span class="hn-row__play" aria-hidden="true"><?php echo ner_michoel_icon( $row['is_video'] ? 'video' : 'play' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 								</span>
 								<span class="hn-row__body">
-									<span class="hn-row__title"><?php echo esc_html( $row['title'] ); ?></span>
+									<span class="hn-row__title" data-open-page><?php echo esc_html( $row['title'] ); ?></span>
 									<span class="hn-row__meta">
 										<?php if ( $row['speaker'] ) : ?>
 											<span><?php echo esc_html( $row['speaker'] ); ?></span>

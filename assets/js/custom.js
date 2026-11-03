@@ -374,6 +374,13 @@ function nerMichoelRecordHistory( postId ) {
 	function showBar() {
 		player.hidden = false;
 		root.classList.add( 'nm-has-player' );
+		// Remembered for this tab only, so a reload mid-visit keeps the bar
+		// but a fresh visit starts without it (see the restore below).
+		try {
+			window.sessionStorage.setItem( BAR_SESSION_KEY, '1' );
+		} catch ( e ) {
+			// Storage unavailable — the bar just won't survive a reload.
+		}
 	}
 
 	// Bumped by closePlayer(), so a "next up" answer that arrives after the
@@ -394,6 +401,7 @@ function nerMichoelRecordHistory( postId ) {
 	var ICON_PAUSE = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
 
 	var STORAGE_KEY       = 'nerMichoelPlayer';
+	var BAR_SESSION_KEY   = 'nerMichoelPlayerShown';
 	var SPEED_STORAGE_KEY = 'nerMichoelPlayerSpeed';
 	var SPEEDS            = [ 0.75, 1, 1.25, 1.5, 1.75, 2 ];
 
@@ -734,6 +742,10 @@ function nerMichoelRecordHistory( postId ) {
 		if ( ! trigger ) {
 			return;
 		}
+		// A homepage shiur plays where it is; its title opens its page instead (the link goes ahead, nothing plays).
+		if ( e.target.closest( '[data-open-page]' ) && trigger.contains( e.target.closest( '[data-open-page]' ) ) ) {
+			return;
+		}
 		e.preventDefault();
 		var index   = parseInt( trigger.getAttribute( 'data-play-index' ), 10 ) || 0;
 		var url     = trigger.getAttribute( 'data-queue-url' );
@@ -818,6 +830,10 @@ function nerMichoelRecordHistory( postId ) {
 		// The download and like buttons in a row have their own jobs, so
 		// pressing them doesn't start playback.
 		if ( e.target.closest( '.sh-track__download, .sh-save' ) ) {
+			return;
+		}
+		// The title and the picture open the shiur's page, without playing it.
+		if ( e.target.closest( '.sh-track__open' ) ) {
 			return;
 		}
 		var row = e.target.closest( '.sh-track' );
@@ -1149,6 +1165,7 @@ function nerMichoelRecordHistory( postId ) {
 		updateActiveRowHighlight();
 		try {
 			window.localStorage.removeItem( STORAGE_KEY );
+			window.sessionStorage.removeItem( BAR_SESSION_KEY );
 		} catch ( e ) {
 			// Storage unavailable — nothing was saved to forget.
 		}
@@ -1278,7 +1295,9 @@ function nerMichoelRecordHistory( postId ) {
 
 	// Restore the last "now playing" snapshot (paused) on a page load, on
 	// any page — no autoplay, browsers block it without a fresh user
-	// gesture anyway. The close button forgets it.
+	// gesture anyway. The close button forgets it. The bar itself stays
+	// hidden on a fresh visit until something is selected; it only comes
+	// back on load when this tab already showed it (a reload mid-visit).
 	try {
 		var saved = window.localStorage.getItem( STORAGE_KEY );
 		if ( saved ) {
@@ -1298,7 +1317,15 @@ function nerMichoelRecordHistory( postId ) {
 				audio.src = currentTrack().src;
 				audio.playbackRate = currentSpeed;
 				updateMeta();
-				showBar();
+				var barWasShown = false;
+				try {
+					barWasShown = window.sessionStorage.getItem( BAR_SESSION_KEY ) === '1';
+				} catch ( e ) {
+					// Storage unavailable — keep the bar hidden.
+				}
+				if ( barWasShown ) {
+					showBar();
+				}
 				elPrev.disabled = state.index <= 0;
 				elNext.disabled = state.index >= state.queue.length - 1;
 				setToggleIcon( false );

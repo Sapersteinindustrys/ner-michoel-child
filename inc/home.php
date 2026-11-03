@@ -195,6 +195,28 @@ function ner_michoel_home_hue( $name ) {
 }
 
 /**
+ * What makes a homepage shiur play right there instead of opening its page
+ * (Yoni, 2026-11-02): the shiur's track and its autoplay queue, as the
+ * attributes custom.js's play handler reads. Empty for a shiur with no audio
+ * (a video plays on its own page, so that row stays a link).
+ */
+function ner_michoel_home_play_attrs( $row ) {
+	if ( ! empty( $row['is_video'] ) || ! function_exists( 'ner_michoel_build_track_queue' ) ) {
+		return '';
+	}
+	$post  = get_post( (int) $row['id'] );
+	$track = ( $post && 'shiur' === $post->post_type ) ? ner_michoel_build_track_queue( array( $post ) ) : array();
+	if ( ! $track ) {
+		return '';
+	}
+	$attrs = ' data-play-queue="' . esc_attr( wp_json_encode( $track ) ) . '" data-play-index="0"';
+	if ( function_exists( 'ner_michoel_queue_url' ) ) {
+		$attrs .= ' data-queue-url="' . esc_url( ner_michoel_queue_url( array( 'shiur' => $post->ID, 'mode' => 'autoplay' ) ) ) . '"';
+	}
+	return $attrs;
+}
+
+/**
  * One shiur as the new homepage lists it.
  */
 function ner_michoel_home_shiur_row( $post ) {
@@ -224,6 +246,47 @@ function ner_michoel_home_shiur_row( $post ) {
 		'iso'      => $timestamp ? gmdate( 'c', $timestamp ) : '',
 		'length'   => function_exists( 'ner_michoel_get_shiur_duration' ) ? ner_michoel_home_length( ner_michoel_get_shiur_duration( $post->ID ) ) : '',
 	);
+}
+
+/**
+ * For a written shiur that is the same shiur as an audio or video one (core
+ * shiur-formats.php: same title and speaker), that shiur: the audio one, else the
+ * video. Null when it is written only. The homepage lists a shiur once, by its
+ * audio (Yoni, 2026-11-03); its page offers the written one with "Read".
+ */
+function ner_michoel_home_bundled_shiur( $post ) {
+	if ( ! $post || 'written_shiur' !== $post->post_type || ! function_exists( 'ner_michoel_shiur_formats' ) ) {
+		return null;
+	}
+	$formats = ner_michoel_shiur_formats( $post->ID );
+	foreach ( array( 'a', 'v' ) as $kind ) {
+		if ( ! empty( $formats[ $kind ] ) ) {
+			$other = get_post( (int) $formats[ $kind ] );
+			if ( $other && 'shiur' === $other->post_type && 'publish' === $other->post_status ) {
+				return $other;
+			}
+		}
+	}
+	return null;
+}
+
+/**
+ * A list of shiurim and written shiurim with each written one that has an audio or
+ * video twin swapped for that twin, and each shiur listed once (where it first comes).
+ */
+function ner_michoel_home_unbundle( array $posts ) {
+	$out  = array();
+	$seen = array();
+	foreach ( $posts as $post ) {
+		$twin = ner_michoel_home_bundled_shiur( $post );
+		$post = $twin ? $twin : $post;
+		if ( isset( $seen[ $post->ID ] ) ) {
+			continue;
+		}
+		$seen[ $post->ID ] = true;
+		$out[]             = $post;
+	}
+	return $out;
 }
 
 /**
@@ -267,14 +330,21 @@ function ner_michoel_home_new_data() {
 	}
 
 	if ( post_type_exists( 'written_shiur' ) && function_exists( 'ner_michoel_written_data' ) ) {
+		// Written only: one that is the same shiur as an audio or video is listed by that one, under "Audio & video".
 		$written = get_posts(
 			array(
 				'post_type'      => 'written_shiur',
-				'posts_per_page' => 8,
+				'posts_per_page' => 40,
 				'no_found_rows'  => true,
 			)
 		);
 		foreach ( $written as $post ) {
+			if ( count( $data['written'] ) >= 8 ) {
+				break;
+			}
+			if ( ner_michoel_home_bundled_shiur( $post ) ) {
+				continue;
+			}
 			$item = ner_michoel_written_data( $post );
 			if ( ! $item ) {
 				continue;
@@ -295,11 +365,15 @@ function ner_michoel_home_new_data() {
 	}
 
 	if ( post_type_exists( 'mazal_tov' ) ) {
+		// In the admin's order when there is one (core mazal-tov-order.php), else newest first.
 		$mazal = get_posts(
-			array(
-				'post_type'      => 'mazal_tov',
-				'posts_per_page' => 6,
-				'no_found_rows'  => true,
+			array_merge(
+				array(
+					'post_type'      => 'mazal_tov',
+					'posts_per_page' => 6,
+					'no_found_rows'  => true,
+				),
+				function_exists( 'ner_michoel_mazal_tov_order_args' ) ? ner_michoel_mazal_tov_order_args() : array()
 			)
 		);
 		foreach ( $mazal as $post ) {

@@ -838,15 +838,16 @@ function ner_michoel_render_track_row( $shiur, $index, $show_speaker = true ) {
 			<span class="sh-track__eq" aria-hidden="true"><span></span><span></span><span></span></span>
 			<button type="button" class="sh-track__play" aria-label="<?php esc_attr_e( 'Play', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'play' ); ?></button>
 		</div>
-		<div class="sh-track__art">
+		<?php // The picture and the title open the shiur's page without playing; the rest of the row plays it here (custom.js). ?>
+		<a class="sh-track__art sh-track__open" href="<?php echo esc_url( get_permalink( $shiur ) ); ?>" tabindex="-1" aria-hidden="true">
 			<?php if ( $cover ) : ?>
 				<img src="<?php echo esc_url( $cover ); ?>" alt="" loading="lazy" />
 			<?php else : ?>
 				<?php echo ner_michoel_placeholder_art( get_the_title( $shiur ) ); ?>
 			<?php endif; ?>
-		</div>
+		</a>
 		<div class="sh-track__info">
-			<div class="sh-track__title"><?php echo esc_html( get_the_title( $shiur ) ); ?><?php ner_michoel_render_shiur_badges( $shiur->ID ); ?></div>
+			<div class="sh-track__title"><a class="sh-track__open sh-track__title-link" href="<?php echo esc_url( get_permalink( $shiur ) ); ?>"><?php echo esc_html( get_the_title( $shiur ) ); ?></a><?php ner_michoel_render_shiur_badges( $shiur->ID ); ?></div>
 			<?php if ( $show_speaker && $speaker_name ) : ?>
 				<div class="sh-track__speaker"><?php echo esc_html( $speaker_name ); ?></div>
 			<?php endif; ?>

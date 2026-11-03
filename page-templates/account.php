@@ -50,10 +50,17 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 			$history     = $has_library ? ner_michoel_get_user_history( $user_id, 24 ) : array();
 			$saved       = $has_library ? ner_michoel_get_user_saved( $user_id ) : array();
 			$suggested   = $has_library ? ner_michoel_get_suggested_for_user( $user_id, 12 ) : array();
+
+			// The Alumni Directory (core alumni-directory.php): the alumnus's own row, or "Find me" when there is a directory.
+			$alumni_profile = function_exists( 'ner_michoel_alumni_dir_profile' ) ? ner_michoel_alumni_dir_profile( $user_id ) : null;
+			$alumni_find    = ! $alumni_profile && function_exists( 'ner_michoel_alumni_dir_has_rows' ) && ner_michoel_alumni_dir_has_rows();
 			?>
 
 			<div class="nm-account-tabs" role="tablist">
 				<button type="button" class="nm-account-tab is-active" data-tab="profile" role="tab"><?php esc_html_e( 'Profile', 'ner-michoel-child' ); ?></button>
+				<?php if ( $alumni_profile || $alumni_find ) : ?>
+					<button type="button" class="nm-account-tab" data-tab="alumni" role="tab"><?php esc_html_e( 'Alumni details', 'ner-michoel-child' ); ?></button>
+				<?php endif; ?>
 				<?php if ( $has_library ) : ?>
 					<button type="button" class="nm-account-tab" data-tab="history" role="tab"><?php esc_html_e( 'History', 'ner-michoel-child' ); ?></button>
 					<button type="button" class="nm-account-tab" data-tab="saved" role="tab"><?php esc_html_e( 'Liked', 'ner-michoel-child' ); ?></button>
@@ -84,7 +91,9 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 						<?php esc_html_e( 'Email', 'ner-michoel-child' ); ?>
 						<input type="email" value="<?php echo esc_attr( $account['email'] ); ?>" disabled />
 					</label>
-					<?php if ( array_key_exists( 'phone', $account ) ) : // Core with alumni contact details. ?>
+					<?php if ( $alumni_profile ) : // Phone, address and the rest are kept on the Alumni details tab. ?>
+					<p class="nm-contact-form__hint"><?php esc_html_e( 'Your address, phone and other details are on the “Alumni details” tab.', 'ner-michoel-child' ); ?></p>
+					<?php elseif ( array_key_exists( 'phone', $account ) ) : // Core with alumni contact details. ?>
 					<label class="nm-contact-form__field">
 						<?php esc_html_e( 'Phone', 'ner-michoel-child' ); ?>
 						<input type="tel" name="phone" value="<?php echo esc_attr( $account['phone'] ); ?>" autocomplete="tel" maxlength="40" />
@@ -145,6 +154,60 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 					<a href="<?php echo esc_url( wp_logout_url( home_url( '/account/' ) ) ); ?>"><?php esc_html_e( 'Log Out', 'ner-michoel-child' ); ?></a>
 				</p>
 			</div>
+
+			<?php if ( $alumni_profile ) : ?>
+				<div class="nm-account-panel" data-panel="alumni" hidden>
+					<p class="nm-account-panel__intro"><?php esc_html_e( 'Your details in the yeshiva’s alumni list. Please keep them up to date; the office is told when you change something.', 'ner-michoel-child' ); ?></p>
+					<form id="nm-account-alumni-form" method="post" class="nm-contact-form">
+						<?php
+						foreach ( $alumni_profile['fields'] as $field ) :
+							$input_id = 'nm-alumni-' . $field['key'];
+							$type     = array( 'email' => 'text', 'phone' => 'tel' );
+							$auto     = array(
+								'first'   => 'given-name',
+								'last'    => 'family-name',
+								'name'    => 'name',
+								'email'   => 'email',
+								'phone'   => 'tel',
+								'address' => 'street-address',
+								'city'    => 'address-level2',
+								'state'   => 'address-level1',
+								'zip'     => 'postal-code',
+								'country' => 'country-name',
+							);
+							?>
+							<label class="nm-contact-form__field" for="<?php echo esc_attr( $input_id ); ?>">
+								<?php echo esc_html( $field['label'] ); ?>
+								<?php if ( 'address' === $field['kind'] ) : ?>
+									<textarea id="<?php echo esc_attr( $input_id ); ?>" data-alumni-field="<?php echo esc_attr( $field['key'] ); ?>" rows="3" maxlength="400" dir="auto" autocomplete="street-address"<?php echo $field['editable'] ? '' : ' readonly'; ?>><?php echo esc_textarea( $field['value'] ); ?></textarea>
+								<?php else : ?>
+									<input type="<?php echo esc_attr( isset( $type[ $field['kind'] ] ) ? $type[ $field['kind'] ] : 'text' ); ?>" id="<?php echo esc_attr( $input_id ); ?>" data-alumni-field="<?php echo esc_attr( $field['key'] ); ?>" value="<?php echo esc_attr( $field['value'] ); ?>" maxlength="400" dir="auto"<?php echo isset( $auto[ $field['kind'] ] ) ? ' autocomplete="' . esc_attr( $auto[ $field['kind'] ] ) . '"' : ''; ?><?php echo $field['editable'] ? '' : ' readonly'; ?> />
+								<?php endif; ?>
+								<?php if ( ! $field['editable'] ) : ?>
+									<span class="nm-contact-form__hint"><?php esc_html_e( 'Kept by the office.', 'ner-michoel-child' ); ?></span>
+								<?php endif; ?>
+							</label>
+						<?php endforeach; ?>
+						<label class="nm-contact-form__check">
+							<input type="checkbox" name="optin" value="1" <?php checked( $alumni_profile['optin'] ); ?> />
+							<span><?php esc_html_e( 'Email me news and updates for alumni', 'ner-michoel-child' ); ?></span>
+						</label>
+						<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Save Details', 'ner-michoel-child' ); ?></button>
+					</form>
+				</div>
+			<?php elseif ( $alumni_find ) : ?>
+				<div class="nm-account-panel" data-panel="alumni" hidden>
+					<p class="nm-account-panel__intro"><?php esc_html_e( 'Are you an alumnus of the yeshiva? Find yourself in the alumni list to keep your details up to date.', 'ner-michoel-child' ); ?></p>
+					<form id="nm-account-alumni-find" method="post" class="nm-contact-form">
+						<label class="nm-contact-form__field">
+							<?php esc_html_e( 'Your first and last name', 'ner-michoel-child' ); ?>
+							<input type="text" name="name" value="<?php echo esc_attr( $account['name'] ); ?>" required dir="auto" />
+						</label>
+						<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Find Me', 'ner-michoel-child' ); ?></button>
+					</form>
+					<div class="nm-alumni-claim" data-alumni-find-results hidden></div>
+				</div>
+			<?php endif; ?>
 
 			<?php if ( $has_library ) : ?>
 
@@ -267,6 +330,13 @@ $account = function_exists( 'ner_michoel_get_current_account' ) ? ner_michoel_ge
 				?>
 				<button type="submit" class="nm-contact-form__submit"><?php esc_html_e( 'Create Account', 'ner-michoel-child' ); ?></button>
 			</form>
+
+			<?php // "Is this you?": shown by account.js after sign-up when the alumni list has rows that may be this person (core alumni-directory.php). ?>
+			<div class="nm-account-panel nm-alumni-claim" data-panel="claim" id="nm-account-claim" hidden>
+				<h2 class="nm-verify__title"><?php esc_html_e( 'Is this you?', 'ner-michoel-child' ); ?></h2>
+				<p class="nm-account-panel__intro"><?php esc_html_e( 'We found you, we think, in the yeshiva’s alumni list. If one of these is you, press “Yes, that’s me”.', 'ner-michoel-child' ); ?></p>
+				<div data-claim-list></div>
+			</div>
 
 			<?php // The code step: shown by account.js after sign-up, when a not-yet-confirmed account logs in, and at every log in from a computer that isn't remembered. ?>
 			<form id="nm-account-verify-form" method="post" class="nm-contact-form nm-account-panel nm-verify" data-panel="verify" hidden novalidate>

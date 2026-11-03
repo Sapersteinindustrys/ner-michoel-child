@@ -399,3 +399,62 @@
 .nm-continue-card__play:focus-visible {
 	background: var(--nm-primary-hover);
 }
+
+/* "Is this you?" after sign-up, and "Find me" on the Alumni details tab (core alumni-directory.php). */
+.nm-alumni-claim__card {
+	border: 1px solid var(--nm-border);
+	border-radius: 8px;
+	padding: 14px 16px;
+	margin: 0 0 12px;
+	background: var(--nm-surface, transparent);
+}
+.nm-alumni-claim__card dl {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 4px 14px;
+	margin: 0 0 12px;
+}
+.nm-alumni-claim__card dt {
+	color: var(--nm-text-muted);
+}
+.nm-alumni-claim__card dd {
+	margin: 0;
+	color: var(--nm-text);
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+.nm-alumni-claim__none {
+	background: none;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+	font: inherit;
+	text-decoration: underline;
+}
+.nm-alumni-claim[data-alumni-find-results] {
+	margin-top: 16px;
+}
+.nm-contact-form__field input[readonly],
+.nm-contact-form__field textarea[readonly] {
+	opacity: .7;
+}
+
+/* With the "Alumni details" tab there can be five tabs: on a phone the strip scrolls in
+   itself instead of making the whole page scroll sideways. */
+.nm-account-tabs {
+	overflow-x: auto;
+	scrollbar-width: none;
+	-webkit-overflow-scrolling: touch;
+}
+.nm-account-tabs::-webkit-scrollbar {
+	display: none;
+}
+.nm-account-tab {
+	flex: none;
+	white-space: nowrap;
+}
+@media (max-width: 480px) {
+	.nm-account-tab + .nm-account-tab {
+		margin-left: 14px;
+	}
+}

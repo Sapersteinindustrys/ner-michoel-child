@@ -520,7 +520,7 @@ function ner_michoel_render_for_you_home_new() {
 				<?php foreach ( $picks as $post ) : ?>
 					<?php $row = ner_michoel_home_shiur_row( $post ); ?>
 					<li class="hn-row">
-						<a class="hn-row__link" href="<?php echo esc_url( $row['link'] ); ?>">
+						<a class="hn-row__link" href="<?php echo esc_url( $row['link'] ); ?>"<?php echo ner_michoel_home_play_attrs( $row ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built. ?>>
 							<span class="hn-row__art"<?php echo $row['photo'] ? '' : ' style="--hue: ' . (int) $row['hue'] . '"'; ?>>
 								<?php if ( $row['photo'] ) : ?>
 									<img src="<?php echo esc_url( $row['photo'] ); ?>" alt="" loading="lazy" decoding="async" width="56" height="56" />
@@ -530,7 +530,7 @@ function ner_michoel_render_for_you_home_new() {
 								<span class="hn-row__play" aria-hidden="true"><?php echo ner_michoel_icon( $row['is_video'] ? 'video' : 'play' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 							</span>
 							<span class="hn-row__body">
-								<span class="hn-row__title"><?php echo esc_html( $row['title'] ); ?></span>
+								<span class="hn-row__title" data-open-page><?php echo esc_html( $row['title'] ); ?></span>
 								<span class="hn-row__meta">
 									<?php if ( $row['speaker'] ) : ?>
 										<span><?php echo esc_html( $row['speaker'] ); ?></span>

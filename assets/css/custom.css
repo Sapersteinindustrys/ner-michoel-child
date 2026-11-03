@@ -3263,3 +3263,8 @@ body.is-nm-app .ast-article-single {
 .sh-badge--trending {
 	background: #e0622f;
 }
+
+/* Shiur rows: the title and picture open the shiur's page; the rest of the row plays (custom.js). */
+.sh-track__art.sh-track__open { display: block; }
+.sh-track__title-link { color: inherit; text-decoration: none; }
+.sh-track__title-link:hover, .sh-track__title-link:focus-visible { text-decoration: underline; }

@@ -138,6 +138,53 @@
 		return data;
 	}
 
+	/**
+	 * "Is this you?" (core alumni-directory.php): one card per row that may be
+	 * this person, with a few hints from it, each with "Yes, that's me", and
+	 * "None of these" at the end. onAnswer( rowId | 'none', button ).
+	 */
+	function renderClaim( container, offer, onAnswer ) {
+		container.innerHTML = '';
+		( offer.candidates || [] ).forEach( function ( cand ) {
+			var card = document.createElement( 'div' );
+			card.className = 'nm-alumni-claim__card';
+			var list = document.createElement( 'dl' );
+			( cand.hints || [] ).forEach( function ( hint ) {
+				var dt = document.createElement( 'dt' );
+				dt.textContent = hint.label;
+				var dd = document.createElement( 'dd' );
+				dd.textContent = hint.value;
+				dd.setAttribute( 'dir', 'auto' );
+				list.appendChild( dt );
+				list.appendChild( dd );
+			} );
+			var yes = document.createElement( 'button' );
+			yes.type = 'button';
+			yes.className = 'nm-contact-form__submit';
+			yes.textContent = 'Yes, that’s me';
+			yes.addEventListener( 'click', function () {
+				onAnswer( cand.id, yes );
+			} );
+			card.appendChild( list );
+			card.appendChild( yes );
+			container.appendChild( card );
+		} );
+		var none = document.createElement( 'button' );
+		none.type = 'button';
+		none.className = 'nm-account-link nm-alumni-claim__none';
+		none.textContent = ( offer.candidates || [] ).length > 1 ? 'None of these is me' : 'This isn’t me';
+		none.addEventListener( 'click', function () {
+			onAnswer( 'none', none );
+		} );
+		container.appendChild( none );
+	}
+
+	function claimBusy( container, busy ) {
+		container.querySelectorAll( 'button' ).forEach( function ( b ) {
+			b.disabled = busy;
+		} );
+	}
+
 	/** Each check works once: get a new one ready for the next try. */
 	function renewGuard( form ) {
 		if ( window.nmFormGuard ) {
@@ -163,7 +210,7 @@
 		} );
 		// While a code is being entered, the tabs would only lead away from it.
 		if ( tabStrip ) {
-			tabStrip.hidden = 'verify' === name;
+			tabStrip.hidden = 'verify' === name || 'claim' === name;
 		}
 	}
 
@@ -229,6 +276,10 @@
 				pref_new_shiur_alerts: signupForm.pref_new_shiur_alerts.checked,
 				website: signupForm.website.value // honeypot — always blank for real visitors
 			} ) ).then( function ( result ) {
+				if ( result.ok && result.data.success && result.data.alumni_claim && result.data.alumni_claim.candidates ) {
+					askIsThisYou( result.data );
+					return;
+				}
 				if ( result.ok && result.data.success && result.data.alumni_pending ) {
 					// Alumni only: the office approves this account first.
 					setFormBusy( signupForm, false );
@@ -252,6 +303,61 @@
 				notice( noticeEl, result.data.message || 'Something went wrong.', true );
 			} );
 		} );
+	}
+
+	/**
+	 * After sign-up, when the alumni list has rows that may be this person:
+	 * "Is this you?" first, then on as the sign-up would have gone (the code
+	 * step, or signed in / waiting for the office).
+	 */
+	function askIsThisYou( data ) {
+		var panel = document.getElementById( 'nm-account-claim' );
+		var noticeEl = document.getElementById( 'nm-account-notice' );
+		setFormBusy( signupForm, false );
+		renewGuard( signupForm );
+		signupForm.password.value = '';
+		signupForm.password_confirm.value = '';
+		if ( ! panel ) {
+			if ( data.verify ) {
+				startVerify( data );
+			} else {
+				window.location.reload();
+			}
+			return;
+		}
+		var list = panel.querySelector( '[data-claim-list]' );
+		hideNotice( noticeEl );
+		renderClaim( list, data.alumni_claim, function ( row, button ) {
+			claimBusy( list, true );
+			postAccount( 'account-alumni-claim', { token: data.alumni_claim.token, row: String( row ) } ).then( function ( result ) {
+				var answer = result.data || {};
+				if ( data.verify ) {
+					startVerify( data );
+					if ( result.ok && answer.linked ) {
+						notice( noticeEl, 'Thank you! Now confirm your email: we sent you a 6-digit code.', false );
+					}
+					return;
+				}
+				if ( answer.alumni_pending ) {
+					showPanel( 'signup' );
+					signupForm.reset();
+					notice( noticeEl, answer.message, false );
+					return;
+				}
+				if ( ! result.ok && 'none' !== row ) {
+					claimBusy( list, false );
+					notice( noticeEl, answer.message || 'Something went wrong.', true );
+					button.focus();
+					return;
+				}
+				window.location.reload();
+			} );
+		} );
+		showPanel( 'claim' );
+		var first = list.querySelector( 'button' );
+		if ( first ) {
+			first.focus();
+		}
 	}
 
 	/* ---- Forgot password ---- */
@@ -577,6 +683,72 @@
 				notice( noticeEl, result.ok ? 'Saved.' : ( result.data.message || 'Something went wrong.' ), ! result.ok );
 			} );
 		} );
+	}
+
+	/* ---- Logged-in: alumni details (core alumni-directory.php) ---- */
+
+	var alumniForm = document.getElementById( 'nm-account-alumni-form' );
+	if ( alumniForm ) {
+		alumniForm.addEventListener( 'submit', function ( e ) {
+			e.preventDefault();
+			var noticeEl = document.getElementById( 'nm-account-notice' );
+			var fields = {};
+			alumniForm.querySelectorAll( '[data-alumni-field]' ).forEach( function ( input ) {
+				if ( ! input.readOnly ) {
+					fields[ input.getAttribute( 'data-alumni-field' ) ] = input.value;
+				}
+			} );
+			var button = alumniForm.querySelector( 'button[type="submit"]' );
+			button.disabled = true;
+			postAccount( 'account-alumni-details', { fields: fields, optin: !! alumniForm.optin.checked } ).then( function ( result ) {
+				button.disabled = false;
+				notice( noticeEl, result.data.message || ( result.ok ? 'Saved.' : 'Something went wrong.' ), ! result.ok );
+				noticeEl.scrollIntoView( { block: 'nearest' } );
+			} );
+		} );
+	}
+
+	var findForm = document.getElementById( 'nm-account-alumni-find' );
+	if ( findForm ) {
+		var findResults = document.querySelector( '[data-alumni-find-results]' );
+		findForm.addEventListener( 'submit', function ( e ) {
+			e.preventDefault();
+			var noticeEl = document.getElementById( 'nm-account-notice' );
+			var button = findForm.querySelector( 'button[type="submit"]' );
+			button.disabled = true;
+			hideNotice( noticeEl );
+			postAccount( 'account-alumni-find', { name: findForm.name.value } ).then( function ( result ) {
+				button.disabled = false;
+				var data = result.data || {};
+				if ( ! result.ok || ! data.candidates || ! data.candidates.length ) {
+					findResults.hidden = true;
+					notice( noticeEl, data.message || 'Something went wrong.', ! result.ok );
+					return;
+				}
+				findResults.hidden = false;
+				renderClaim( findResults, data, function ( row ) {
+					if ( 'none' === row ) {
+						findResults.hidden = true;
+						notice( noticeEl, 'Then we couldn’t find you. Try your name as the yeshiva would have it, or ask the office.', false );
+						return;
+					}
+					claimBusy( findResults, true );
+					postAccount( 'account-alumni-claim', { token: data.token, row: String( row ) } ).then( function ( res ) {
+						if ( res.ok && res.data.linked ) {
+							window.location.hash = 'alumni';
+							window.location.reload();
+							return;
+						}
+						claimBusy( findResults, false );
+						notice( noticeEl, ( res.data && res.data.message ) || 'Something went wrong.', true );
+					} );
+				} );
+			} );
+		} );
+	}
+
+	if ( '#alumni' === window.location.hash && document.querySelector( '.nm-account-tab[data-tab="alumni"]' ) ) {
+		showPanel( 'alumni' );
 	}
 
 	/* ---- Logged-in: change password ---- */

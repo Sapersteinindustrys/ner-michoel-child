@@ -102,7 +102,8 @@ function ner_michoel_home_week_parsha_panel( $week, $region ) {
 	if ( ! $week ) {
 		return null;
 	}
-	$rows = array_values( array_filter( array_map( 'ner_michoel_home_week_row', $week['posts'] ) ) );
+	// A written shiur that is the same shiur as an audio is shown once, by the audio.
+	$rows = array_values( array_filter( array_map( 'ner_michoel_home_week_row', ner_michoel_home_unbundle( $week['posts'] ) ) ) );
 	if ( ! $rows ) {
 		return null;
 	}
@@ -167,7 +168,7 @@ function ner_michoel_home_week_data() {
 		$season = null;
 	}
 	if ( $season ) {
-		$rows = array_values( array_filter( array_map( 'ner_michoel_home_week_row', $season['posts'] ) ) );
+		$rows = array_values( array_filter( array_map( 'ner_michoel_home_week_row', ner_michoel_home_unbundle( $season['posts'] ) ) ) );
 		if ( $rows ) {
 			$out[] = array(
 				'type'   => 'season',
