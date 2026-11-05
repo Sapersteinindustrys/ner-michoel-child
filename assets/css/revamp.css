@@ -1,0 +1,1430 @@
+/*
+ * The November 2026 revamp (inc/revamp.php). Loaded on every page, like the other component
+ * sheets, so the page router has it whichever page it swaps in.
+ *
+ *   1. Tokens: the homepage's colours and fonts (var(--nm-look-*, today's value), so the
+ *      Control Panel's Colors & Fonts screen changes them here too).
+ *   2. The homepage banner (in place of the Zoom box) and the alumni invitation.
+ *   3. Homepage odds and ends: the links at the top of New Shiurim, the Hebrew date lines.
+ *   4. The search bar with filters on the shiurim pages (.nm-scope-search).
+ *   5. The search page.
+ *   6. The gallery pages.
+ *   7. Videos that fit the screen.
+ *
+ * Astra styles bare elements (a:hover, button, h2, ul, input[type=search]), so every rule
+ * here is at least two classes deep.
+ */
+
+/* 1. Tokens ------------------------------------------------------------------ */
+
+:root {
+	--rv-ink: var(--nm-look-ink, #0f172a);
+	--rv-ink-2: var(--nm-look-ink-2, #334155);
+	--rv-muted: var(--nm-look-muted, #5b6678);
+	--rv-faint: var(--nm-look-faint, #8a94a6);
+	--rv-line: var(--nm-look-line, #e3e8f0);
+	--rv-line-soft: var(--nm-look-line-soft, #eef2f7);
+	--rv-soft: var(--nm-look-surface-soft, #f6f8fb);
+	--rv-page: var(--nm-look-page, #f5f7fb);
+	--rv-navy: var(--nm-look-brand, #1b2f52);
+	--rv-navy-2: var(--nm-look-brand-2, #24406f);
+	--rv-navy-tint: var(--nm-look-brand-tint, #e7ecf5);
+	--rv-gold: var(--nm-look-accent-deep, #a87a26);
+	--rv-gold-bright: var(--nm-look-accent-bright, #e4be6c);
+	--rv-gold-soft: var(--nm-look-gold-soft, #fbf3e0);
+	--rv-gold-line: var(--nm-look-gold-line, #f1e6cd);
+	--rv-green: var(--nm-look-fresh, #2f8f5b);
+	--rv-radius-xl: 28px;
+	--rv-radius-lg: 20px;
+	--rv-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+	--rv-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px -14px rgba(15, 23, 42, 0.18);
+	--rv-shadow-lg: 0 2px 6px rgba(15, 23, 42, 0.06), 0 32px 64px -28px rgba(15, 23, 42, 0.42);
+	--rv-serif: var(--nm-look-font-heading, "Frank Ruhl Libre", "Iowan Old Style", "Palatino Linotype", Georgia, serif);
+	--rv-sans: var(--nm-look-font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
+	--rv-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+	--rv-hero-bg:
+		radial-gradient(110% 130% at 100% 0%, var(--nm-look-glow-gold, rgba(214, 165, 71, 0.2)), transparent 50%),
+		radial-gradient(80% 110% at 0% 100%, var(--nm-look-glow-fresh, rgba(47, 143, 91, 0.16)), transparent 55%),
+		linear-gradient(140deg, var(--nm-look-hero-1, #1d3358) 0%, var(--nm-look-hero-2, #132443) 55%, var(--nm-look-hero-3, #0e1b33) 100%);
+}
+
+/* 2. The homepage banner and the alumni invitation --------------------------- */
+
+.hn .hn-notices {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 18px;
+	margin: 28px 0;
+}
+
+@media (min-width: 1000px) {
+	.hn .hn-notices--both {
+		grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+	}
+}
+
+.hn .hn-banner {
+	position: relative;
+	isolation: isolate;
+	display: flex;
+	align-items: center;
+	gap: 20px 28px;
+	min-width: 0;
+	padding: clamp(22px, 3.4vw, 36px);
+	overflow: hidden;
+	border-radius: var(--rv-radius-lg);
+	font-family: var(--rv-sans);
+}
+
+.hn .hn-banner__logo {
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: clamp(64px, 9vw, 96px);
+	height: clamp(64px, 9vw, 96px);
+	padding: 8px;
+	border-radius: 18px;
+	background: #fff;
+	box-shadow: var(--rv-shadow-sm);
+}
+
+.hn .hn-banner__logo img {
+	display: block;
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+}
+
+.hn .hn-banner__body {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.hn .hn-banner__kicker {
+	margin: 0 0 6px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.hn .hn-banner__title {
+	margin: 0 0 6px;
+	font-family: var(--rv-serif);
+	font-size: clamp(1.45rem, 2.6vw, 2rem);
+	font-weight: 500;
+	line-height: 1.15;
+	color: inherit;
+}
+
+.hn .hn-banner__text {
+	margin: 0;
+	font-size: 1rem;
+	line-height: 1.55;
+}
+
+.hn .hn-banner__text + .hn-banner__text {
+	margin-top: 2px;
+}
+
+.hn .hn-banner__button {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 22px;
+	border-radius: 999px;
+	font-weight: 700;
+	text-decoration: none;
+	white-space: nowrap;
+	transition: transform 0.2s var(--rv-ease), box-shadow 0.2s var(--rv-ease), background-color 0.2s var(--rv-ease);
+}
+
+.hn .hn-banner__button:hover,
+.hn .hn-banner__button:focus-visible {
+	transform: translateY(-1px);
+}
+
+.hn .hn-banner__button svg {
+	width: 16px;
+	height: 16px;
+}
+
+/* Colored: the site's navy, like the homepage hero. */
+.hn .hn-banner--color {
+	background: var(--rv-hero-bg);
+	color: #fff;
+	box-shadow: var(--rv-shadow-lg);
+}
+
+.hn .hn-banner--color .hn-banner__kicker,
+.hn .hn-banner--image .hn-banner__kicker {
+	color: var(--rv-gold-bright);
+}
+
+.hn .hn-banner--color .hn-banner__text,
+.hn .hn-banner--image .hn-banner__text {
+	color: rgba(255, 255, 255, 0.86);
+}
+
+.hn .hn-banner--color .hn-banner__button,
+.hn .hn-banner--image .hn-banner__button {
+	background: #fff;
+	color: var(--rv-navy);
+	box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.6);
+}
+
+/* Gold. */
+.hn .hn-banner--gold {
+	border: 1px solid var(--rv-gold-line);
+	background: linear-gradient(135deg, var(--rv-gold-soft) 0%, #fff 70%);
+	color: var(--rv-ink);
+	box-shadow: var(--rv-shadow);
+}
+
+.hn .hn-banner--gold .hn-banner__kicker {
+	color: var(--rv-gold);
+}
+
+.hn .hn-banner--gold .hn-banner__text {
+	color: var(--rv-ink-2);
+}
+
+.hn .hn-banner--gold .hn-banner__button {
+	background: var(--rv-gold);
+	color: #fff;
+	box-shadow: 0 10px 24px -14px var(--rv-gold);
+}
+
+/* Light: a white card like the homepage panels. */
+.hn .hn-banner--light {
+	border: 1px solid var(--rv-line);
+	background: #fff;
+	color: var(--rv-ink);
+	box-shadow: var(--rv-shadow);
+}
+
+.hn .hn-banner--light .hn-banner__kicker {
+	color: var(--rv-gold);
+}
+
+.hn .hn-banner--light .hn-banner__text {
+	color: var(--rv-muted);
+}
+
+.hn .hn-banner--light .hn-banner__button {
+	background: var(--rv-navy);
+	color: #fff;
+}
+
+/* The background picture, darkened so the words read on any picture. */
+.hn .hn-banner--image {
+	min-height: 220px;
+	background: var(--rv-navy);
+	color: #fff;
+	box-shadow: var(--rv-shadow-lg);
+}
+
+.hn .hn-banner--image::before,
+.hn .hn-banner--image::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+}
+
+.hn .hn-banner--image::before {
+	background: var(--hn-banner-bg) center / cover no-repeat;
+}
+
+.hn .hn-banner--image::after {
+	background: linear-gradient(100deg, rgba(11, 22, 40, 0.88) 0%, rgba(11, 22, 40, 0.62) 55%, rgba(11, 22, 40, 0.3) 100%);
+}
+
+/* No design: just the words, on the page. */
+.hn .hn-banner--plain {
+	padding-right: 0;
+	padding-left: 0;
+	background: none;
+	color: var(--rv-ink);
+}
+
+.hn .hn-banner--plain .hn-banner__kicker {
+	color: var(--rv-gold);
+}
+
+.hn .hn-banner--plain .hn-banner__text {
+	color: var(--rv-muted);
+}
+
+.hn .hn-banner--plain .hn-banner__button {
+	background: var(--rv-navy);
+	color: #fff;
+}
+
+/* The alumni invitation (signed-out visitors). */
+.hn .hn-alumni-invite {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 16px 20px;
+	min-width: 0;
+	padding: clamp(20px, 3vw, 30px);
+	border: 1px solid var(--rv-gold-line);
+	border-radius: var(--rv-radius-lg);
+	background: linear-gradient(160deg, #fff 0%, var(--rv-gold-soft) 100%);
+	box-shadow: var(--rv-shadow);
+	color: var(--rv-ink);
+	font-family: var(--rv-sans);
+}
+
+.hn .hn-alumni-invite__icon {
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 52px;
+	height: 52px;
+	border-radius: 50%;
+	background: var(--rv-navy);
+	color: var(--rv-gold-bright);
+}
+
+.hn .hn-alumni-invite__icon svg {
+	width: 24px;
+	height: 24px;
+}
+
+.hn .hn-alumni-invite__body {
+	flex: 1 1 220px;
+	min-width: 0;
+}
+
+.hn .hn-alumni-invite__title {
+	margin: 0 0 4px;
+	font-family: var(--rv-serif);
+	font-size: 1.35rem;
+	font-weight: 500;
+	line-height: 1.2;
+	color: var(--rv-ink);
+}
+
+.hn .hn-alumni-invite__text {
+	margin: 0;
+	color: var(--rv-ink-2);
+	font-size: 0.95rem;
+	line-height: 1.55;
+}
+
+.hn .hn-alumni-invite__button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 11px 24px;
+	border-radius: 999px;
+	background: var(--rv-navy);
+	color: #fff;
+	font-weight: 700;
+	text-decoration: none;
+	transition: background-color 0.2s var(--rv-ease), transform 0.2s var(--rv-ease);
+}
+
+.hn .hn-alumni-invite__button:hover,
+.hn .hn-alumni-invite__button:focus-visible {
+	background: var(--rv-navy-2);
+	color: #fff;
+	transform: translateY(-1px);
+}
+
+/* Beside the banner, the box is narrow: the button goes under the words. */
+@media (min-width: 1000px) {
+	.hn .hn-notices--both .hn-alumni-invite__button {
+		flex: 1 1 100%;
+	}
+}
+
+@media (max-width: 640px) {
+	.hn .hn-banner {
+		flex-direction: column;
+		align-items: flex-start;
+		text-align: left;
+	}
+
+	.hn .hn-banner__button,
+	.hn .hn-alumni-invite__button {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
+/* 3. Homepage odds and ends -------------------------------------------------- */
+
+/* "All new shiurim" and "Browse all shiurim" at the top of New Shiurim. */
+.hn .hn-panel__links {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
+	margin-left: auto;
+}
+
+.hn .hn-more--pill {
+	padding: 7px 14px;
+	border: 1px solid var(--rv-line);
+	border-radius: 999px;
+	background: var(--rv-soft);
+}
+
+.hn .hn-more--pill:hover,
+.hn .hn-more--pill:focus-visible {
+	border-color: var(--rv-navy);
+	background: var(--rv-navy);
+	color: #fff;
+}
+
+.hn .hn-more--pill svg {
+	width: 15px;
+	height: 15px;
+}
+
+/* The parsha box: the Shabbos in Hebrew under the English. */
+.hn .hn-occasion__when--he {
+	margin-top: 2px;
+	font-family: var(--rv-serif);
+	font-size: 1rem;
+	letter-spacing: 0.01em;
+	text-align: left;
+}
+
+/* A parsha's page: the next time it is read, English and Hebrew. */
+.shiurim-app .sh-hero__parsha-date {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 4px 14px;
+	margin: 8px 0 0;
+	font-size: 0.95rem;
+}
+
+.shiurim-app .sh-hero__parsha-when {
+	color: var(--sh-text-muted, var(--rv-muted));
+}
+
+.shiurim-app .sh-hero__parsha-he {
+	font-family: var(--rv-serif);
+	font-size: 1.05rem;
+	color: var(--sh-text, var(--rv-ink));
+}
+
+/* 4. The search bar with filters on the shiurim pages ------------------------ */
+
+.nm-scope-search[hidden],
+.nm-scope-search [hidden] {
+	display: none !important;
+}
+
+/* The page's own lists step aside while there are results; the wrapper itself adds no box. */
+.st-browse {
+	display: contents;
+}
+
+.st-browse[hidden],
+[data-scope-browse][hidden] {
+	display: none !important;
+}
+
+/* The Shiurim home's own search box gives way to this one when it is on the page. */
+.st .st-search--fallback,
+.st-search.st-search--fallback {
+	display: none;
+}
+
+.nm-scope-search {
+	margin: 24px 0 28px;
+	padding: 18px;
+	border: 1px solid var(--rv-line);
+	border-radius: var(--rv-radius-lg);
+	background: #fff;
+	box-shadow: var(--rv-shadow);
+	color: var(--rv-ink);
+	font-family: var(--rv-sans);
+}
+
+.nm-scope-search .nm-scope-search__bar {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.nm-scope-search .nm-scope-search__icon {
+	position: absolute;
+	top: 50%;
+	left: 16px;
+	transform: translateY(-50%);
+	color: var(--rv-faint);
+	pointer-events: none;
+	display: inline-flex;
+}
+
+.nm-scope-search .nm-scope-search__icon svg {
+	width: 18px;
+	height: 18px;
+}
+
+.nm-scope-search .nm-scope-search__query {
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 48px;
+	margin: 0;
+	padding: 0 18px 0 44px;
+	border: 1px solid var(--rv-line);
+	border-radius: 999px;
+	background: var(--rv-soft);
+	color: var(--rv-ink);
+	font: inherit;
+	font-size: 1rem;
+	box-shadow: none;
+	transition: border-color 0.2s var(--rv-ease), background-color 0.2s var(--rv-ease), box-shadow 0.2s var(--rv-ease);
+}
+
+.nm-scope-search .nm-scope-search__query::placeholder {
+	color: var(--rv-faint);
+	opacity: 1;
+}
+
+.nm-scope-search .nm-scope-search__query:focus {
+	border-color: var(--rv-navy);
+	background: #fff;
+	outline: none;
+	box-shadow: 0 0 0 4px var(--rv-navy-tint);
+}
+
+.nm-scope-search .nm-scope-search__toggle {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 48px;
+	margin: 0;
+	padding: 0 18px;
+	border: 1px solid var(--rv-line);
+	border-radius: 999px;
+	background: #fff;
+	color: var(--rv-navy);
+	font: inherit;
+	font-weight: 650;
+	cursor: pointer;
+}
+
+.nm-scope-search .nm-scope-search__toggle svg {
+	width: 16px;
+	height: 16px;
+}
+
+.nm-scope-search .nm-scope-search__toggle:hover,
+.nm-scope-search .nm-scope-search__toggle[aria-expanded="true"] {
+	border-color: var(--rv-navy);
+	background: var(--rv-navy-tint);
+	color: var(--rv-navy);
+}
+
+.nm-scope-search .nm-scope-search__filters {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	align-items: end;
+	gap: 10px 12px;
+	margin-top: 14px;
+}
+
+.nm-scope-search .nm-scope-search__filter {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+	margin: 0;
+}
+
+.nm-scope-search .nm-scope-search__filter > span {
+	color: var(--rv-muted);
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.nm-scope-search .nm-scope-search__filter select {
+	width: 100%;
+	height: 42px;
+	margin: 0;
+	padding: 0 12px;
+	border: 1px solid var(--rv-line);
+	border-radius: 12px;
+	background-color: #fff;
+	color: var(--rv-ink);
+	font: inherit;
+	font-size: 0.95rem;
+}
+
+.nm-scope-search .nm-scope-search__filter select:focus-visible {
+	outline: 2px solid var(--rv-navy);
+	outline-offset: 1px;
+}
+
+.nm-scope-search .nm-scope-search__reset {
+	justify-self: start;
+	height: 42px;
+	margin: 0;
+	padding: 0 16px;
+	border: 0;
+	border-radius: 12px;
+	background: none;
+	color: var(--rv-navy);
+	font: inherit;
+	font-weight: 650;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	cursor: pointer;
+}
+
+.nm-scope-search .nm-scope-search__status {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 4px 16px;
+}
+
+.nm-scope-search .nm-scope-search__count {
+	margin: 12px 0 0;
+	color: var(--rv-muted);
+	font-size: 0.9rem;
+}
+
+.nm-scope-search .nm-scope-search__count:empty {
+	display: none;
+}
+
+.nm-scope-search .nm-scope-search__all {
+	margin: 12px 0 0;
+	font-size: 0.9rem;
+}
+
+.nm-scope-search .nm-scope-search__all a {
+	color: var(--rv-navy);
+	font-weight: 650;
+}
+
+.nm-scope-search .nm-scope-search__results {
+	margin: 10px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.nm-scope-search .nm-scope-search__results:empty {
+	display: none;
+}
+
+.nm-scope-search .nm-live-results__item {
+	padding: 12px 4px;
+	border-bottom: 1px solid var(--rv-line-soft);
+}
+
+.nm-scope-search .nm-live-results__item:last-child {
+	border-bottom: 0;
+}
+
+.nm-scope-search .nm-live-results__title {
+	color: var(--rv-ink);
+	font-weight: 650;
+	text-decoration: none;
+}
+
+.nm-scope-search .nm-live-results__title:hover,
+.nm-scope-search .nm-live-results__title:focus-visible {
+	color: var(--rv-navy-2);
+	text-decoration: underline;
+}
+
+.nm-scope-search .nm-live-results__meta {
+	color: var(--rv-muted);
+}
+
+.nm-scope-search .nm-live-results__divider {
+	color: var(--rv-muted);
+}
+
+.nm-scope-search .nm-live-search__more {
+	display: block;
+	margin: 14px auto 0;
+	padding: 9px 22px;
+	border: 1px solid var(--rv-line);
+	border-radius: 999px;
+	background: #fff;
+	color: var(--rv-navy);
+	font: inherit;
+	font-weight: 650;
+	cursor: pointer;
+}
+
+.nm-scope-search .nm-live-search__more:hover {
+	border-color: var(--rv-navy);
+}
+
+@media (pointer: coarse) {
+	.nm-scope-search .nm-scope-search__query,
+	.nm-scope-search .nm-scope-search__filter select {
+		font-size: 16px;
+	}
+}
+
+@media (max-width: 700px) {
+	.nm-scope-search {
+		padding: 14px;
+	}
+
+	.nm-scope-search .nm-scope-search__toggle {
+		padding: 0 14px;
+	}
+
+	.nm-scope-search .nm-scope-search__filters {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+}
+
+@media (max-width: 420px) {
+	.nm-scope-search .nm-scope-search__toggle span {
+		display: none;
+	}
+
+	.nm-scope-search .nm-scope-search__filters {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+/* 5. The search page --------------------------------------------------------- */
+
+#content > .ast-container > .nm-search-page,
+.nm-search-page {
+	width: 100%;
+	min-width: 0;
+}
+
+.nm-search-page .nm-search-page__inner {
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 24px 24px 40px;
+}
+
+.nm-search-page .nm-search-hero {
+	position: relative;
+	isolation: isolate;
+	margin: 12px 0 0;
+	padding: clamp(26px, 4.4vw, 52px) clamp(22px, 4.4vw, 52px) clamp(70px, 7vw, 92px);
+	overflow: hidden;
+	border-radius: var(--rv-radius-xl);
+	background: var(--rv-hero-bg);
+	color: #fff;
+	box-shadow: var(--rv-shadow-lg);
+}
+
+.nm-search-page .nm-search-hero::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+	background-size: 44px 44px;
+	-webkit-mask-image: radial-gradient(120% 90% at 15% 0%, #000 0%, transparent 72%);
+	mask-image: radial-gradient(120% 90% at 15% 0%, #000 0%, transparent 72%);
+}
+
+.nm-search-page .nm-search-hero__kicker {
+	margin: 0 0 10px;
+	color: var(--rv-gold-bright);
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+body.sh-layout-studio .nm-search-page .nm-search-hero h1,
+.nm-search-page .nm-search-hero h1 {
+	margin: 0;
+	color: #fff;
+	font-family: var(--rv-serif);
+	font-size: clamp(2rem, 4.6vw, 3.2rem);
+	font-weight: 500;
+	line-height: 1.08;
+	overflow-wrap: anywhere;
+}
+
+.nm-search-page .nm-search-hero__lede {
+	max-width: 620px;
+	margin: 12px 0 0;
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 1.02rem;
+	line-height: 1.55;
+}
+
+/* The search box and filters: a white card overlapping the hero's foot. */
+.nm-search-page .nm-live-search--page {
+	position: relative;
+	z-index: 1;
+	margin: clamp(-60px, -5vw, -44px) clamp(10px, 3vw, 32px) 0;
+}
+
+.nm-search-page .nm-live-search__controls {
+	padding: 18px;
+	border: 1px solid var(--rv-line);
+	border-radius: var(--rv-radius-lg);
+	background: #fff;
+	box-shadow: var(--rv-shadow-lg);
+}
+
+.nm-search-page .nm-live-search__querybox {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.nm-search-page .nm-live-search__icon {
+	position: absolute;
+	left: 18px;
+	display: inline-flex;
+	color: var(--rv-faint);
+	pointer-events: none;
+}
+
+.nm-search-page .nm-live-search__icon svg {
+	width: 20px;
+	height: 20px;
+}
+
+body.sh-layout-studio .nm-search-page .nm-live-search .nm-live-search__query,
+.nm-search-page .nm-live-search .nm-live-search__query {
+	width: 100%;
+	max-width: none;
+	height: 54px;
+	padding: 0 20px 0 50px;
+	border: 1px solid var(--rv-line);
+	border-radius: 999px;
+	background: var(--rv-soft);
+	color: var(--rv-ink);
+	font-size: 1.05rem;
+	box-shadow: none;
+}
+
+.nm-search-page .nm-live-search .nm-live-search__query:focus {
+	border-color: var(--rv-navy);
+	background: #fff;
+	outline: none;
+	box-shadow: 0 0 0 4px var(--rv-navy-tint);
+}
+
+.nm-search-page .nm-live-search .nm-live-search__filters {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	gap: 10px 12px;
+	margin: 14px 0 0;
+}
+
+.nm-search-page .nm-live-search .nm-live-search__filters label[hidden] {
+	display: none;
+}
+
+.nm-search-page .nm-live-search .nm-live-search__filters select {
+	height: 44px;
+	padding: 0 12px;
+	border: 1px solid var(--rv-line);
+	border-radius: 12px;
+	background-color: #fff;
+	color: var(--rv-ink);
+}
+
+.nm-search-page .nm-live-search .nm-live-search__count {
+	margin: 22px 4px 10px;
+	color: var(--rv-muted);
+}
+
+body.sh-layout-studio .nm-search-page .nm-live-search .nm-live-results {
+	padding: 6px 20px;
+	border-radius: var(--rv-radius-lg);
+}
+
+.nm-search-page .nm-live-search .nm-live-results__item {
+	padding: 14px 0;
+}
+
+.nm-search-page .nm-live-search .nm-live-results__title {
+	font-size: 1.02rem;
+}
+
+.nm-search-page .nm-live-table-wrap {
+	padding: 6px 20px;
+	border: 1px solid var(--rv-line);
+	border-radius: var(--rv-radius-lg);
+	background: #fff;
+	box-shadow: var(--rv-shadow);
+}
+
+.nm-search-page .nm-live-table-wrap[hidden] {
+	display: none;
+}
+
+.nm-search-page .nm-live-table tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+@media (max-width: 600px) {
+	.nm-search-page .nm-search-page__inner {
+		padding: 16px 14px 32px;
+	}
+
+	.nm-search-page .nm-search-hero {
+		border-radius: 22px;
+	}
+
+	.nm-search-page .nm-live-search--page {
+		margin-right: 0;
+		margin-left: 0;
+	}
+
+	.nm-search-page .nm-live-search__controls {
+		padding: 14px;
+	}
+
+	.nm-search-page .nm-live-search .nm-live-search__filters {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+
+	body.sh-layout-studio .nm-search-page .nm-live-search .nm-live-results {
+		padding: 4px 14px;
+	}
+}
+
+/* 6. The gallery pages ------------------------------------------------------- */
+
+body.is-nm-app.is-gallery {
+	--sh-bg: var(--rv-page);
+	--sh-surface: #fff;
+	--sh-surface-hover: var(--rv-line-soft);
+	--sh-text: var(--rv-ink);
+	--sh-text-muted: var(--rv-muted);
+	--sh-border: var(--rv-line);
+	--sh-accent: var(--rv-navy);
+	--sh-accent-hover: var(--rv-navy-2);
+	--sh-radius: 16px;
+	--sh-font: var(--rv-sans);
+
+	background: var(--sh-bg);
+	color: var(--sh-text);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+body.is-gallery #content,
+body.is-gallery .site-content {
+	background: var(--rv-page);
+}
+
+.nm-app.nm-gx {
+	padding-bottom: 48px;
+	color: var(--rv-ink);
+	font-family: var(--rv-sans);
+}
+
+.nm-gx .nm-gx-hero {
+	position: relative;
+	isolation: isolate;
+	padding: clamp(26px, 4.4vw, 52px);
+	overflow: hidden;
+	border-radius: var(--rv-radius-xl);
+	background: var(--rv-hero-bg);
+	color: #fff;
+	box-shadow: var(--rv-shadow-lg);
+}
+
+.nm-gx .nm-gx-hero::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+	background-size: 44px 44px;
+	-webkit-mask-image: radial-gradient(120% 90% at 15% 0%, #000 0%, transparent 72%);
+	mask-image: radial-gradient(120% 90% at 15% 0%, #000 0%, transparent 72%);
+}
+
+.nm-gx .nm-gx-hero__kicker {
+	margin: 0 0 10px;
+	color: var(--rv-gold-bright);
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+.nm-gx .nm-gx-hero__title {
+	margin: 0;
+	color: #fff;
+	font-family: var(--rv-serif);
+	font-size: clamp(2rem, 4.6vw, 3.2rem);
+	font-weight: 500;
+	line-height: 1.08;
+}
+
+.nm-gx .nm-gx-hero__lede {
+	max-width: 620px;
+	margin: 12px 0 0;
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 1.02rem;
+	line-height: 1.55;
+}
+
+.nm-gx .nm-gx-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 24px;
+}
+
+.nm-gx .nm-gx-tabs__tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 16px;
+	border: 1px solid rgba(255, 255, 255, 0.22);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.08);
+	color: #fff;
+	font-weight: 600;
+	text-decoration: none;
+	transition: background-color 0.2s var(--rv-ease), color 0.2s var(--rv-ease);
+}
+
+.nm-gx .nm-gx-tabs__tab:hover,
+.nm-gx .nm-gx-tabs__tab:focus-visible {
+	background: rgba(255, 255, 255, 0.18);
+	color: #fff;
+}
+
+.nm-gx .nm-gx-tabs__tab.is-current {
+	border-color: #fff;
+	background: #fff;
+	color: var(--rv-navy);
+}
+
+.nm-gx .nm-gx-tabs__count {
+	min-width: 1.6em;
+	padding: 1px 7px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.16);
+	font-size: 0.8rem;
+	text-align: center;
+}
+
+.nm-gx .nm-gx-tabs__tab.is-current .nm-gx-tabs__count {
+	background: var(--rv-navy-tint);
+}
+
+.nm-gx .nm-gx-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: 22px;
+	margin: 32px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.nm-gx .nm-gx-card {
+	margin: 0;
+}
+
+.nm-gx .nm-gx-card__link {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+	border: 1px solid var(--rv-line);
+	border-radius: var(--rv-radius-lg);
+	background: #fff;
+	box-shadow: var(--rv-shadow-sm);
+	color: var(--rv-ink);
+	text-decoration: none;
+	transition: transform 0.25s var(--rv-ease), box-shadow 0.25s var(--rv-ease);
+}
+
+.nm-gx .nm-gx-card__link:hover,
+.nm-gx .nm-gx-card__link:focus-visible {
+	transform: translateY(-3px);
+	box-shadow: var(--rv-shadow);
+	color: var(--rv-ink);
+}
+
+.nm-gx .nm-gx-card__art {
+	position: relative;
+	display: block;
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+	background: linear-gradient(150deg, var(--rv-navy-2), var(--nm-look-hero-3, #0e1b33));
+}
+
+.nm-gx .nm-gx-card__art img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.5s var(--rv-ease);
+}
+
+.nm-gx .nm-gx-card__link:hover .nm-gx-card__art img {
+	transform: scale(1.04);
+}
+
+.nm-gx .nm-gx-card__blank {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.nm-gx .nm-gx-card__blank svg {
+	width: 40px;
+	height: 40px;
+}
+
+.nm-gx .nm-gx-card__play {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	display: grid;
+	place-items: center;
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.94);
+	color: var(--rv-navy);
+	box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.6);
+	transform: translate(-50%, -50%);
+}
+
+.nm-gx .nm-gx-card__play svg {
+	width: 22px;
+	height: 22px;
+	margin-left: 3px;
+}
+
+.nm-gx .nm-gx-card__badge {
+	position: absolute;
+	right: 12px;
+	bottom: 12px;
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: rgba(11, 22, 40, 0.72);
+	color: #fff;
+	font-size: 0.78rem;
+	font-weight: 600;
+	backdrop-filter: blur(6px);
+}
+
+.nm-gx .nm-gx-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 16px 18px 18px;
+}
+
+.nm-gx .nm-gx-card__title {
+	font-family: var(--rv-serif);
+	font-size: 1.2rem;
+	font-weight: 500;
+	line-height: 1.25;
+}
+
+.nm-gx .nm-gx-card__date {
+	color: var(--rv-muted);
+	font-size: 0.85rem;
+}
+
+.nm-gx .nm-gx-empty {
+	max-width: 520px;
+	margin: 36px auto 0;
+	padding: 40px 28px;
+	border: 1px dashed var(--rv-line);
+	border-radius: var(--rv-radius-lg);
+	background: #fff;
+	text-align: center;
+}
+
+.nm-gx .nm-gx-empty__icon {
+	display: inline-grid;
+	place-items: center;
+	width: 60px;
+	height: 60px;
+	margin-bottom: 12px;
+	border-radius: 50%;
+	background: var(--rv-navy-tint);
+	color: var(--rv-navy);
+}
+
+.nm-gx .nm-gx-empty__icon svg {
+	width: 26px;
+	height: 26px;
+}
+
+.nm-gx .nm-gx-empty__title {
+	margin: 0 0 6px;
+	color: var(--rv-ink);
+	font-family: var(--rv-serif);
+	font-size: 1.4rem;
+	font-weight: 500;
+}
+
+.nm-gx .nm-gx-empty__text {
+	margin: 0;
+	color: var(--rv-muted);
+}
+
+.nm-gx .nm-gx-empty__link {
+	display: inline-block;
+	margin-top: 16px;
+	color: var(--rv-navy);
+	font-weight: 650;
+}
+
+/* One gallery. */
+.nm-gx .nm-gx-head {
+	margin: 0 0 24px;
+}
+
+.nm-gx .nm-gx-head__back {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 14px;
+	color: var(--rv-navy);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.nm-gx .nm-gx-head__back svg {
+	width: 16px;
+	height: 16px;
+}
+
+.nm-gx .nm-gx-head__title {
+	margin: 0;
+	color: var(--rv-ink);
+	font-family: var(--rv-serif);
+	font-size: clamp(1.9rem, 4vw, 2.8rem);
+	font-weight: 500;
+	line-height: 1.1;
+}
+
+.nm-gx .nm-gx-head__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 10px 0 0;
+	color: var(--rv-muted);
+}
+
+.nm-gx .nm-gx-text {
+	max-width: 760px;
+	margin: 0 0 24px;
+	color: var(--rv-ink-2);
+	line-height: 1.65;
+}
+
+.nm-gx .nm-gx-slider {
+	padding: 14px;
+	border: 1px solid var(--rv-line);
+	border-radius: var(--rv-radius-lg);
+	background: #fff;
+	box-shadow: var(--rv-shadow);
+}
+
+.nm-gx .nm-gx-slider .sh-gallery-slider__stage {
+	border-radius: 14px;
+	background: #0b1628;
+	max-height: calc(100vh - 220px);
+	max-height: calc(100svh - 220px);
+}
+
+.nm-gx .nm-gx-slider .sh-gallery-slider__image {
+	max-height: calc(100vh - 220px);
+	max-height: calc(100svh - 220px);
+}
+
+.nm-gx .nm-gx-slider .sh-gallery-slider__nav {
+	background: rgba(255, 255, 255, 0.92);
+	color: var(--rv-navy);
+	box-shadow: var(--rv-shadow);
+}
+
+.nm-gx .nm-gx-slider .sh-gallery-slider__nav:hover {
+	background: #fff;
+}
+
+.nm-gx .nm-gx-slider .sh-gallery-slider__caption {
+	color: var(--rv-muted);
+}
+
+.nm-gx .nm-gx-slider .sh-gallery-slider__thumbs {
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	padding-bottom: 4px;
+	scrollbar-width: thin;
+}
+
+.nm-gx .nm-gx-slider .sh-gallery-slider__thumb {
+	flex: none;
+	width: 76px;
+	height: 76px;
+	border-radius: 10px;
+	background: var(--rv-line-soft);
+}
+
+.nm-gx .nm-gx-slider .sh-gallery-slider__thumb.is-active {
+	border-color: var(--rv-navy);
+}
+
+.nm-gx .nm-gx-videos {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr));
+	gap: 22px;
+}
+
+.nm-gx .nm-gx-videos .sh-video-list__item {
+	overflow: hidden;
+	border: 1px solid var(--rv-line);
+	border-radius: var(--rv-radius-lg);
+	background: #0b1628;
+	box-shadow: var(--rv-shadow-sm);
+}
+
+.nm-gx .nm-gx-videos .sh-video-list__item iframe,
+.nm-gx .nm-gx-videos .sh-video-list__item embed,
+.nm-gx .nm-gx-videos .sh-video-list__item object {
+	display: block;
+	border-radius: 0;
+}
+
+@media (max-width: 600px) {
+	.nm-gx .nm-gx-hero {
+		border-radius: 22px;
+	}
+
+	.nm-gx .nm-gx-grid {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: 12px;
+	}
+
+	.nm-gx .nm-gx-card__body {
+		padding: 12px;
+	}
+
+	.nm-gx .nm-gx-card__title {
+		font-size: 1rem;
+	}
+
+	.nm-gx .nm-gx-card__play {
+		width: 40px;
+		height: 40px;
+	}
+}
+
+@media (max-width: 380px) {
+	.nm-gx .nm-gx-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+/* 7. Videos that fit the screen ---------------------------------------------- */
+
+/*
+ * A video as wide as the page is taller than a small laptop's screen. The player keeps its
+ * shape (16:9) and is never taller than the window less the site's header and the player
+ * bar, so the whole picture and its controls show without scrolling; on a big screen it is
+ * as wide as the page.
+ */
+:root {
+	--rv-video-room: calc(100vh - 200px);
+}
+
+@supports (height: 100svh) {
+	:root {
+		--rv-video-room: calc(100svh - 200px);
+	}
+}
+
+.sh-video-player {
+	width: 100%;
+	max-width: calc(var(--rv-video-room) * 16 / 9);
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.sh-video-player video {
+	width: 100%;
+	height: auto;
+	max-height: var(--rv-video-room);
+	object-fit: contain;
+}
+
+.sh-video-player.sh-video-player--embed {
+	max-width: min(100%, calc(var(--rv-video-room) * 16 / 9));
+}
+
+.sh-video-list .sh-video-list__item {
+	max-width: calc(var(--rv-video-room) * 16 / 9);
+}
+
+.sh-video-list .sh-video-list__item iframe,
+.sh-video-list .sh-video-list__item embed,
+.sh-video-list .sh-video-list__item object,
+.sh-content iframe[src*="youtube"],
+.sh-content iframe[src*="vimeo"] {
+	max-height: var(--rv-video-room);
+}
+
+.sh-content iframe[src*="youtube"],
+.sh-content iframe[src*="vimeo"] {
+	width: 100%;
+	height: auto;
+	aspect-ratio: 16 / 9;
+	max-width: calc(var(--rv-video-room) * 16 / 9);
+}
+
+/* Phones turned sideways: the window is short, so a little less room is held back. */
+@media (orientation: landscape) and (max-height: 500px) {
+	:root {
+		--rv-video-room: calc(100vh - 90px);
+	}
+
+	@supports (height: 100svh) {
+		:root {
+			--rv-video-room: calc(100svh - 90px);
+		}
+	}
+}
+
+/* A video shiur's page has no navy hero: its speaker and series links sit on the light page,
+   where the hero's white links could not be seen. */
+body.sh-layout-studio .shiurim-app .sh-page-header > .sh-hero__meta {
+	color: var(--rv-muted);
+}
+
+body.sh-layout-studio .shiurim-app .sh-page-header > .sh-hero__meta a {
+	color: var(--rv-navy);
+}
+
+body.sh-layout-studio .shiurim-app .sh-page-header > .sh-hero__meta a:hover,
+body.sh-layout-studio .shiurim-app .sh-page-header > .sh-hero__meta a:focus {
+	color: var(--rv-navy-2);
+}

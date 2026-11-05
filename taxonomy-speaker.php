@@ -65,9 +65,18 @@ $series_playable  = $lazy_queues && $all_series && function_exists( 'ner_michoel
 		</div>
 	</header>
 
+	<?php
+	// The search bar with filters, set to this speaker (inc/revamp.php): the speaker filter is on
+	// this speaker, and can be changed.
+	if ( function_exists( 'ner_michoel_render_scoped_search' ) ) {
+		/* translators: %s: the speaker's name */
+		ner_michoel_render_scoped_search( array( 'scope' => 'speaker', 'term' => $term, 'label' => sprintf( __( 'Search %s’s shiurim…', 'ner-michoel-child' ), html_entity_decode( $term->name, ENT_QUOTES, 'UTF-8' ) ) ) );
+	}
+	?>
+
 	<?php foreach ( $series_groups as $series_group ) : ?>
 	<?php if ( $series_group['entries'] ) : ?>
-	<section class="sh-section" data-series-group="<?php echo esc_attr( $series_group['key'] ); ?>">
+	<section class="sh-section" data-scope-browse data-series-group="<?php echo esc_attr( $series_group['key'] ); ?>">
 		<h2 class="sh-section__title"><?php echo esc_html( $series_group['title'] ); ?></h2>
 		<?php if ( $series_group['note'] ) : ?>
 			<p class="sh-section__note"><?php echo esc_html( $series_group['note'] ); ?></p>
@@ -103,14 +112,14 @@ $series_playable  = $lazy_queues && $all_series && function_exists( 'ner_michoel
 	<?php endforeach; ?>
 
 	<?php if ( $standalone ) : ?>
-	<section class="sh-section">
+	<section class="sh-section" data-scope-browse>
 		<h2 class="sh-section__title"><?php esc_html_e( 'Shiurim', 'ner-michoel-child' ); ?></h2>
 		<?php ner_michoel_render_tracklist( $standalone, false ); ?>
 	</section>
 	<?php endif; ?>
 
 	<?php if ( ! $all_series && ! $standalone ) : ?>
-		<p class="sh-empty"><?php esc_html_e( 'No shiurim from this speaker yet.', 'ner-michoel-child' ); ?></p>
+		<p class="sh-empty" data-scope-browse><?php esc_html_e( 'No shiurim from this speaker yet.', 'ner-michoel-child' ); ?></p>
 	<?php endif; ?>
 </div>
 

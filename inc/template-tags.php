@@ -207,6 +207,9 @@ function ner_michoel_line_icon( $name ) {
 		'phone'       => '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>',
 		'map-pin'     => '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
 		'send'        => '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+		'user'        => '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+		'filter'      => '<path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>',
+		'calendar'    => '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
 	);
 	if ( ! isset( $paths[ $name ] ) ) {
 		return '';
@@ -868,7 +871,7 @@ function ner_michoel_render_track_row( $shiur, $index, $show_speaker = true ) {
 		$download_url = function_exists( 'ner_michoel_get_shiur_download_url' ) ? ner_michoel_get_shiur_download_url( $shiur->ID ) : '';
 		if ( $download_url ) :
 			?>
-			<a class="sh-track__download" href="<?php echo esc_url( $download_url ); ?>" aria-label="<?php esc_attr_e( 'Download', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'download' ); ?></a>
+			<a class="sh-track__download" href="<?php echo esc_url( $download_url ); ?>" download data-no-pjax aria-label="<?php esc_attr_e( 'Download', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'download' ); ?></a>
 		<?php endif; ?>
 	</div>
 	<?php
@@ -884,6 +887,10 @@ function ner_michoel_render_track_row( $shiur, $index, $show_speaker = true ) {
  * position never has to line up with an index in `data-queue`.
  */
 function ner_michoel_render_tracklist( $shiurim, $show_speaker = true ) {
+	// A shiur that comes as audio and video is one line, by its audio (inc/revamp.php).
+	if ( function_exists( 'ner_michoel_one_per_shiur' ) ) {
+		$shiurim = ner_michoel_one_per_shiur( array_values( (array) $shiurim ) );
+	}
 	$visible = array_values(
 		array_filter(
 			$shiurim,

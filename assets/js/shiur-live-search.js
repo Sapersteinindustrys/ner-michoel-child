@@ -300,6 +300,62 @@
 		};
 	}
 
+	/*
+	 * One entry per shiur: a shiur that comes as audio and video, or with a written sheet, is
+	 * in the index once per format. Each is shown once, by its audio if that matched, else its
+	 * video, else its written sheet, where the first of them came. The index's x key names the
+	 * shiur (core v0.9.45); an older index is grouped by title and speaker, the rule core uses.
+	 */
+	var KIND_RANK = { a: 0, v: 1, w: 2 };
+	function shiurKey( it ) {
+		if ( it.x ) {
+			return 'x' + it.x;
+		}
+		if ( it.f && it.f.length > 1 && window.nmShiurSearch ) {
+			return 't' + window.nmShiurSearch.fold( it.m ) + '|' + it.a;
+		}
+		return 'i' + it.i;
+	}
+	function onePerShiur( result ) {
+		var best  = {};
+		var order = [];
+		result.matches.forEach( function ( match, i ) {
+			var key  = shiurKey( match.it );
+			var rank = KIND_RANK[ match.it.c ] !== undefined ? KIND_RANK[ match.it.c ] : 3;
+			if ( ! best[ key ] ) {
+				best[ key ] = { match: match, rank: rank, exact: i < result.exact };
+				order.push( key );
+			} else if ( rank < best[ key ].rank ) {
+				best[ key ].match = match;
+				best[ key ].rank  = rank;
+			}
+		} );
+		var exact = 0;
+		var keep  = order.map( function ( key ) {
+			if ( best[ key ].exact ) {
+				exact++;
+			}
+			return best[ key ].match;
+		} );
+		return { matches: keep, exact: exact, close: keep.length - exact };
+	}
+
+	// Only the shiurim that come in this kind (their own, or one of their formats).
+	function onlyKindOf( result, kind ) {
+		if ( ! kind ) {
+			return result;
+		}
+		var exact = 0;
+		var keep  = result.matches.filter( function ( match, i ) {
+			var ok = -1 !== ( match.it.f || match.it.c ).indexOf( kind );
+			if ( ok && i < result.exact ) {
+				exact++;
+			}
+			return ok;
+		} );
+		return { matches: keep, exact: exact, close: keep.length - exact };
+	}
+
 	/* ---------------------------------------------------------------------
 	 * The Shiurim search page
 	 * ------------------------------------------------------------------ */
@@ -484,7 +540,7 @@
 				topic: topicEl ? topicEl.value : '',
 				year: yearEl.value
 			} );
-			view.show( onlyKind( result, kindEl ? kindEl.value : '' ), t( 'none', 'No shiurim match these words and filters. Try fewer or different words.' ) );
+			view.show( onePerShiur( onlyKind( result, kindEl ? kindEl.value : '' ) ), t( 'none', 'No shiurim match these words and filters. Try fewer or different words.' ) );
 		}
 
 		function schedule() {
@@ -676,7 +732,7 @@
 			showBrowse( false );
 
 			var result = engine.search( data, query, { topic: topicId } );
-			view.show( result, format( root.getAttribute( 'data-none' ) || 'No shiurim here match “%s”.', [ query ] ) );
+			view.show( onePerShiur( result ), format( root.getAttribute( 'data-none' ) || 'No shiurim here match “%s”.', [ query ] ) );
 
 			// A way out when this topic doesn't have it: the same search across every shiur.
 			if ( allEl && allLink ) {
@@ -722,9 +778,367 @@
 		}
 	}
 
+	/* ---------------------------------------------------------------------
+	 * The search bar with filters on the shiurim pages
+	 * (ner_michoel_render_scoped_search(), inc/revamp.php)
+	 * ------------------------------------------------------------------ */
+	function initScopeSearch() {
+		var root = document.querySelector( '[data-scope-search]' );
+		if ( ! root ) {
+			return;
+		}
+
+		var engine = window.nmShiurSearch;
+		if ( ! engine || ! window.fetch || ! window.URLSearchParams ) {
+			return; // The box stays hidden and the page is as it was.
+		}
+
+		var scope     = root.getAttribute( 'data-scope' ) || 'all';
+		var scopeIds  = ( root.getAttribute( 'data-scope-ids' ) || '' ).split( ',' ).filter( Boolean );
+		var startOpen = root.hasAttribute( 'data-start-open' );
+		var input     = root.querySelector( '[data-scope-query]' );
+		var speakerEl = root.querySelector( '[data-scope-speaker]' );
+		var seriesEl  = root.querySelector( '[data-scope-series]' );
+		var topicEl   = root.querySelector( '[data-scope-topic]' );
+		var yearEl    = root.querySelector( '[data-scope-year]' );
+		var kindEl    = root.querySelector( '[data-scope-kind]' );
+		var resetBtn  = root.querySelector( '[data-scope-reset]' );
+		var toggleBtn = root.querySelector( '[data-scope-toggle]' );
+		var filtersEl = root.querySelector( '[data-scope-filters]' );
+		var countEl   = root.querySelector( '[data-scope-count]' );
+		var list      = root.querySelector( '[data-scope-results]' );
+		var moreBtn   = root.querySelector( '[data-scope-more]' );
+		var allEl     = root.querySelector( '[data-scope-all]' );
+		var allLink   = allEl ? allEl.querySelector( 'a' ) : null;
+		var browse    = Array.prototype.slice.call( document.querySelectorAll( '[data-scope-browse]' ) );
+		var selects   = [ speakerEl, seriesEl, topicEl, yearEl, kindEl ];
+
+		// The value each filter starts with on this page: the page's own speaker, series or topic.
+		var SCOPE_SERIES = 'scope';
+		var defaults     = { speaker: '', series: '', topic: '', year: '', kind: '' };
+		if ( 'speaker' === scope && scopeIds[ 0 ] ) {
+			defaults.speaker = scopeIds[ 0 ];
+		} else if ( 'series' === scope && scopeIds.length ) {
+			defaults.series = SCOPE_SERIES;
+		} else if ( 'topic' === scope && scopeIds[ 0 ] ) {
+			defaults.topic = scopeIds[ 0 ];
+		}
+
+		var typing = null;
+		var data   = null;
+		var view   = null;
+		var ready  = null;
+
+		function showBrowse( on ) {
+			browse.forEach( function ( el ) {
+				el.hidden = ! on;
+			} );
+		}
+
+		function addOption( select, value, label ) {
+			var el         = document.createElement( 'option' );
+			el.value       = value;
+			el.textContent = label;
+			select.appendChild( el );
+		}
+
+		// Each filter offers what this page's shiurim have: a speaker's page lists that
+		// speaker's series and years, a series page its speakers.
+		function fillFilters() {
+			var inScope = scopeTest();
+			var seen    = { a: {}, s: {}, g: {}, y: {} };
+			data.items.forEach( function ( it ) {
+				if ( inScope && ! inScope( it ) ) {
+					return;
+				}
+				seen.a[ it.a ] = true;
+				seen.s[ it.s ] = true;
+				seen.y[ it._year ] = true;
+				( it.g || [] ).forEach( function ( g ) {
+					seen.g[ g ] = true;
+				} );
+			} );
+			var names = function ( map, have ) {
+				return Object.keys( map ).filter( function ( id ) {
+					return !! have[ id ];
+				} ).map( function ( id ) {
+					return { id: id, name: map[ id ] };
+				} ).sort( function ( a, b ) {
+					return a.name.localeCompare( b.name );
+				} );
+			};
+			// A speaker's page still offers every speaker, so the filter can be widened.
+			var speakers = 'speaker' === scope ? names( data.speakers, data.speakers ) : names( data.speakers, seen.a );
+			speakers.forEach( function ( o ) {
+				addOption( speakerEl, o.id, o.name );
+			} );
+			if ( 'series' === scope ) {
+				addOption( seriesEl, SCOPE_SERIES, t( 'thisSeries', 'This series (all of it)' ) );
+			}
+			names( data.series, seen.s ).forEach( function ( o ) {
+				addOption( seriesEl, o.id, o.name );
+			} );
+			if ( topicEl ) {
+				var topics = names( data.topics || {}, 'topic' === scope ? ( data.topics || {} ) : seen.g );
+				topics.forEach( function ( o ) {
+					addOption( topicEl, o.id, o.name );
+				} );
+				var topicLabel = topicEl.closest( 'label' );
+				if ( topicLabel ) {
+					topicLabel.hidden = ! topics.length;
+				}
+			}
+			data.years.filter( function ( y ) {
+				return seen.y[ y ];
+			} ).forEach( function ( y ) {
+				addOption( yearEl, y, y );
+			} );
+		}
+
+		// On a series page, "This series" is the series and every series inside it.
+		function scopeTest() {
+			if ( 'series' !== scope || ! scopeIds.length ) {
+				if ( 'speaker' === scope && scopeIds[ 0 ] ) {
+					return function ( it ) {
+						return String( it.a ) === scopeIds[ 0 ];
+					};
+				}
+				if ( 'topic' === scope && scopeIds[ 0 ] ) {
+					return function ( it ) {
+						return !! it.g && it.g.map( String ).indexOf( scopeIds[ 0 ] ) !== -1;
+					};
+				}
+				return null;
+			}
+			var set = {};
+			scopeIds.forEach( function ( id ) {
+				set[ id ] = true;
+			} );
+			return function ( it ) {
+				return !! set[ String( it.s ) ];
+			};
+		}
+
+		function current() {
+			return {
+				q: input.value.trim(),
+				speaker: speakerEl.value,
+				series: seriesEl.value,
+				topic: topicEl ? topicEl.value : '',
+				year: yearEl.value,
+				kind: kindEl ? kindEl.value : ''
+			};
+		}
+
+		// Something to search: words typed, or a filter moved off where this page starts it.
+		function isActive( c ) {
+			return startOpen || !! c.q || c.speaker !== defaults.speaker || c.series !== defaults.series || c.topic !== defaults.topic || !! c.year || !! c.kind;
+		}
+
+		function setValues( c ) {
+			input.value     = c.q || '';
+			speakerEl.value = c.speaker;
+			seriesEl.value  = c.series;
+			if ( topicEl ) {
+				topicEl.value = c.topic;
+			}
+			yearEl.value = c.year;
+			if ( kindEl ) {
+				kindEl.value = c.kind;
+			}
+			selects.forEach( function ( select ) {
+				if ( select && select.selectedIndex < 0 ) {
+					select.selectedIndex = 0;
+				}
+			} );
+		}
+
+		// Kept with this page's entry in the browser's history (never in the address: pages are cached).
+		function saved() {
+			var state = window.history.state;
+			return state && 'object' === typeof state && state.nmScope && 'object' === typeof state.nmScope ? state.nmScope : null;
+		}
+
+		function save( c ) {
+			var state = window.history.state && 'object' === typeof window.history.state ? Object.assign( {}, window.history.state ) : {};
+			if ( isActive( c ) && ! startOpen ) {
+				state.nmScope = c;
+			} else {
+				delete state.nmScope;
+			}
+			window.history.replaceState( state, '', window.location.href );
+		}
+
+		function start() {
+			if ( ! ready ) {
+				ready = loadIndex( root.getAttribute( 'data-index-url' ) ).then( function ( prepared ) {
+					data = prepared;
+					view = resultsList( data, list, moreBtn, countEl );
+					fillFilters();
+					// Until now each list had only its "All" line: put this page's own filter on.
+					speakerEl.value = defaults.speaker;
+					seriesEl.value  = defaults.series;
+					if ( topicEl ) {
+						topicEl.value = defaults.topic;
+					}
+					selects.forEach( function ( select ) {
+						if ( select && select.selectedIndex < 0 ) {
+							select.selectedIndex = 0;
+						}
+					} );
+					return data;
+				} );
+				ready.catch( function () {
+					ready = null;
+				} );
+			}
+			return ready;
+		}
+
+		function run() {
+			var c = current();
+			save( c );
+			if ( resetBtn ) {
+				resetBtn.hidden = ! isActive( c ) || ( startOpen && ! c.q && ! c.speaker && ! c.series && ! c.topic && ! c.year && ! c.kind );
+			}
+
+			if ( ! isActive( c ) ) {
+				if ( view ) {
+					view.clear();
+				} else {
+					countEl.textContent = '';
+				}
+				root.classList.remove( 'is-searching' );
+				if ( allEl ) {
+					allEl.hidden = true;
+				}
+				showBrowse( true );
+				return;
+			}
+
+			if ( ! data ) {
+				countEl.textContent = t( 'loading', 'Loading shiurim…' );
+				start().then( run, function () {
+					root.classList.remove( 'is-searching' );
+					showBrowse( true );
+					countEl.textContent = t( 'unavailable', 'Search isn’t working right now. Please try again in a moment.' );
+				} );
+				return;
+			}
+
+			root.classList.add( 'is-searching' );
+			showBrowse( false );
+
+			var only   = SCOPE_SERIES === c.series ? scopeTest() : null;
+			var result = engine.search( data, c.q, {
+				speaker: c.speaker,
+				series: SCOPE_SERIES === c.series ? '' : c.series,
+				topic: c.topic,
+				year: c.year,
+				only: only
+			} );
+			view.show( onePerShiur( onlyKindOf( result, c.kind ) ), t( 'none', 'No shiurim match these words and filters. Try fewer or different words.' ) );
+
+			// A way out: the same words across every shiur, on the full search page.
+			if ( allEl && allLink ) {
+				if ( c.q && 'all' !== scope ) {
+					var url = new URL( root.getAttribute( 'data-all-url' ) || '/', window.location.href );
+					url.searchParams.set( 's', c.q );
+					url.searchParams.set( 'post_type', 'shiur' );
+					allLink.href        = url.toString();
+					allLink.textContent = format( t( 'searchAll', 'Search all shiurim for “%s”' ), [ c.q ] );
+					allEl.hidden        = false;
+				} else {
+					allEl.hidden = true;
+				}
+			}
+		}
+
+		function schedule() {
+			window.clearTimeout( typing );
+			typing = window.setTimeout( run, DEBOUNCE );
+		}
+
+		input.addEventListener( 'input', schedule );
+		input.addEventListener( 'focus', function () {
+			start().catch( function () {} );
+		} );
+		input.addEventListener( 'keydown', function ( e ) {
+			if ( 'Escape' === e.key && input.value ) {
+				input.value = '';
+				window.clearTimeout( typing );
+				run();
+			} else if ( 'Enter' === e.key ) {
+				window.clearTimeout( typing );
+				run();
+				input.blur();
+			}
+		} );
+		selects.forEach( function ( select ) {
+			if ( select ) {
+				select.addEventListener( 'change', run );
+				// The lists fill from the index: get it on the way as soon as a filter is touched.
+				select.addEventListener( 'focus', function () {
+					start().catch( function () {} );
+				} );
+				select.addEventListener( 'mousedown', function () {
+					start().catch( function () {} );
+				} );
+			}
+		} );
+		if ( resetBtn ) {
+			resetBtn.addEventListener( 'click', function () {
+				setValues( { q: '', speaker: defaults.speaker, series: defaults.series, topic: defaults.topic, year: '', kind: '' } );
+				run();
+				input.focus();
+			} );
+		}
+
+		// Filters fold away on a phone, behind the Filters button.
+		function setOpen( open ) {
+			if ( ! toggleBtn || ! filtersEl ) {
+				return;
+			}
+			filtersEl.hidden = ! open;
+			toggleBtn.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+		}
+		if ( toggleBtn ) {
+			toggleBtn.addEventListener( 'click', function () {
+				setOpen( filtersEl.hidden );
+				if ( ! filtersEl.hidden ) {
+					start().catch( function () {} );
+				}
+			} );
+			setOpen( ! ( window.matchMedia && window.matchMedia( '(max-width: 700px)' ).matches ) );
+		}
+
+		root.hidden = false;
+
+		var first = saved();
+		if ( first || startOpen ) {
+			start().then( function () {
+				setValues( first || defaults );
+				run();
+			}, function () {
+				countEl.textContent = t( 'unavailable', 'Search isn’t working right now. Please try again in a moment.' );
+			} );
+		} else {
+			// The filters' lists come from the index: fetched once the page has settled (the
+			// browser keeps it, so the next shiurim page has it at once), and at the latest when
+			// the box or a filter is touched.
+			var settle = window.requestIdleCallback || function ( fn ) {
+				return window.setTimeout( fn, 1200 );
+			};
+			settle( function () {
+				start().catch( function () {} );
+			}, { timeout: 4000 } );
+		}
+	}
+
 	function init() {
 		initSearchPage();
 		initTopicSearch();
+		initScopeSearch();
 	}
 
 	init();

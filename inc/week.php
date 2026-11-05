@@ -115,6 +115,8 @@ function ner_michoel_home_week_parsha_panel( $week, $region ) {
 		'name'   => $week['name'],
 		/* translators: 1: the Shabbos date such as Oct 31, 2: its Hebrew date such as 19 Cheshvan 5787 */
 		'when'   => $week['date'] ? sprintf( __( 'Shabbos %1$s · %2$s', 'ner-michoel-child' ), $week['date'], $week['hebrew'] ) : '',
+		// The same Shabbos in Hebrew letters, "כ״ז חשון תשפ״ז" (an older plugin has none).
+		'when_he' => ( $week['date'] && ! empty( $week['hebrew_he'] ) ) ? $week['hebrew_he'] : '',
 		'link'   => $week['link'],
 		'count'  => $week['count'],
 		'rows'   => $rows,
@@ -179,6 +181,7 @@ function ner_michoel_home_week_data() {
 				'prefix' => '',
 				'name'   => html_entity_decode( $season['name'], ENT_QUOTES, 'UTF-8' ),
 				'when'   => $season['label'],
+				'when_he' => '',
 				'link'   => $season['link'],
 				'count'  => $season['count'],
 				'rows'   => $rows,

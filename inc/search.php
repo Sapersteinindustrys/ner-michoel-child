@@ -73,6 +73,10 @@ function ner_michoel_enqueue_shiur_live_search() {
 			'closeMany' => __( '%s close matches · spelled a little differently', 'ner-michoel-child' ),
 			// A topic page's search box, when the search can't load.
 			'unavailable' => __( 'Search isn’t working right now. Please try again in a moment.', 'ner-michoel-child' ),
+			// The search bar on a series page: the series and the ones inside it.
+			'thisSeries'  => __( 'This series (all of it)', 'ner-michoel-child' ),
+			/* translators: %s: the words searched for */
+			'searchAll'   => __( 'Search all shiurim for “%s”', 'ner-michoel-child' ),
 		)
 	);
 }

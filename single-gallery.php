@@ -15,29 +15,36 @@ while ( have_posts() ) :
 	$is_video = in_array( $type, array( 'video', 'videoshiurim' ), true );
 	?>
 
-	<div class="nm-app">
-		<header class="sh-page-header">
-			<h1><?php the_title(); ?></h1>
-			<p class="sh-hero__meta">
-				<?php echo esc_html( get_the_date() ); ?>
-				<?php if ( ! $is_video ) : ?>
-					<?php $count = ner_michoel_get_gallery_image_count( get_the_ID() ); ?>
-					&middot;
-					<?php
-					echo esc_html(
-						sprintf(
-							/* translators: %d: number of photos */
-							_n( '%d photo', '%d photos', $count, 'ner-michoel-child' ),
-							$count
-						)
-					);
-					?>
-				<?php endif; ?>
+	<?php
+	$sections = function_exists( 'ner_michoel_gallery_sections' ) ? ner_michoel_gallery_sections() : array();
+	$section  = isset( $sections[ $type ] ) ? $sections[ $type ] : null;
+	$back_url = $section ? $section['link'] : get_post_type_archive_link( 'gallery' );
+	if ( $is_video ) {
+		$count = count( ner_michoel_get_gallery_videos( get_the_ID() ) );
+		/* translators: %s: number of videos */
+		$what = sprintf( _n( '%s video', '%s videos', $count, 'ner-michoel-child' ), number_format_i18n( $count ) );
+	} else {
+		$count = ner_michoel_get_gallery_image_count( get_the_ID() );
+		/* translators: %s: number of photos */
+		$what = sprintf( _n( '%s photo', '%s photos', $count, 'ner-michoel-child' ), number_format_i18n( $count ) );
+	}
+	?>
+
+	<div class="nm-app nm-gx nm-gx--single">
+		<header class="nm-gx-head">
+			<?php if ( $back_url ) : ?>
+				<a class="nm-gx-head__back" href="<?php echo esc_url( $back_url ); ?>"><?php echo ner_michoel_line_icon( 'arrow-left' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?> <?php echo esc_html( $section ? $section['name'] : __( 'Galleries', 'ner-michoel-child' ) ); ?></a>
+			<?php endif; ?>
+			<h1 class="nm-gx-head__title"><?php the_title(); ?></h1>
+			<p class="nm-gx-head__meta">
+				<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>"><?php echo esc_html( get_the_date() ); ?></time>
+				<span aria-hidden="true">&middot;</span>
+				<span><?php echo esc_html( $what ); ?></span>
 			</p>
 		</header>
 
 		<?php if ( get_the_content() ) : ?>
-			<section class="sh-content" style="margin-bottom: 24px;"><?php the_content(); ?></section>
+			<section class="sh-content nm-gx-text"><?php the_content(); ?></section>
 		<?php endif; ?>
 
 		<?php if ( $is_video ) : ?>
@@ -49,7 +56,7 @@ while ( have_posts() ) :
 				<?php
 			else :
 				?>
-				<div class="sh-video-list">
+				<div class="sh-video-list nm-gx-videos">
 					<?php foreach ( $videos as $video_url ) : ?>
 						<div class="sh-video-list__item">
 							<?php
@@ -76,7 +83,7 @@ while ( have_posts() ) :
 				<?php
 			else :
 				?>
-				<div class="sh-gallery-slider" data-images="<?php echo esc_attr( wp_json_encode( $images ) ); ?>">
+				<div class="sh-gallery-slider nm-gx-slider" data-images="<?php echo esc_attr( wp_json_encode( $images ) ); ?>">
 					<div class="sh-gallery-slider__stage">
 						<?php if ( $count > 1 ) : ?>
 							<button type="button" class="sh-gallery-slider__nav sh-gallery-slider__nav--prev" aria-label="<?php esc_attr_e( 'Previous', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'prev' ); ?></button>

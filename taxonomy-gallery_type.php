@@ -31,33 +31,7 @@ $galleries = new WP_Query(
 		),
 	)
 );
+ner_michoel_render_gallery_page( $galleries, $term->slug, $title );
 ?>
-
-<div class="nm-app">
-	<header class="sh-page-header">
-		<h1><?php echo esc_html( $title ); ?></h1>
-	</header>
-
-	<?php if ( ! $galleries->have_posts() ) : ?>
-		<p class="sh-empty"><?php esc_html_e( 'No galleries yet.', 'ner-michoel-child' ); ?></p>
-	<?php else : ?>
-		<div class="sh-grid">
-			<?php
-			while ( $galleries->have_posts() ) :
-				$galleries->the_post();
-				ner_michoel_render_media_card(
-					array(
-						'title'    => get_the_title(),
-						'subtitle' => ner_michoel_gallery_card_subtitle( get_the_ID() ),
-						'image'    => ner_michoel_get_gallery_cover_url( get_the_ID() ),
-						'link'     => get_permalink(),
-					)
-				);
-			endwhile;
-			wp_reset_postdata();
-			?>
-		</div>
-	<?php endif; ?>
-</div>
 
 <?php get_footer(); ?>

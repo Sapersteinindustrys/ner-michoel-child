@@ -186,6 +186,9 @@ function ner_michoel_studio_series_rows( $terms ) {
 	$playable = function_exists( 'ner_michoel_term_playable_counts' ) ? ner_michoel_term_playable_counts( 'series' ) : null;
 	$order    = array_flip( ner_michoel_studio_parsha_order() );
 	$parsha   = __( 'Parsha', 'ner-michoel-child' );
+	// The admin's order (Control Panel > Shiurim > Series Order, ner-michoel-core includes/series-order.php):
+	// a row's place is its top-level series', a card's is that of the series it sits under in the row.
+	$admin    = function_exists( 'ner_michoel_series_admin_order' ) ? 'ner_michoel_series_admin_order' : null;
 
 	$rows = array();
 	foreach ( $terms as $term ) {
@@ -208,6 +211,16 @@ function ner_michoel_studio_series_rows( $terms ) {
 			$row_key = $head;
 		}
 
+		$row_place  = 0;
+		$card_place = 0;
+		if ( $admin ) {
+			$chain      = array_values( array_map( 'intval', get_ancestors( $term->term_id, 'series', 'taxonomy' ) ) );
+			$top        = $chain ? $chain[ count( $chain ) - 1 ] : (int) $term->term_id;
+			$under_top  = count( $chain ) >= 2 ? $chain[ count( $chain ) - 2 ] : (int) $term->term_id;
+			$row_place  = call_user_func( $admin, $top );
+			$card_place = call_user_func( $admin, $under_top );
+		}
+
 		$title = $rest ? implode( ' · ', $rest ) : $head;
 		// The cover: the series' own name large, the rest of its path small under it
 		// ("Bava Kamma" over "Perek 3"), so a masechta's perakim don't all look alike.
@@ -220,8 +233,12 @@ function ner_michoel_studio_series_rows( $terms ) {
 			$rows[ $row_key ] = array(
 				'title' => $row_key,
 				'total' => 0,
+				'place' => 0,
 				'cards' => array(),
 			);
+		}
+		if ( $row_place > 0 && ( ! $rows[ $row_key ]['place'] || $row_place < $rows[ $row_key ]['place'] ) ) {
+			$rows[ $row_key ]['place'] = $row_place;
 		}
 		$rows[ $row_key ]['total']  += $count;
 		$rows[ $row_key ]['cards'][] = array(
@@ -236,6 +253,7 @@ function ner_michoel_studio_series_rows( $terms ) {
 			'track'     => isset( $first[ $term->term_id ] ) ? $first[ $term->term_id ] : array(),
 			'queue_url' => ( $audio && function_exists( 'ner_michoel_queue_url' ) ) ? ner_michoel_queue_url( array( 'series' => $term->term_id ) ) : '',
 			'sort'      => '' !== $sort ? $sort : $title,
+			'place'     => $card_place,
 		);
 	}
 
@@ -261,10 +279,11 @@ function ner_michoel_studio_series_rows( $terms ) {
 		}
 	}
 
+	// The rows the admin placed first, in that order; the rest biggest first.
 	uasort(
 		$rows,
 		function ( $a, $b ) {
-			return $b['total'] <=> $a['total'];
+			return array( $a['place'] > 0 ? 0 : 1, $a['place'], $b['total'] ) <=> array( $b['place'] > 0 ? 0 : 1, $b['place'], $a['total'] );
 		}
 	);
 	if ( $more['cards'] ) {
@@ -275,7 +294,8 @@ function ner_michoel_studio_series_rows( $terms ) {
 		usort(
 			$row['cards'],
 			function ( $a, $b ) {
-				return strnatcasecmp( $a['sort'], $b['sort'] );
+				$by_place = array( $a['place'] > 0 ? 0 : 1, $a['place'] ) <=> array( $b['place'] > 0 ? 0 : 1, $b['place'] );
+				return 0 !== $by_place ? $by_place : strnatcasecmp( $a['sort'], $b['sort'] );
 			}
 		);
 	}

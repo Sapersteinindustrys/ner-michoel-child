@@ -203,6 +203,10 @@
 	}
 
 	function allows( it, f ) {
+		// only: a test of the caller's own (the series page's search: this series and the ones inside it).
+		if ( f.only && ! f.only( it ) ) {
+			return false;
+		}
 		if ( ( f.speaker && String( it.a ) !== f.speaker ) || ( f.series && String( it.s ) !== f.series ) || ( f.year && it._year !== f.year ) ) {
 			return false;
 		}

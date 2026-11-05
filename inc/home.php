@@ -286,7 +286,8 @@ function ner_michoel_home_unbundle( array $posts ) {
 		$seen[ $post->ID ] = true;
 		$out[]             = $post;
 	}
-	return $out;
+	// A shiur with an audio and a video is one row too, by its audio (inc/revamp.php).
+	return function_exists( 'ner_michoel_one_per_shiur' ) ? ner_michoel_one_per_shiur( $out ) : $out;
 }
 
 /**
@@ -306,6 +307,8 @@ function ner_michoel_home_new_data() {
 		'counts'    => array(),
 		'urls'      => array(
 			'shiurim'    => post_type_exists( 'shiur' ) ? get_post_type_archive_link( 'shiur' ) : '',
+			// Every shiur, newest first, as lines with their dates (archive-shiur.php's Recent view).
+			'recent'     => post_type_exists( 'shiur' ) ? add_query_arg( 'sh_view', 'recent', get_post_type_archive_link( 'shiur' ) ) : '',
 			'written'    => post_type_exists( 'written_shiur' ) ? get_post_type_archive_link( 'written_shiur' ) : '',
 			'galleries'  => post_type_exists( 'gallery' ) ? get_post_type_archive_link( 'gallery' ) : '',
 			'mazal'      => post_type_exists( 'mazal_tov' ) ? get_post_type_archive_link( 'mazal_tov' ) : '',
@@ -320,10 +323,15 @@ function ner_michoel_home_new_data() {
 		$shiurim = get_posts(
 			array(
 				'post_type'      => 'shiur',
-				'posts_per_page' => 8,
+				'posts_per_page' => 14,
 				'no_found_rows'  => true,
 			)
 		);
+		// A shiur with an audio and a video is one row, by its audio (inc/revamp.php).
+		if ( function_exists( 'ner_michoel_one_per_shiur' ) ) {
+			$shiurim = ner_michoel_one_per_shiur( $shiurim );
+		}
+		$shiurim = array_slice( $shiurim, 0, 8 );
 		foreach ( $shiurim as $post ) {
 			$data['shiurim'][] = ner_michoel_home_shiur_row( $post );
 		}

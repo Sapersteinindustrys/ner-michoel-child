@@ -79,8 +79,16 @@ usort(
 		</div>
 	</header>
 
+	<?php
+	// The search bar with filters, set to this series and the series inside it (inc/revamp.php).
+	if ( function_exists( 'ner_michoel_render_scoped_search' ) ) {
+		/* translators: %s: series name */
+		ner_michoel_render_scoped_search( array( 'scope' => 'series', 'term' => $term, 'label' => sprintf( __( 'Search within %s…', 'ner-michoel-child' ), html_entity_decode( $term->name, ENT_QUOTES, 'UTF-8' ) ) ) );
+	}
+	?>
+
 	<?php if ( $children ) : ?>
-	<section class="sh-section" data-series-inside>
+	<section class="sh-section" data-series-inside data-scope-browse>
 		<h2 class="sh-section__title"><?php esc_html_e( 'Series inside', 'ner-michoel-child' ); ?></h2>
 		<?php ner_michoel_render_card_collection_start( true ); ?>
 			<?php
@@ -104,7 +112,7 @@ usort(
 	<?php endif; ?>
 
 	<?php if ( $shiurim || ! $children ) : ?>
-	<section class="sh-section">
+	<section class="sh-section" data-scope-browse>
 		<?php ner_michoel_render_tracklist( $shiurim, true ); ?>
 	</section>
 	<?php endif; ?>

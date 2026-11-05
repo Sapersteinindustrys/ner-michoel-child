@@ -72,8 +72,9 @@
 		var tabList = document.querySelector( '[data-hn-tabs]' );
 		if ( tabList ) {
 			var tabs       = Array.prototype.slice.call( tabList.querySelectorAll( '[role="tab"]' ) );
-			var moreListen = document.querySelector( '[data-hn-more-listen]' );
-			var moreRead   = document.querySelector( '[data-hn-more-read]' );
+			// The links to the archives: under the list, and at the top of the card.
+			var moreListen = Array.prototype.slice.call( document.querySelectorAll( '[data-hn-more-listen]' ) );
+			var moreRead   = Array.prototype.slice.call( document.querySelectorAll( '[data-hn-more-read]' ) );
 
 			var select = function ( tab, focus ) {
 				tabs.forEach( function ( other ) {
@@ -88,12 +89,12 @@
 				} );
 				// The link under the list goes to whichever archive is showing.
 				var reading = 'hn-tab-read' === tab.id;
-				if ( moreListen ) {
-					moreListen.hidden = reading && !! moreRead;
-				}
-				if ( moreRead ) {
-					moreRead.hidden = ! reading;
-				}
+				moreListen.forEach( function ( link ) {
+					link.hidden = reading && moreRead.length > 0;
+				} );
+				moreRead.forEach( function ( link ) {
+					link.hidden = ! reading;
+				} );
 				if ( focus ) {
 					tab.focus();
 				}

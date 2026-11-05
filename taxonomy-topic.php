@@ -89,6 +89,29 @@ $written = $is_first ? get_posts(
 				}
 				?>
 			</p>
+			<?php
+			// A parsha's own page: the Shabbos it is read, in English and Hebrew dates (ner-michoel-core includes/parsha.php).
+			$parsha_numbers = function_exists( 'ner_michoel_parsha_match_name' ) ? ner_michoel_parsha_match_name( html_entity_decode( $term->name, ENT_QUOTES, 'UTF-8' ) ) : array();
+			$parsha_read    = ( $parsha_numbers && function_exists( 'ner_michoel_parsha_next_reading' ) ) ? ner_michoel_parsha_next_reading( $parsha_numbers ) : null;
+			?>
+			<?php if ( $parsha_read ) : ?>
+				<p class="sh-hero__parsha-date">
+					<span class="sh-hero__parsha-when">
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: 1: "This Shabbos" or "Read on Shabbos", 2: a date such as Nov 7, 3: its Hebrew date such as 27 Cheshvan 5787 */
+								__( '%1$s %2$s · %3$s', 'ner-michoel-child' ),
+								$parsha_read['this_week'] ? __( 'This Shabbos,', 'ner-michoel-child' ) : __( 'Next read on Shabbos', 'ner-michoel-child' ),
+								$parsha_read['date'],
+								$parsha_read['hebrew']
+							)
+						);
+						?>
+					</span>
+					<span class="sh-hero__parsha-he" lang="he" dir="rtl"><?php echo esc_html( $parsha_read['hebrew_he'] ); ?></span>
+				</p>
+			<?php endif; ?>
 			<?php if ( $first_track ) : ?>
 				<button
 					type="button"
@@ -101,17 +124,25 @@ $written = $is_first ? get_posts(
 		</div>
 	</header>
 
-	<?php ner_michoel_render_topic_search( $term ); ?>
+	<?php
+	// The search bar with filters, set to this topic (inc/revamp.php); the older topic-only box without it.
+	if ( function_exists( 'ner_michoel_render_scoped_search' ) ) {
+		/* translators: %s: topic name */
+		ner_michoel_render_scoped_search( array( 'scope' => 'topic', 'term' => $term, 'label' => sprintf( __( 'Search within %s…', 'ner-michoel-child' ), $term->name ) ) );
+	} else {
+		ner_michoel_render_topic_search( $term );
+	}
+	?>
 
 	<?php if ( $shiurim ) : ?>
-		<section class="sh-section" data-topic-browse>
+		<section class="sh-section" data-topic-browse data-scope-browse>
 			<?php ner_michoel_render_tracklist( $shiurim, true ); ?>
 			<?php ner_michoel_render_classic_pagination( $wp_query ); ?>
 		</section>
 	<?php endif; ?>
 
 	<?php if ( $written ) : ?>
-		<section class="sh-section" data-topic-browse>
+		<section class="sh-section" data-topic-browse data-scope-browse>
 			<h2 class="sh-section__title"><?php esc_html_e( 'Written Shiurim', 'ner-michoel-child' ); ?></h2>
 			<?php ner_michoel_render_card_collection_start( $is_carousel ); ?>
 				<?php foreach ( $written as $item ) :
@@ -132,7 +163,7 @@ $written = $is_first ? get_posts(
 	<?php endif; ?>
 
 	<?php if ( ! $shiurim && ! $written ) : ?>
-		<p class="sh-empty" data-topic-browse><?php esc_html_e( 'No shiurim with this topic yet.', 'ner-michoel-child' ); ?></p>
+		<p class="sh-empty" data-topic-browse data-scope-browse><?php esc_html_e( 'No shiurim with this topic yet.', 'ner-michoel-child' ); ?></p>
 	<?php endif; ?>
 </div>
 

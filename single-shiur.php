@@ -30,7 +30,8 @@ while ( have_posts() ) :
 	$related = array();
 	if ( $speaker_terms && ! is_wp_error( $speaker_terms ) && function_exists( 'ner_michoel_related_speaker_shiurim' ) ) {
 		// Asks for six, not the speaker's whole list (one speaker has over 1,000 shiurim).
-		$related = ner_michoel_related_speaker_shiurim( get_the_ID(), $speaker_terms[0]->term_id, 6 );
+		// A few more than six, since this shiur's other formats and a shiur's second format are left out below.
+		$related = ner_michoel_related_speaker_shiurim( get_the_ID(), $speaker_terms[0]->term_id, 14 );
 	} elseif ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) {
 		$current_id = get_the_ID();
 		$related    = array_slice(
@@ -45,6 +46,11 @@ while ( have_posts() ) :
 			0,
 			6
 		);
+	}
+
+	// Each shiur once (its audio and video are one entry), and not this shiur again in another format.
+	if ( $related && function_exists( 'ner_michoel_one_per_shiur' ) ) {
+		$related = array_slice( ner_michoel_one_per_shiur( $related, array( get_the_ID() ) ), 0, 6 );
 	}
 
 	// Play All starts this shiur. With the lazy queues only this shiur's own track is in
@@ -87,7 +93,7 @@ while ( have_posts() ) :
 					</video>
 				</div>
 				<?php if ( $download_url ) : ?>
-					<p class="sh-hero__actions"><a class="sh-download-link" href="<?php echo esc_url( $download_url ); ?>"><?php echo ner_michoel_icon( 'download' ); ?> <?php esc_html_e( 'Download', 'ner-michoel-child' ); ?></a></p>
+					<p class="sh-hero__actions"><a class="sh-download-link" href="<?php echo esc_url( $download_url ); ?>" download data-no-pjax><?php echo ner_michoel_icon( 'download' ); ?> <?php esc_html_e( 'Download', 'ner-michoel-child' ); ?></a></p>
 				<?php endif; ?>
 			<?php endif; ?>
 		<?php else : ?>
@@ -122,7 +128,7 @@ while ( have_posts() ) :
 								data-play-index="0"
 							><?php echo ner_michoel_icon( 'play' ); ?> <?php esc_html_e( 'Play', 'ner-michoel-child' ); ?></button>
 							<?php if ( $download_url ) : ?>
-								<a class="sh-download-link" href="<?php echo esc_url( $download_url ); ?>"><?php echo ner_michoel_icon( 'download' ); ?> <?php esc_html_e( 'Download', 'ner-michoel-child' ); ?></a>
+								<a class="sh-download-link" href="<?php echo esc_url( $download_url ); ?>" download data-no-pjax><?php echo ner_michoel_icon( 'download' ); ?> <?php esc_html_e( 'Download', 'ner-michoel-child' ); ?></a>
 							<?php endif; ?>
 							<?php ner_michoel_render_save_button( get_the_ID() ); ?>
 						</div>

@@ -42,7 +42,7 @@ $series_playable = $lazy_queues && $has_series && function_exists( 'ner_michoel_
 			if ( $is_foryou ) {
 				$page_heading = __( 'For you', 'ner-michoel-child' );
 			} else {
-				$page_heading = __( 'Recent Shiurim', 'ner-michoel-child' );
+				$page_heading = __( 'New Shiurim', 'ner-michoel-child' );
 			}
 			?>
 			<h1><?php echo esc_html( $page_heading ); ?></h1>
@@ -51,14 +51,27 @@ $series_playable = $lazy_queues && $has_series && function_exists( 'ner_michoel_
 		<?php if ( $is_foryou ) : ?>
 			<?php ner_michoel_render_for_you_page( false ); ?>
 		<?php else : ?>
+			<?php
+			// Every shiur, newest first, one line each with its dates and kinds, and the search bar's
+			// filters to narrow it (inc/revamp.php). The cards below are for a browser without script.
+			if ( function_exists( 'ner_michoel_render_scoped_search' ) ) {
+				ner_michoel_render_scoped_search(
+					array(
+						'label'      => __( 'Search the new shiurim…', 'ner-michoel-child' ),
+						'start_open' => true,
+					)
+				);
+			}
+			?>
 			<?php $recent = function_exists( 'ner_michoel_get_recent_shiurim' ) ? ner_michoel_get_recent_shiurim( 24 ) : array(); ?>
+			<?php $recent = function_exists( 'ner_michoel_one_per_shiur' ) ? ner_michoel_one_per_shiur( $recent ) : $recent; ?>
 			<?php
 			if ( $lazy_queues && $recent ) {
 				ner_michoel_prime_shiur_caches( wp_list_pluck( $recent, 'ID' ) );
 			}
 			?>
 			<?php if ( $recent ) : ?>
-			<section class="sh-section">
+			<section class="sh-section" data-scope-browse>
 				<?php ner_michoel_render_card_collection_start( false ); ?>
 					<?php foreach ( $recent as $shiur ) :
 						$speaker_terms_for_shiur = get_the_terms( $shiur->ID, 'speaker' );
@@ -98,7 +111,7 @@ $series_playable = $lazy_queues && $has_series && function_exists( 'ner_michoel_
 				<?php ner_michoel_render_card_collection_end( false ); ?>
 			</section>
 			<?php else : ?>
-				<p class="sh-empty"><?php esc_html_e( 'No shiurim yet.', 'ner-michoel-child' ); ?></p>
+				<p class="sh-empty" data-scope-browse><?php esc_html_e( 'No shiurim yet.', 'ner-michoel-child' ); ?></p>
 			<?php endif; ?>
 		<?php endif; ?>
 	</div>

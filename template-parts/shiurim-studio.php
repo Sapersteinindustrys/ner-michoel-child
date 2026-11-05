@@ -24,7 +24,8 @@ $search = home_url( '/' );
 			<h1 class="st-hero__title" id="st-hero-title"><?php esc_html_e( 'The Shiurim Library', 'ner-michoel-child' ); ?></h1>
 			<p class="st-hero__lede"><?php esc_html_e( 'Every shiur, by speaker, series and topic. Search the whole library, or start with what was just given.', 'ner-michoel-child' ); ?></p>
 
-			<form class="st-search" method="get" action="<?php echo esc_url( $search ); ?>" role="search">
+			<?php // Without script (or with a theme too old for the search bar below): the search page, which has the filters. ?>
+			<form class="st-search<?php echo function_exists( 'ner_michoel_render_scoped_search' ) ? ' st-search--fallback' : ''; ?>" method="get" action="<?php echo esc_url( $search ); ?>" role="search">
 				<input type="hidden" name="post_type" value="shiur" />
 				<label class="screen-reader-text" for="st-search-input"><?php esc_html_e( 'Search shiurim', 'ner-michoel-child' ); ?></label>
 				<span class="st-search__icon" aria-hidden="true"><?php echo ner_michoel_icon( 'search' ); ?></span>
@@ -83,6 +84,15 @@ $search = home_url( '/' );
 			<?php endif; ?>
 		</div>
 	</section>
+
+	<?php
+	// The search bar with its filters, as on every shiurim page (inc/revamp.php). While it is
+	// used its results take the place of everything under it.
+	if ( function_exists( 'ner_michoel_render_scoped_search' ) ) {
+		ner_michoel_render_scoped_search( array( 'label' => __( 'Search every shiur by title, speaker or series…', 'ner-michoel-child' ) ) );
+	}
+	?>
+	<div class="st-browse" data-scope-browse>
 
 	<?php
 	// A signed-in listener's own shelf (inc/for-you.php).
@@ -210,4 +220,5 @@ $search = home_url( '/' );
 	<?php if ( ! $latest && ! $data['rows'] ) : ?>
 		<p class="st-empty"><?php esc_html_e( 'No shiurim yet. Add a speaker and a series, then upload the first shiur.', 'ner-michoel-child' ); ?></p>
 	<?php endif; ?>
+	</div>
 </div>

@@ -23,16 +23,21 @@ $title_template = __( 'Results for “%s”', 'ner-michoel-child' );
 $title_empty    = __( 'Search shiurim', 'ner-michoel-child' );
 ?>
 
-<div class="sh-layout-with-sidebar">
-	<?php ner_michoel_render_shiurim_sidebar(); ?>
-
-	<div class="shiurim-app sh-main">
+<?php
+// The page in the homepage's look (assets/css/revamp.css): a dark hero with the title, the search
+// box and its filters on a card under it, then the results on a white card. No sidebar: the
+// filters do its job.
+?>
+<div class="nm-search-page">
+	<div class="shiurim-app nm-search-page__inner">
 		<?php ner_michoel_render_return_link(); ?>
 
-		<header class="sh-page-header">
+		<header class="sh-page-header nm-search-hero">
+			<p class="nm-search-hero__kicker"><?php esc_html_e( 'The Shiurim Library', 'ner-michoel-child' ); ?></p>
 			<h1 data-live-title data-title-template="<?php echo esc_attr( $title_template ); ?>" data-title-empty="<?php echo esc_attr( $title_empty ); ?>">
 				<?php echo esc_html( '' !== trim( $term ) ? sprintf( $title_template, $term ) : $title_empty ); ?>
 			</h1>
+			<p class="nm-search-hero__lede"><?php esc_html_e( 'Type a few words of the title, the speaker or the series. Narrow it down with the filters, by themselves or with words.', 'ner-michoel-child' ); ?></p>
 		</header>
 
 		<?php if ( ! $is_plain ) : ?>
@@ -42,9 +47,13 @@ $title_empty    = __( 'Search shiurim', 'ner-michoel-child' );
 			// so the browser can keep the file until the next rebuild.
 			$index_url = function_exists( 'ner_michoel_shiur_index_url' ) ? ner_michoel_shiur_index_url() : rest_url( 'ner-michoel/v1/shiur-index' );
 			?>
-			<div class="nm-live-search" data-live-search data-index-url="<?php echo esc_url( $index_url ); ?>" hidden>
-				<label class="screen-reader-text" for="nm-live-query"><?php esc_html_e( 'Search shiurim', 'ner-michoel-child' ); ?></label>
-				<input type="search" id="nm-live-query" class="nm-live-search__query" value="<?php echo esc_attr( $term ); ?>" placeholder="<?php esc_attr_e( 'Search by title, speaker or series…', 'ner-michoel-child' ); ?>" autocomplete="off" data-live-query />
+			<div class="nm-live-search nm-live-search--page" data-live-search data-index-url="<?php echo esc_url( $index_url ); ?>" hidden>
+				<div class="nm-live-search__controls">
+				<div class="nm-live-search__querybox">
+					<span class="nm-live-search__icon" aria-hidden="true"><?php echo ner_michoel_line_icon( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
+					<label class="screen-reader-text" for="nm-live-query"><?php esc_html_e( 'Search shiurim', 'ner-michoel-child' ); ?></label>
+					<input type="search" id="nm-live-query" class="nm-live-search__query" value="<?php echo esc_attr( $term ); ?>" placeholder="<?php esc_attr_e( 'Search by title, speaker or series…', 'ner-michoel-child' ); ?>" autocomplete="off" data-live-query />
+				</div>
 				<div class="nm-live-search__filters">
 					<label>
 						<span class="screen-reader-text"><?php esc_html_e( 'Speaker', 'ner-michoel-child' ); ?></span>
@@ -65,12 +74,13 @@ $title_empty    = __( 'Search shiurim', 'ner-michoel-child' );
 					<label>
 						<span class="screen-reader-text"><?php esc_html_e( 'Kind', 'ner-michoel-child' ); ?></span>
 						<select data-live-kind>
-							<option value=""><?php esc_html_e( 'Audio, video and written', 'ner-michoel-child' ); ?></option>
+							<option value=""><?php esc_html_e( 'All kinds', 'ner-michoel-child' ); ?></option>
 							<option value="a"><?php esc_html_e( 'Audio', 'ner-michoel-child' ); ?></option>
 							<option value="v"><?php esc_html_e( 'Video', 'ner-michoel-child' ); ?></option>
 							<option value="w"><?php esc_html_e( 'Written', 'ner-michoel-child' ); ?></option>
 						</select>
 					</label>
+				</div>
 				</div>
 				<div class="nm-live-search__bar">
 					<p class="nm-live-search__count" data-live-count aria-live="polite"></p>

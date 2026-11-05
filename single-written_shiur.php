@@ -94,7 +94,7 @@ while ( have_posts() ) :
 				<div class="nm-desk__bar">
 					<span class="nm-desk__bar-title"><?php echo esc_html( $item['main'] ); ?></span>
 					<?php if ( $item['download_url'] ) : ?>
-						<a class="nm-desk__tool" href="<?php echo esc_url( $item['download_url'] ); ?>" aria-label="<?php esc_attr_e( 'Download', 'ner-michoel-child' ); ?>" title="<?php esc_attr_e( 'Download', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_line_icon( 'download' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></a>
+						<a class="nm-desk__tool" href="<?php echo esc_url( $item['download_url'] ); ?>" download data-no-pjax aria-label="<?php esc_attr_e( 'Download', 'ner-michoel-child' ); ?>" title="<?php esc_attr_e( 'Download', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_line_icon( 'download' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></a>
 					<?php endif; ?>
 					<a class="nm-desk__tool" href="<?php echo esc_url( $item['pdf_url'] ); ?>" target="_blank" rel="noopener" aria-label="<?php esc_attr_e( 'Open in a new tab', 'ner-michoel-child' ); ?>" title="<?php esc_attr_e( 'Open in a new tab', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_line_icon( 'external' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></a>
 					<button type="button" class="nm-desk__tool nm-desk__close" data-reader-close aria-label="<?php esc_attr_e( 'Close full screen', 'ner-michoel-child' ); ?>" title="<?php esc_attr_e( 'Close (Esc)', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_line_icon( 'close' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></button>

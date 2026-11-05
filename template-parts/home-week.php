@@ -46,6 +46,9 @@ $switch = function_exists( 'ner_michoel_home_week_switch' ) ? ner_michoel_home_w
 				<?php if ( $occasion['when'] ) : ?>
 					<p class="hn-occasion__when"><?php echo esc_html( $occasion['when'] ); ?></p>
 				<?php endif; ?>
+				<?php if ( ! empty( $occasion['when_he'] ) ) : ?>
+					<p class="hn-occasion__when hn-occasion__when--he" lang="he" dir="rtl"><?php echo esc_html( sprintf( 'שבת קודש %s', $occasion['when_he'] ) ); ?></p>
+				<?php endif; ?>
 				<?php if ( $occasion['link'] ) : ?>
 					<a class="hn-occasion__all" href="<?php echo esc_url( $occasion['link'] ); ?>">
 						<?php /* translators: %s: number of shiurim, such as "62 shiurim" */ ?>

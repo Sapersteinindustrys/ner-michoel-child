@@ -95,7 +95,8 @@ $site_name  = ner_michoel_site_name();
 		</div>
 	</section>
 
-	<?php get_template_part( 'template-parts/live-shiur' ); ?>
+	<?php // The banner (it was the Zoom box) and the alumni log-in box: Announcements > Homepage Banner in the Control Panel. ?>
+	<?php get_template_part( 'template-parts/home-banner' ); ?>
 
 	<?php
 	// A signed-in listener's own shelf (inc/for-you.php) and this week's parsha and the Yom Tov in season
@@ -124,6 +125,18 @@ $site_name  = ner_michoel_site_name();
 				<div class="hn-panel__titles">
 					<p class="hn-kicker"><?php esc_html_e( 'Just added', 'ner-michoel-child' ); ?></p>
 					<h2 class="hn-panel__title" id="hn-feed-title"><?php esc_html_e( 'New Shiurim', 'ner-michoel-child' ); ?></h2>
+				</div>
+				<?php // The same links as under the list, at the top too, so nobody has to scroll for them. ?>
+				<div class="hn-panel__links">
+					<?php if ( $urls['recent'] ) : ?>
+						<a class="hn-more hn-more--top" href="<?php echo esc_url( $urls['recent'] ); ?>" data-hn-more-listen><?php esc_html_e( 'All new shiurim', 'ner-michoel-child' ); ?></a>
+					<?php endif; ?>
+					<?php if ( $urls['shiurim'] ) : ?>
+						<a class="hn-more hn-more--top hn-more--pill" href="<?php echo esc_url( $urls['shiurim'] ); ?>" data-hn-more-listen><?php esc_html_e( 'Browse all shiurim', 'ner-michoel-child' ); ?> <?php echo ner_michoel_line_icon( 'arrow-right' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></a>
+					<?php endif; ?>
+					<?php if ( $urls['written'] && $home['written'] ) : ?>
+						<a class="hn-more hn-more--top hn-more--pill" href="<?php echo esc_url( $urls['written'] ); ?>" data-hn-more-read<?php echo $home['shiurim'] ? ' hidden' : ''; ?>><?php esc_html_e( 'All written shiurim', 'ner-michoel-child' ); ?> <?php echo ner_michoel_line_icon( 'arrow-right' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></a>
+					<?php endif; ?>
 				</div>
 				<?php if ( $home['shiurim'] && $home['written'] ) : ?>
 					<div class="hn-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Which shiurim', 'ner-michoel-child' ); ?>" data-hn-tabs>
@@ -218,6 +231,9 @@ $site_name  = ner_michoel_site_name();
 			<?php endif; ?>
 
 			<footer class="hn-panel__foot">
+				<?php if ( $urls['recent'] ) : ?>
+					<a class="hn-more" href="<?php echo esc_url( $urls['recent'] ); ?>" data-hn-more-listen><?php esc_html_e( 'All new shiurim', 'ner-michoel-child' ); ?> <?php echo ner_michoel_line_icon( 'arrow-right' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></a>
+				<?php endif; ?>
 				<?php if ( $urls['shiurim'] ) : ?>
 					<a class="hn-more" href="<?php echo esc_url( $urls['shiurim'] ); ?>" data-hn-more-listen><?php esc_html_e( 'Browse all shiurim', 'ner-michoel-child' ); ?> <?php echo ner_michoel_line_icon( 'arrow-right' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></a>
 				<?php endif; ?>
