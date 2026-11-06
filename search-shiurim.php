@@ -80,6 +80,15 @@ $title_empty    = __( 'Search shiurim', 'ner-michoel-child' );
 							<option value="w"><?php esc_html_e( 'Written', 'ner-michoel-child' ); ?></option>
 						</select>
 					</label>
+					<label>
+						<span class="screen-reader-text"><?php esc_html_e( 'Sort', 'ner-michoel-child' ); ?></span>
+						<select data-live-sort>
+							<option value=""><?php esc_html_e( 'Best match', 'ner-michoel-child' ); ?></option>
+							<option value="new"><?php esc_html_e( 'Newest first', 'ner-michoel-child' ); ?></option>
+							<option value="old"><?php esc_html_e( 'Oldest first', 'ner-michoel-child' ); ?></option>
+							<option value="speaker"><?php esc_html_e( 'By speaker', 'ner-michoel-child' ); ?></option>
+						</select>
+					</label>
 				</div>
 				</div>
 				<div class="nm-live-search__bar">

@@ -111,6 +111,10 @@ function ner_michoel_render_site_footer() {
 					<?php endif; ?>
 				</div>
 			<?php endif; ?>
+			<?php
+			/** The homepage banner or the alumni box, when they are placed inside the footer (inc/revamp.php). */
+			do_action( 'ner_michoel_footer_notices' );
+			?>
 			<?php if ( '' !== $links ) : ?>
 				<nav class="nm-footer__nav" aria-label="<?php esc_attr_e( 'Footer', 'ner-michoel-child' ); ?>">
 					<ul class="nm-footer__links"><?php echo $links; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each link is built and escaped in ner_michoel_footer_link_html(). ?></ul>

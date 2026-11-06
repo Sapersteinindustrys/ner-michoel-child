@@ -10,6 +10,8 @@
  *   - The search bar with filters on the shiurim pages (ner_michoel_render_scoped_search()):
  *     a speaker's page searches that speaker, a series page that series, and so on.
  *   - The old News & Events page is gone: its address goes to the homepage.
+ *   - "Load more" under the long lists (assets/js/list-more.js), and a Sort choice on the search bars.
+ *   - Where the homepage banner and the alumni box show, and the small Zoom line.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -24,6 +26,27 @@ function ner_michoel_enqueue_revamp_styles() {
 	wp_enqueue_style( 'ner-michoel-revamp', NER_MICHOEL_URI . '/assets/css/revamp.css', array( 'ner-michoel-custom' ), NER_MICHOEL_VERSION );
 }
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_revamp_styles', 30 );
+
+/**
+ * "Load more" under the long lists on the Shiurim pages (assets/js/list-more.js). Site-wide,
+ * for the page router, and small.
+ */
+function ner_michoel_enqueue_list_more() {
+	wp_enqueue_script( 'ner-michoel-list-more', NER_MICHOEL_URI . '/assets/js/list-more.js', array(), NER_MICHOEL_VERSION, true );
+	wp_add_inline_script(
+		'ner-michoel-list-more',
+		'window.nmListMore = ' . wp_json_encode(
+			array(
+				/* translators: %s: how many more shiurim there are */
+				'moreN'   => __( 'Load more (%s more)', 'ner-michoel-child' ),
+				'more'    => __( 'Load more', 'ner-michoel-child' ),
+				'loading' => __( 'Loading…', 'ner-michoel-child' ),
+			)
+		) . ';',
+		'before'
+	);
+}
+add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_list_more', 30 );
 
 /* ------------------------------------------------------------------
  * News & Events is gone.
@@ -266,6 +289,15 @@ function ner_michoel_render_scoped_search( array $args = array() ) {
 					<option value="w"><?php esc_html_e( 'Written', 'ner-michoel-child' ); ?></option>
 				</select>
 			</label>
+			<label class="nm-scope-search__filter">
+				<span><?php esc_html_e( 'Sort', 'ner-michoel-child' ); ?></span>
+				<select data-scope-sort>
+					<option value=""><?php esc_html_e( 'Best match', 'ner-michoel-child' ); ?></option>
+					<option value="new"><?php esc_html_e( 'Newest first', 'ner-michoel-child' ); ?></option>
+					<option value="old"><?php esc_html_e( 'Oldest first', 'ner-michoel-child' ); ?></option>
+					<option value="speaker"><?php esc_html_e( 'By speaker', 'ner-michoel-child' ); ?></option>
+				</select>
+			</label>
 			<button type="button" class="nm-scope-search__reset" data-scope-reset hidden><?php esc_html_e( 'Clear', 'ner-michoel-child' ); ?></button>
 		</div>
 		<div class="nm-scope-search__status">
@@ -480,3 +512,215 @@ function ner_michoel_render_gallery_page( WP_Query $galleries, $current, $title 
 	</div>
 	<?php
 }
+
+/* ------------------------------------------------------------------
+ * The homepage banner, the alumni invitation and the Zoom line, and where they show.
+ * Set in the Control Panel under Announcements > Homepage Banner (ner-michoel-core
+ * includes/home-banner.php). The banner and the alumni box each have a place: under the
+ * welcome on the homepage (template-parts/home-banner.php), above the footer on every page,
+ * inside the footer, or a popup that opens once on each computer and again when its words
+ * change. Everything outside the homepage is printed outside #content, so the page router
+ * (nm-router.js) leaves it alone as visitors move between pages.
+ * ------------------------------------------------------------------ */
+
+/**
+ * The banner, the alumni box (null for signed-in visitors) and the Zoom line, worked out
+ * once per page. All null with an older plugin.
+ */
+function ner_michoel_home_notices() {
+	static $notices = null;
+	if ( null === $notices ) {
+		$notices = array(
+			'banner' => null,
+			'alumni' => null,
+			'zoom'   => null,
+		);
+		if ( function_exists( 'ner_michoel_home_banner_public' ) ) {
+			$notices = array_merge( $notices, ner_michoel_home_banner_public() );
+			if ( is_user_logged_in() ) {
+				$notices['alumni'] = null;
+			}
+		}
+	}
+	return $notices;
+}
+
+/** The banner's markup. $uid keeps the heading's id unique when two copies are on a page. */
+function ner_michoel_notice_banner_html( array $banner, $uid = '' ) {
+	$title_id = 'hn-banner-title' . $uid;
+	$bg       = $banner['background'] ? ' style="--hn-banner-bg: url(\'' . esc_url( $banner['background'] ) . '\')"' : '';
+	$lines    = array_filter( array_map( 'trim', explode( "\n", $banner['text'] ) ), 'strlen' );
+
+	$html = '<section class="hn-banner hn-banner--' . esc_attr( $banner['style'] ) . '"' . $bg . ( '' !== $banner['title'] ? ' aria-labelledby="' . esc_attr( $title_id ) . '"' : '' ) . '>';
+	if ( $banner['logo'] ) {
+		$html .= '<span class="hn-banner__logo"><img src="' . esc_url( $banner['logo'] ) . '" alt="" loading="lazy" decoding="async" /></span>';
+	}
+	$html .= '<div class="hn-banner__body">';
+	if ( '' !== $banner['kicker'] ) {
+		$html .= '<p class="hn-banner__kicker">' . esc_html( $banner['kicker'] ) . '</p>';
+	}
+	if ( '' !== $banner['title'] ) {
+		$html .= '<h2 class="hn-banner__title" id="' . esc_attr( $title_id ) . '">' . esc_html( $banner['title'] ) . '</h2>';
+	}
+	foreach ( $lines as $line ) {
+		$html .= '<p class="hn-banner__text">' . esc_html( $line ) . '</p>';
+	}
+	$html .= '</div>';
+	if ( '' !== $banner['button_label'] && '' !== $banner['button_url'] ) {
+		$external = 0 !== strpos( $banner['button_url'], home_url() );
+		$html    .= '<a class="hn-banner__button" href="' . esc_url( $banner['button_url'] ) . '"' . ( $external ? ' target="_blank" rel="noopener"' : '' ) . '>' . esc_html( $banner['button_label'] ) . ' ' . ner_michoel_line_icon( 'arrow-right' ) . '</a>';
+	}
+	return $html . '</section>';
+}
+
+/** The alumni box's markup. */
+function ner_michoel_notice_alumni_html( array $alumni, $uid = '' ) {
+	$title_id = 'hn-alumni-title' . $uid;
+	return '<section class="hn-alumni-invite" aria-labelledby="' . esc_attr( $title_id ) . '">'
+		. '<span class="hn-alumni-invite__icon" aria-hidden="true">' . ner_michoel_line_icon( 'user' ) . '</span>'
+		. '<div class="hn-alumni-invite__body">'
+		. '<h2 class="hn-alumni-invite__title" id="' . esc_attr( $title_id ) . '">' . esc_html( $alumni['title'] ) . '</h2>'
+		. '<p class="hn-alumni-invite__text">' . esc_html( $alumni['text'] ) . '</p>'
+		. '</div>'
+		. '<a class="hn-alumni-invite__button" href="' . esc_url( $alumni['url'] ) . '" data-no-pjax>' . esc_html( $alumni['button'] ) . '</a>'
+		. '</section>';
+}
+
+/**
+ * The banner and the alumni box placed in $place, side by side when both are there.
+ * '' when neither is.
+ *
+ * @param string $place home, above_footer, footer or popup.
+ * @return string
+ */
+function ner_michoel_notices_html( $place ) {
+	$notices = ner_michoel_home_notices();
+	$uid     = 'home' === $place ? '' : '-' . str_replace( '_', '-', $place );
+	$banner  = ( $notices['banner'] && $place === $notices['banner']['place'] ) ? ner_michoel_notice_banner_html( $notices['banner'], $uid ) : '';
+	$alumni  = ( $notices['alumni'] && $place === $notices['alumni']['place'] ) ? ner_michoel_notice_alumni_html( $notices['alumni'], $uid ) : '';
+	if ( '' === $banner && '' === $alumni ) {
+		return '';
+	}
+	return '<div class="hn-notices' . ( ( '' !== $banner && '' !== $alumni ) ? ' hn-notices--both' : '' ) . '">' . $banner . $alumni . '</div>';
+}
+
+/** The small Zoom line under the welcome: a live dot, the schedule, the meeting ID and a button. */
+function ner_michoel_zoom_line_html( $zoom ) {
+	if ( ! $zoom ) {
+		return '';
+	}
+	$schedule = trim( preg_replace( '/\s*\n\s*/', ' · ', (string) $zoom['schedule'] ) );
+	$html     = '<div class="hn-zoom" role="region" aria-label="' . esc_attr__( 'Live Shiur on Zoom', 'ner-michoel-child' ) . '">';
+	$html    .= '<span class="hn-zoom__live" aria-hidden="true"></span>';
+	$html    .= '<p class="hn-zoom__words"><strong>' . esc_html__( 'Live Shiur on Zoom', 'ner-michoel-child' ) . '</strong>';
+	if ( '' !== $schedule ) {
+		$html .= '<span class="hn-zoom__sep" aria-hidden="true">·</span><span>' . esc_html( $schedule ) . '</span>';
+	}
+	if ( '' !== $zoom['meeting_id'] ) {
+		$html .= '<span class="hn-zoom__sep" aria-hidden="true">·</span><span class="hn-zoom__id">' . esc_html__( 'Meeting ID', 'ner-michoel-child' ) . ' ' . esc_html( $zoom['meeting_id'] ) . '</span>';
+	}
+	$html .= '</p>';
+	if ( '' !== $zoom['zoom_link'] ) {
+		$html .= '<a class="hn-zoom__join" href="' . esc_url( $zoom['zoom_link'] ) . '" target="_blank" rel="noopener">' . esc_html__( 'Join on Zoom', 'ner-michoel-child' ) . ' ' . ner_michoel_line_icon( 'external' ) . '</a>';
+	}
+	return $html . '</div>';
+}
+
+/** Above the footer, on every page, just before the site footer. */
+function ner_michoel_print_notices_above_footer() {
+	$html = ner_michoel_notices_html( 'above_footer' );
+	if ( '' !== $html ) {
+		echo '<div class="nm-notes nm-notes--above-footer">' . $html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built.
+	}
+}
+add_action( 'astra_footer_before', 'ner_michoel_print_notices_above_footer', 5 );
+
+/** Inside the site footer (inc/footer.php calls this hook between its title and its links). */
+function ner_michoel_print_notices_in_footer() {
+	$GLOBALS['ner_michoel_footer_notes_done'] = true;
+	$html = ner_michoel_notices_html( 'footer' );
+	if ( '' !== $html ) {
+		echo '<div class="nm-notes nm-notes--footer">' . $html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built.
+	}
+}
+add_action( 'ner_michoel_footer_notices', 'ner_michoel_print_notices_in_footer' );
+
+/** When the site footer is switched off, "inside the footer" shows just above Astra's footer. */
+function ner_michoel_print_footer_notices_fallback() {
+	if ( empty( $GLOBALS['ner_michoel_footer_notes_done'] ) ) {
+		$html = ner_michoel_notices_html( 'footer' );
+		if ( '' !== $html ) {
+			echo '<div class="nm-notes nm-notes--above-footer">' . $html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built.
+		}
+	}
+}
+add_action( 'astra_footer_before', 'ner_michoel_print_footer_notices_fallback', 20 );
+
+/**
+ * The popup: printed hidden on every page, opened by the script below once on each computer.
+ * The browser remembers each message by a short hash of its words, so changing the words
+ * shows it again. A browser that keeps nothing (private windows, blocked storage) is asked
+ * once per visit instead.
+ */
+function ner_michoel_print_notices_popup() {
+	$notices = ner_michoel_home_notices();
+	$keys    = array();
+	foreach ( array( 'banner', 'alumni' ) as $part ) {
+		if ( $notices[ $part ] && 'popup' === $notices[ $part ]['place'] ) {
+			$keys[] = $notices[ $part ]['key'];
+		}
+	}
+	$html = ner_michoel_notices_html( 'popup' );
+	if ( '' === $html ) {
+		return;
+	}
+	?>
+	<div class="nm-notes nm-notes--popup" id="nm-popup" data-nm-popup="<?php echo esc_attr( implode( '-', $keys ) ); ?>" hidden>
+		<div class="nm-popup__backdrop" data-nm-popup-close></div>
+		<div class="nm-popup__dialog" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Announcement', 'ner-michoel-child' ); ?>" tabindex="-1">
+			<button type="button" class="nm-popup__close" data-nm-popup-close aria-label="<?php esc_attr_e( 'Close', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_line_icon( 'close' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></button>
+			<?php echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built. ?>
+		</div>
+	</div>
+	<script>
+	(function () {
+		var box = document.getElementById('nm-popup');
+		if (!box) { return; }
+		var key = 'nmPopupSeen', id = box.getAttribute('data-nm-popup'), seen = '';
+		function read() {
+			try { return window.localStorage.getItem(key) || ''; } catch (e) {}
+			try { return window.sessionStorage.getItem(key) || ''; } catch (e) {}
+			return '';
+		}
+		function remember() {
+			try { window.localStorage.setItem(key, id); return; } catch (e) {}
+			try { window.sessionStorage.setItem(key, id); } catch (e) {}
+		}
+		seen = read();
+		if (seen === id) { return; }
+		var before = null;
+		function close() {
+			box.hidden = true;
+			document.documentElement.classList.remove('nm-popup-open');
+			document.removeEventListener('keydown', onKey);
+			if (before && before.focus) { before.focus(); }
+		}
+		function onKey(e) { if (e.key === 'Escape') { close(); } }
+		box.addEventListener('click', function (e) {
+			if (e.target.closest('[data-nm-popup-close]')) { close(); return; }
+			if (e.target.closest('a')) { remember(); box.hidden = true; document.documentElement.classList.remove('nm-popup-open'); }
+		});
+		window.setTimeout(function () {
+			before = document.activeElement;
+			box.hidden = false;
+			document.documentElement.classList.add('nm-popup-open');
+			document.addEventListener('keydown', onKey);
+			remember();
+			var dialog = box.querySelector('.nm-popup__dialog');
+			if (dialog) { dialog.focus(); }
+		}, 1200);
+	})();
+	</script>
+	<?php
+}
+add_action( 'wp_footer', 'ner_michoel_print_notices_popup', 20 );

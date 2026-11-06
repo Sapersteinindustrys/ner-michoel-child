@@ -50,7 +50,7 @@
 
 /* 2. The homepage banner and the alumni invitation --------------------------- */
 
-.hn .hn-notices {
+:is(.hn, .nm-notes) .hn-notices {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
 	gap: 18px;
@@ -58,12 +58,12 @@
 }
 
 @media (min-width: 1000px) {
-	.hn .hn-notices--both {
+	:is(.hn, .nm-notes) .hn-notices--both {
 		grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
 	}
 }
 
-.hn .hn-banner {
+:is(.hn, .nm-notes) .hn-banner {
 	position: relative;
 	isolation: isolate;
 	display: flex;
@@ -76,7 +76,7 @@
 	font-family: var(--rv-sans);
 }
 
-.hn .hn-banner__logo {
+:is(.hn, .nm-notes) .hn-banner__logo {
 	flex: none;
 	display: grid;
 	place-items: center;
@@ -88,19 +88,19 @@
 	box-shadow: var(--rv-shadow-sm);
 }
 
-.hn .hn-banner__logo img {
+:is(.hn, .nm-notes) .hn-banner__logo img {
 	display: block;
 	max-width: 100%;
 	max-height: 100%;
 	object-fit: contain;
 }
 
-.hn .hn-banner__body {
+:is(.hn, .nm-notes) .hn-banner__body {
 	flex: 1 1 auto;
 	min-width: 0;
 }
 
-.hn .hn-banner__kicker {
+:is(.hn, .nm-notes) .hn-banner__kicker {
 	margin: 0 0 6px;
 	font-size: 0.75rem;
 	font-weight: 700;
@@ -108,7 +108,7 @@
 	text-transform: uppercase;
 }
 
-.hn .hn-banner__title {
+:is(.hn, .nm-notes) .hn-banner__title {
 	margin: 0 0 6px;
 	font-family: var(--rv-serif);
 	font-size: clamp(1.45rem, 2.6vw, 2rem);
@@ -117,17 +117,17 @@
 	color: inherit;
 }
 
-.hn .hn-banner__text {
+:is(.hn, .nm-notes) .hn-banner__text {
 	margin: 0;
 	font-size: 1rem;
 	line-height: 1.55;
 }
 
-.hn .hn-banner__text + .hn-banner__text {
+:is(.hn, .nm-notes) .hn-banner__text + .hn-banner__text {
 	margin-top: 2px;
 }
 
-.hn .hn-banner__button {
+:is(.hn, .nm-notes) .hn-banner__button {
 	flex: none;
 	display: inline-flex;
 	align-items: center;
@@ -140,130 +140,130 @@
 	transition: transform 0.2s var(--rv-ease), box-shadow 0.2s var(--rv-ease), background-color 0.2s var(--rv-ease);
 }
 
-.hn .hn-banner__button:hover,
-.hn .hn-banner__button:focus-visible {
+:is(.hn, .nm-notes) .hn-banner__button:hover,
+:is(.hn, .nm-notes) .hn-banner__button:focus-visible {
 	transform: translateY(-1px);
 }
 
-.hn .hn-banner__button svg {
+:is(.hn, .nm-notes) .hn-banner__button svg {
 	width: 16px;
 	height: 16px;
 }
 
 /* Colored: the site's navy, like the homepage hero. */
-.hn .hn-banner--color {
+:is(.hn, .nm-notes) .hn-banner--color {
 	background: var(--rv-hero-bg);
 	color: #fff;
 	box-shadow: var(--rv-shadow-lg);
 }
 
-.hn .hn-banner--color .hn-banner__kicker,
-.hn .hn-banner--image .hn-banner__kicker {
+:is(.hn, .nm-notes) .hn-banner--color .hn-banner__kicker,
+:is(.hn, .nm-notes) .hn-banner--image .hn-banner__kicker {
 	color: var(--rv-gold-bright);
 }
 
-.hn .hn-banner--color .hn-banner__text,
-.hn .hn-banner--image .hn-banner__text {
+:is(.hn, .nm-notes) .hn-banner--color .hn-banner__text,
+:is(.hn, .nm-notes) .hn-banner--image .hn-banner__text {
 	color: rgba(255, 255, 255, 0.86);
 }
 
-.hn .hn-banner--color .hn-banner__button,
-.hn .hn-banner--image .hn-banner__button {
+:is(.hn, .nm-notes) .hn-banner--color .hn-banner__button,
+:is(.hn, .nm-notes) .hn-banner--image .hn-banner__button {
 	background: #fff;
 	color: var(--rv-navy);
 	box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.6);
 }
 
 /* Gold. */
-.hn .hn-banner--gold {
+:is(.hn, .nm-notes) .hn-banner--gold {
 	border: 1px solid var(--rv-gold-line);
 	background: linear-gradient(135deg, var(--rv-gold-soft) 0%, #fff 70%);
 	color: var(--rv-ink);
 	box-shadow: var(--rv-shadow);
 }
 
-.hn .hn-banner--gold .hn-banner__kicker {
+:is(.hn, .nm-notes) .hn-banner--gold .hn-banner__kicker {
 	color: var(--rv-gold);
 }
 
-.hn .hn-banner--gold .hn-banner__text {
+:is(.hn, .nm-notes) .hn-banner--gold .hn-banner__text {
 	color: var(--rv-ink-2);
 }
 
-.hn .hn-banner--gold .hn-banner__button {
+:is(.hn, .nm-notes) .hn-banner--gold .hn-banner__button {
 	background: var(--rv-gold);
 	color: #fff;
 	box-shadow: 0 10px 24px -14px var(--rv-gold);
 }
 
 /* Light: a white card like the homepage panels. */
-.hn .hn-banner--light {
+:is(.hn, .nm-notes) .hn-banner--light {
 	border: 1px solid var(--rv-line);
 	background: #fff;
 	color: var(--rv-ink);
 	box-shadow: var(--rv-shadow);
 }
 
-.hn .hn-banner--light .hn-banner__kicker {
+:is(.hn, .nm-notes) .hn-banner--light .hn-banner__kicker {
 	color: var(--rv-gold);
 }
 
-.hn .hn-banner--light .hn-banner__text {
+:is(.hn, .nm-notes) .hn-banner--light .hn-banner__text {
 	color: var(--rv-muted);
 }
 
-.hn .hn-banner--light .hn-banner__button {
+:is(.hn, .nm-notes) .hn-banner--light .hn-banner__button {
 	background: var(--rv-navy);
 	color: #fff;
 }
 
 /* The background picture, darkened so the words read on any picture. */
-.hn .hn-banner--image {
+:is(.hn, .nm-notes) .hn-banner--image {
 	min-height: 220px;
 	background: var(--rv-navy);
 	color: #fff;
 	box-shadow: var(--rv-shadow-lg);
 }
 
-.hn .hn-banner--image::before,
-.hn .hn-banner--image::after {
+:is(.hn, .nm-notes) .hn-banner--image::before,
+:is(.hn, .nm-notes) .hn-banner--image::after {
 	content: "";
 	position: absolute;
 	inset: 0;
 	z-index: -1;
 }
 
-.hn .hn-banner--image::before {
+:is(.hn, .nm-notes) .hn-banner--image::before {
 	background: var(--hn-banner-bg) center / cover no-repeat;
 }
 
-.hn .hn-banner--image::after {
+:is(.hn, .nm-notes) .hn-banner--image::after {
 	background: linear-gradient(100deg, rgba(11, 22, 40, 0.88) 0%, rgba(11, 22, 40, 0.62) 55%, rgba(11, 22, 40, 0.3) 100%);
 }
 
 /* No design: just the words, on the page. */
-.hn .hn-banner--plain {
+:is(.hn, .nm-notes) .hn-banner--plain {
 	padding-right: 0;
 	padding-left: 0;
 	background: none;
 	color: var(--rv-ink);
 }
 
-.hn .hn-banner--plain .hn-banner__kicker {
+:is(.hn, .nm-notes) .hn-banner--plain .hn-banner__kicker {
 	color: var(--rv-gold);
 }
 
-.hn .hn-banner--plain .hn-banner__text {
+:is(.hn, .nm-notes) .hn-banner--plain .hn-banner__text {
 	color: var(--rv-muted);
 }
 
-.hn .hn-banner--plain .hn-banner__button {
+:is(.hn, .nm-notes) .hn-banner--plain .hn-banner__button {
 	background: var(--rv-navy);
 	color: #fff;
 }
 
 /* The alumni invitation (signed-out visitors). */
-.hn .hn-alumni-invite {
+:is(.hn, .nm-notes) .hn-alumni-invite {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -278,7 +278,7 @@
 	font-family: var(--rv-sans);
 }
 
-.hn .hn-alumni-invite__icon {
+:is(.hn, .nm-notes) .hn-alumni-invite__icon {
 	flex: none;
 	display: grid;
 	place-items: center;
@@ -289,17 +289,17 @@
 	color: var(--rv-gold-bright);
 }
 
-.hn .hn-alumni-invite__icon svg {
+:is(.hn, .nm-notes) .hn-alumni-invite__icon svg {
 	width: 24px;
 	height: 24px;
 }
 
-.hn .hn-alumni-invite__body {
+:is(.hn, .nm-notes) .hn-alumni-invite__body {
 	flex: 1 1 220px;
 	min-width: 0;
 }
 
-.hn .hn-alumni-invite__title {
+:is(.hn, .nm-notes) .hn-alumni-invite__title {
 	margin: 0 0 4px;
 	font-family: var(--rv-serif);
 	font-size: 1.35rem;
@@ -308,14 +308,14 @@
 	color: var(--rv-ink);
 }
 
-.hn .hn-alumni-invite__text {
+:is(.hn, .nm-notes) .hn-alumni-invite__text {
 	margin: 0;
 	color: var(--rv-ink-2);
 	font-size: 0.95rem;
 	line-height: 1.55;
 }
 
-.hn .hn-alumni-invite__button {
+:is(.hn, .nm-notes) .hn-alumni-invite__button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -328,8 +328,8 @@
 	transition: background-color 0.2s var(--rv-ease), transform 0.2s var(--rv-ease);
 }
 
-.hn .hn-alumni-invite__button:hover,
-.hn .hn-alumni-invite__button:focus-visible {
+:is(.hn, .nm-notes) .hn-alumni-invite__button:hover,
+:is(.hn, .nm-notes) .hn-alumni-invite__button:focus-visible {
 	background: var(--rv-navy-2);
 	color: #fff;
 	transform: translateY(-1px);
@@ -337,20 +337,20 @@
 
 /* Beside the banner, the box is narrow: the button goes under the words. */
 @media (min-width: 1000px) {
-	.hn .hn-notices--both .hn-alumni-invite__button {
+	:is(.hn, .nm-notes) .hn-notices--both .hn-alumni-invite__button {
 		flex: 1 1 100%;
 	}
 }
 
 @media (max-width: 640px) {
-	.hn .hn-banner {
+	:is(.hn, .nm-notes) .hn-banner {
 		flex-direction: column;
 		align-items: flex-start;
 		text-align: left;
 	}
 
-	.hn .hn-banner__button,
-	.hn .hn-alumni-invite__button {
+	:is(.hn, .nm-notes) .hn-banner__button,
+	:is(.hn, .nm-notes) .hn-alumni-invite__button {
 		width: 100%;
 		justify-content: center;
 	}
@@ -1427,4 +1427,291 @@ body.sh-layout-studio .shiurim-app .sh-page-header > .sh-hero__meta a {
 body.sh-layout-studio .shiurim-app .sh-page-header > .sh-hero__meta a:hover,
 body.sh-layout-studio .shiurim-app .sh-page-header > .sh-hero__meta a:focus {
 	color: var(--rv-navy-2);
+}
+
+/* 8. The Zoom line, and the banner and alumni box away from the homepage ------- */
+
+/* The small Zoom line under the welcome. */
+.hn .hn-zoom {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 14px;
+	margin: 22px 0 0;
+	padding: 10px 10px 10px 18px;
+	border: 1px solid var(--rv-line);
+	border-radius: 999px;
+	background: #fff;
+	box-shadow: var(--rv-shadow-sm);
+	color: var(--rv-ink-2);
+	font-family: var(--rv-sans);
+	font-size: 0.95rem;
+}
+
+.hn .hn-zoom__live {
+	flex: none;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: #e5484d;
+	box-shadow: 0 0 0 4px rgba(229, 72, 77, 0.16);
+}
+
+.hn .hn-zoom__words {
+	flex: 1 1 260px;
+	min-width: 0;
+	margin: 0;
+	line-height: 1.45;
+}
+
+.hn .hn-zoom__words strong {
+	color: var(--rv-ink);
+	font-weight: 700;
+}
+
+.hn .hn-zoom__sep {
+	margin: 0 8px;
+	color: var(--rv-muted);
+}
+
+.hn .hn-zoom__id {
+	white-space: nowrap;
+}
+
+.hn .hn-zoom__join {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 16px;
+	border-radius: 999px;
+	background: #2d8cff;
+	color: #fff;
+	font-size: 0.9rem;
+	font-weight: 700;
+	text-decoration: none;
+	transition: background-color 0.2s var(--rv-ease), transform 0.2s var(--rv-ease);
+}
+
+.hn .hn-zoom__join:hover,
+.hn .hn-zoom__join:focus-visible {
+	background: #1a73e8;
+	color: #fff;
+	transform: translateY(-1px);
+}
+
+.hn .hn-zoom__join svg {
+	width: 14px;
+	height: 14px;
+}
+
+@media (max-width: 640px) {
+	.hn .hn-zoom {
+		border-radius: var(--rv-radius-lg);
+		padding: 14px 16px;
+	}
+
+	.hn .hn-zoom__join {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
+/* Above the footer, on every page. */
+.nm-notes--above-footer {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 1240px;
+	margin: 0 auto;
+	padding: 0 20px clamp(28px, 4vw, 44px);
+}
+
+.nm-notes--above-footer .hn-notices {
+	margin: 0;
+}
+
+/* Inside the footer: smaller, on the footer's dark background. */
+.nm-notes--footer .hn-notices {
+	gap: 14px;
+	margin: 0;
+}
+
+.nm-notes--footer .hn-banner,
+.nm-notes--footer .hn-alumni-invite {
+	padding: 18px 22px;
+	box-shadow: none;
+}
+
+.nm-notes--footer .hn-banner__title,
+.nm-notes--footer .hn-alumni-invite__title {
+	font-size: 1.2rem;
+}
+
+.nm-notes--footer .hn-banner--color,
+.nm-notes--footer .hn-banner--image {
+	border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.nm-notes--footer .hn-banner--plain,
+.nm-notes--footer .hn-banner--plain .hn-banner__title {
+	color: #fff;
+}
+
+.nm-notes--footer .hn-banner--plain .hn-banner__kicker {
+	color: var(--rv-gold-bright);
+}
+
+.nm-notes--footer .hn-banner--plain .hn-banner__text {
+	color: rgba(255, 255, 255, 0.78);
+}
+
+.nm-notes--footer .hn-banner--plain .hn-banner__button {
+	background: var(--rv-gold-bright);
+	color: var(--rv-navy);
+}
+
+/* The popup. */
+.nm-notes--popup {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: grid;
+	place-items: center;
+	padding: 20px;
+}
+
+.nm-notes--popup[hidden] {
+	display: none;
+}
+
+.nm-popup__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(11, 22, 40, 0.55);
+	backdrop-filter: blur(2px);
+	animation: nm-popup-fade 0.25s var(--rv-ease);
+}
+
+.nm-popup__dialog {
+	position: relative;
+	width: min(640px, 100%);
+	max-height: calc(100vh - 40px);
+	overflow: auto;
+	border-radius: var(--rv-radius-lg);
+	outline: none;
+	animation: nm-popup-rise 0.3s var(--rv-ease);
+}
+
+.nm-popup__dialog .hn-notices,
+.nm-popup__dialog .hn-notices--both {
+	grid-template-columns: minmax(0, 1fr);
+	gap: 12px;
+	margin: 0;
+}
+
+.nm-popup__dialog .hn-banner {
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.nm-popup__dialog .hn-banner--plain {
+	padding: clamp(22px, 3.4vw, 36px);
+	background: #fff;
+}
+
+.nm-popup__close {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	z-index: 2;
+	display: grid;
+	place-items: center;
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.92);
+	color: var(--rv-ink);
+	box-shadow: var(--rv-shadow-sm);
+	cursor: pointer;
+}
+
+.nm-popup__close:hover,
+.nm-popup__close:focus-visible {
+	background: #fff;
+	color: var(--rv-navy);
+}
+
+.nm-popup__close svg {
+	width: 18px;
+	height: 18px;
+}
+
+html.nm-popup-open {
+	overflow: hidden;
+}
+
+@keyframes nm-popup-fade {
+	from { opacity: 0; }
+}
+
+@keyframes nm-popup-rise {
+	from { opacity: 0; transform: translateY(12px) scale(0.98); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.nm-popup__backdrop,
+	.nm-popup__dialog {
+		animation: none;
+	}
+}
+
+/* 9. Load more, under the long lists on the Shiurim pages (assets/js/list-more.js) -- */
+
+.is-more-hidden {
+	display: none !important;
+}
+
+.nm-more {
+	display: flex;
+	justify-content: center;
+	margin: 22px 0 6px;
+}
+
+.nm-more__button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 200px;
+	padding: 12px 26px;
+	border: 1px solid var(--rv-line);
+	border-radius: 999px;
+	background: #fff;
+	box-shadow: var(--rv-shadow-sm);
+	color: var(--rv-navy);
+	font-family: var(--rv-sans);
+	font-size: 0.95rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: border-color 0.2s var(--rv-ease), box-shadow 0.2s var(--rv-ease), transform 0.2s var(--rv-ease);
+}
+
+.nm-more__button:hover,
+.nm-more__button:focus-visible {
+	border-color: var(--rv-navy);
+	box-shadow: var(--rv-shadow);
+	transform: translateY(-1px);
+}
+
+.nm-more__button:disabled {
+	cursor: progress;
+	opacity: 0.7;
+	transform: none;
+}
+
+@media (max-width: 640px) {
+	.nm-more__button {
+		width: 100%;
+	}
 }

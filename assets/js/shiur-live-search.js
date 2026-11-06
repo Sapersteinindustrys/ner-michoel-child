@@ -316,6 +316,37 @@
 		}
 		return 'i' + it.i;
 	}
+	/*
+	 * The results in the order the visitor picked: '' keeps the search's own order (best
+	 * match first, or newest first with no words), 'new' newest first, 'old' oldest first,
+	 * 'speaker' by the speaker's name (then newest first). The full matches stay ahead of
+	 * the close ones, each group sorted on its own.
+	 */
+	function sortMatches( data, result, how ) {
+		if ( ! how ) {
+			return result;
+		}
+		var cmp;
+		if ( 'old' === how ) {
+			cmp = function ( a, b ) {
+				return a.it.t - b.it.t;
+			};
+		} else if ( 'speaker' === how ) {
+			cmp = function ( a, b ) {
+				var na = ( data.speakers && data.speakers[ a.it.a ] ) || '\uffff';
+				var nb = ( data.speakers && data.speakers[ b.it.a ] ) || '\uffff';
+				return na.localeCompare( nb ) || b.it.t - a.it.t;
+			};
+		} else {
+			cmp = function ( a, b ) {
+				return b.it.t - a.it.t;
+			};
+		}
+		var exact = result.matches.slice( 0, result.exact ).sort( cmp );
+		var close = result.matches.slice( result.exact ).sort( cmp );
+		return { matches: exact.concat( close ), exact: result.exact, close: result.close };
+	}
+
 	function onePerShiur( result ) {
 		var best  = {};
 		var order = [];
@@ -373,6 +404,7 @@
 		var topicEl   = root.querySelector( '[data-live-topic]' );
 		var yearEl    = root.querySelector( '[data-live-year]' );
 		var kindEl    = root.querySelector( '[data-live-kind]' );
+		var sortEl    = root.querySelector( '[data-live-sort]' );
 		var tableBody = root.querySelector( '[data-live-table]' );
 		var tableWrap = root.querySelector( '[data-live-table-wrap]' );
 		var viewBtns  = Array.prototype.slice.call( root.querySelectorAll( '[data-live-view]' ) );
@@ -457,9 +489,12 @@
 			if ( kindEl ) {
 				kindEl.value = params.get( 'ty' ) || '';
 			}
+			if ( sortEl ) {
+				sortEl.value = params.get( 'so' ) || '';
+			}
 			setView( params.get( 'vw' ) || savedView() || ( window.matchMedia && window.matchMedia( '(min-width: 760px)' ).matches ? 'table' : 'list' ) );
 			// An option that isn't in the index (an old link) falls back to "All".
-			[ speakerEl, seriesEl, topicEl, yearEl, kindEl ].forEach( function ( select ) {
+			[ speakerEl, seriesEl, topicEl, yearEl, kindEl, sortEl ].forEach( function ( select ) {
 				if ( select && select.selectedIndex < 0 ) {
 					select.value = '';
 				}
@@ -471,7 +506,7 @@
 			params.set( 's', input.value );
 			params.set( 'post_type', 'shiur' );
 			params.delete( 'nm_plain' );
-			[ [ 'by', speakerEl.value ], [ 'sr', seriesEl.value ], [ 'tp', topicEl ? topicEl.value : '' ], [ 'yr', yearEl.value ], [ 'ty', kindEl ? kindEl.value : '' ], [ 'vw', tableBody ? viewMode : '' ] ].forEach( function ( pair ) {
+			[ [ 'by', speakerEl.value ], [ 'sr', seriesEl.value ], [ 'tp', topicEl ? topicEl.value : '' ], [ 'yr', yearEl.value ], [ 'ty', kindEl ? kindEl.value : '' ], [ 'so', sortEl ? sortEl.value : '' ], [ 'vw', tableBody ? viewMode : '' ] ].forEach( function ( pair ) {
 				if ( pair[ 1 ] ) {
 					params.set( pair[ 0 ], pair[ 1 ] );
 				} else {
@@ -540,7 +575,7 @@
 				topic: topicEl ? topicEl.value : '',
 				year: yearEl.value
 			} );
-			view.show( onePerShiur( onlyKind( result, kindEl ? kindEl.value : '' ) ), t( 'none', 'No shiurim match these words and filters. Try fewer or different words.' ) );
+			view.show( sortMatches( data, onePerShiur( onlyKind( result, kindEl ? kindEl.value : '' ) ), sortEl ? sortEl.value : '' ), t( 'none', 'No shiurim match these words and filters. Try fewer or different words.' ) );
 		}
 
 		function schedule() {
@@ -573,6 +608,9 @@
 
 				if ( kindEl ) {
 					kindEl.addEventListener( 'change', run );
+				}
+				if ( sortEl ) {
+					sortEl.addEventListener( 'change', run );
 				}
 				viewBtns.forEach( function ( btn ) {
 					btn.addEventListener( 'click', function () {
@@ -802,6 +840,7 @@
 		var topicEl   = root.querySelector( '[data-scope-topic]' );
 		var yearEl    = root.querySelector( '[data-scope-year]' );
 		var kindEl    = root.querySelector( '[data-scope-kind]' );
+		var sortEl    = root.querySelector( '[data-scope-sort]' );
 		var resetBtn  = root.querySelector( '[data-scope-reset]' );
 		var toggleBtn = root.querySelector( '[data-scope-toggle]' );
 		var filtersEl = root.querySelector( '[data-scope-filters]' );
@@ -811,7 +850,7 @@
 		var allEl     = root.querySelector( '[data-scope-all]' );
 		var allLink   = allEl ? allEl.querySelector( 'a' ) : null;
 		var browse    = Array.prototype.slice.call( document.querySelectorAll( '[data-scope-browse]' ) );
-		var selects   = [ speakerEl, seriesEl, topicEl, yearEl, kindEl ];
+		var selects   = [ speakerEl, seriesEl, topicEl, yearEl, kindEl, sortEl ];
 
 		// The value each filter starts with on this page: the page's own speaker, series or topic.
 		var SCOPE_SERIES = 'scope';
@@ -926,13 +965,15 @@
 				series: seriesEl.value,
 				topic: topicEl ? topicEl.value : '',
 				year: yearEl.value,
-				kind: kindEl ? kindEl.value : ''
+				kind: kindEl ? kindEl.value : '',
+				sort: sortEl ? sortEl.value : ''
 			};
 		}
 
-		// Something to search: words typed, or a filter moved off where this page starts it.
+		// Something to search: words typed, a filter moved off where this page starts it, or an order
+		// picked (the order covers all of the page's shiurim, from the index, not just the ones shown).
 		function isActive( c ) {
-			return startOpen || !! c.q || c.speaker !== defaults.speaker || c.series !== defaults.series || c.topic !== defaults.topic || !! c.year || !! c.kind;
+			return startOpen || !! c.q || c.speaker !== defaults.speaker || c.series !== defaults.series || c.topic !== defaults.topic || !! c.year || !! c.kind || !! c.sort;
 		}
 
 		function setValues( c ) {
@@ -945,6 +986,9 @@
 			yearEl.value = c.year;
 			if ( kindEl ) {
 				kindEl.value = c.kind;
+			}
+			if ( sortEl ) {
+				sortEl.value = c.sort || '';
 			}
 			selects.forEach( function ( select ) {
 				if ( select && select.selectedIndex < 0 ) {
@@ -999,7 +1043,7 @@
 			var c = current();
 			save( c );
 			if ( resetBtn ) {
-				resetBtn.hidden = ! isActive( c ) || ( startOpen && ! c.q && ! c.speaker && ! c.series && ! c.topic && ! c.year && ! c.kind );
+				resetBtn.hidden = ! isActive( c ) || ( startOpen && ! c.q && ! c.speaker && ! c.series && ! c.topic && ! c.year && ! c.kind && ! c.sort );
 			}
 
 			if ( ! isActive( c ) ) {
@@ -1037,7 +1081,7 @@
 				year: c.year,
 				only: only
 			} );
-			view.show( onePerShiur( onlyKindOf( result, c.kind ) ), t( 'none', 'No shiurim match these words and filters. Try fewer or different words.' ) );
+			view.show( sortMatches( data, onePerShiur( onlyKindOf( result, c.kind ) ), c.sort ), t( 'none', 'No shiurim match these words and filters. Try fewer or different words.' ) );
 
 			// A way out: the same words across every shiur, on the full search page.
 			if ( allEl && allLink ) {
@@ -1088,7 +1132,7 @@
 		} );
 		if ( resetBtn ) {
 			resetBtn.addEventListener( 'click', function () {
-				setValues( { q: '', speaker: defaults.speaker, series: defaults.series, topic: defaults.topic, year: '', kind: '' } );
+				setValues( { q: '', speaker: defaults.speaker, series: defaults.series, topic: defaults.topic, year: '', kind: '', sort: '' } );
 				run();
 				input.focus();
 			} );
