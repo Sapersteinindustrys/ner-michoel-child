@@ -148,7 +148,9 @@ function ner_michoel_render_format_switch( $post_id, $class = '' ) {
 	?>
 	<nav class="nm-formats<?php echo $class ? ' ' . esc_attr( $class ) : ''; ?>" aria-label="<?php esc_attr_e( 'Ways to take this shiur', 'ner-michoel-child' ); ?>">
 		<?php foreach ( $formats as $kind => $id ) : ?>
-			<?php if ( $kind === $own ) : ?>
+			<?php if ( (int) $id === (int) $post_id && $kind !== $own ) : // the same post has this format too (audio + video on one shiur): jump to it on the page ?>
+				<a class="nm-formats__opt nm-formats__opt--<?php echo esc_attr( $kind ); ?>" href="#nm-watch" title="<?php echo esc_attr( $info[ $kind ]['title'] ); ?>" data-no-pjax><?php echo ner_michoel_format_icon( $kind ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?><span><?php echo esc_html( $info[ $kind ]['verb'] ); ?></span></a>
+			<?php elseif ( $kind === $own ) : ?>
 				<span class="nm-formats__opt nm-formats__opt--<?php echo esc_attr( $kind ); ?> is-current" aria-current="page"><?php echo ner_michoel_format_icon( $kind ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?><span><?php echo esc_html( $info[ $kind ]['verb'] ); ?></span></span>
 			<?php else : ?>
 				<a class="nm-formats__opt nm-formats__opt--<?php echo esc_attr( $kind ); ?>" href="<?php echo esc_url( get_permalink( $id ) ); ?>" title="<?php echo esc_attr( $info[ $kind ]['title'] ); ?>"><?php echo ner_michoel_format_icon( $kind ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?><span><?php echo esc_html( $info[ $kind ]['verb'] ); ?></span></a>

@@ -323,9 +323,23 @@ function ner_michoel_render_scoped_search( array $args = array() ) {
  * else on the same connection.
  */
 function ner_michoel_private_pages_for_accounts() {
-	if ( is_user_logged_in() && ! is_admin() && ! headers_sent() ) {
+	if ( is_admin() || headers_sent() ) {
+		return;
+	}
+	if ( is_user_logged_in() ) {
 		header( 'Cache-Control: private, no-cache, max-age=0' );
+		header( 'Expires: Wed, 11 Jan 1984 05:00:00 GMT' );
 		header( 'Vary: Cookie', false );
+		return;
+	}
+	// Signed out: the host's .htaccess tells browsers to keep each page for 2 hours
+	// (Apache mod_expires), so a change to the banner, the Zoom line or any setting
+	// didn't show for up to 2 hours unless the visitor forced a reload. A page that
+	// sends its own Expires is left alone by mod_expires, so pages now keep 5 minutes.
+	if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' === $_SERVER['REQUEST_METHOD'] ) {
+		$seconds = max( 0, (int) apply_filters( 'ner_michoel_page_cache_seconds', 300 ) );
+		header( 'Cache-Control: public, max-age=' . $seconds );
+		header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + $seconds ) . ' GMT' );
 	}
 }
 add_action( 'template_redirect', 'ner_michoel_private_pages_for_accounts', 0 );
@@ -348,7 +362,7 @@ function ner_michoel_gallery_body_class( $classes ) {
 add_filter( 'body_class', 'ner_michoel_gallery_body_class' );
 
 function ner_michoel_gallery_fonts() {
-	if ( ner_michoel_is_gallery_context() ) {
+	if ( ner_michoel_is_gallery_context() || ( function_exists( 'ner_michoel_is_rv_light_page' ) && ner_michoel_is_rv_light_page() ) ) {
 		wp_enqueue_style( 'ner-michoel-written-serif', 'https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&display=swap', array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Google Fonts URL carries its own versioning.
 	}
 }
@@ -724,3 +738,31 @@ function ner_michoel_print_notices_popup() {
 	<?php
 }
 add_action( 'wp_footer', 'ner_michoel_print_notices_popup', 20 );
+
+/* ------------------------------------------------------------------
+ * 10. The pages the homepage's buttons open, in the homepage's look
+ * (Written Shiurim, Mazal Tov, Contact, Contribute, About and the
+ * other plain pages). body.is-rv-light gives them the light page and
+ * the navy hero (revamp.css section 10). New Shiurim takes the
+ * Shiurim Library's own hero in archive-shiur.php.
+ * ------------------------------------------------------------------ */
+
+function ner_michoel_is_rv_light_page() {
+	if ( ner_michoel_is_written_context() || is_post_type_archive( 'mazal_tov' ) ) {
+		return true;
+	}
+	foreach ( array( 'about', 'connections', 'contact', 'contribute', 'email-magid-shiur' ) as $template ) {
+		if ( is_page_template( 'page-templates/' . $template . '.php' ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function ner_michoel_rv_light_body_class( $classes ) {
+	if ( ner_michoel_is_rv_light_page() ) {
+		$classes[] = 'is-rv-light';
+	}
+	return $classes;
+}
+add_filter( 'body_class', 'ner_michoel_rv_light_body_class' );

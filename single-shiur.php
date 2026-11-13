@@ -16,6 +16,18 @@ while ( have_posts() ) :
 	$video_url     = ( $is_video && ! $is_embed && function_exists( 'ner_michoel_get_shiur_video_url' ) ) ? ner_michoel_get_shiur_video_url( get_the_ID() ) : '';
 	$vimeo_id      = ( $is_embed && function_exists( 'ner_michoel_get_shiur_vimeo_id' ) ) ? ner_michoel_get_shiur_vimeo_id( get_the_ID() ) : '';
 	$audio_url     = ner_michoel_get_shiur_audio_url( get_the_ID() );
+	// An audio shiur that also has its video (Vimeo link, or another video address) on the same post.
+	$extra_video   = function_exists( 'ner_michoel_get_shiur_extra_vimeo_id' ) ? ner_michoel_get_shiur_extra_vimeo_id( get_the_ID() ) : '';
+	$video_embed   = null;
+	if ( function_exists( 'ner_michoel_shiur_video_embed' ) ) {
+		$video_embed = ner_michoel_shiur_video_embed( $is_embed ? $vimeo_id : $extra_video );
+	} elseif ( $is_embed && $vimeo_id ) {
+		$video_embed = array( 'type' => 'vimeo', 'src' => 'https://player.vimeo.com/video/' . rawurlencode( $vimeo_id ) . '?title=0&byline=0&portrait=0' );
+	}
+	// A Zoom shiur may be for alumni only (Control Panel > Alumni > Alumni Shiurim): the audio stays public.
+	if ( $video_embed && ! $is_embed && function_exists( 'ner_michoel_alumni_video_hidden' ) && ner_michoel_alumni_video_hidden( get_the_ID() ) ) {
+		$video_embed = 'alumni';
+	}
 	$speaker_terms = get_the_terms( get_the_ID(), 'speaker' );
 	$series_terms  = get_the_terms( get_the_ID(), 'series' );
 	$poster        = ner_michoel_shiur_art( get_the_ID(), 'large' );
@@ -82,10 +94,12 @@ while ( have_posts() ) :
 				<?php ner_michoel_render_format_switch( get_the_ID() ); ?>
 				<?php ner_michoel_render_save_button( get_the_ID() ); ?>
 			</header>
-			<?php if ( $is_embed && $vimeo_id ) : ?>
+			<?php if ( $is_embed && is_array( $video_embed ) && 'vimeo' === $video_embed['type'] ) : ?>
 				<div class="sh-video-player sh-video-player--embed">
-					<iframe src="https://player.vimeo.com/video/<?php echo esc_attr( $vimeo_id ); ?>?title=0&amp;byline=0&amp;portrait=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+					<iframe src="<?php echo esc_url( $video_embed['src'] ); ?>" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
 				</div>
+			<?php elseif ( $is_embed && is_array( $video_embed ) ) : ?>
+				<p class="sh-hero__actions"><a class="sh-play-all" href="<?php echo esc_url( $video_embed['url'] ); ?>" target="_blank" rel="noopener"><?php echo ner_michoel_icon( 'play' ); ?> <?php esc_html_e( 'Watch the video', 'ner-michoel-child' ); ?></a></p>
 			<?php elseif ( $video_url ) : ?>
 				<div class="sh-video-player" data-post-id="<?php echo esc_attr( get_the_ID() ); ?>">
 					<video controls preload="metadata"<?php echo $poster ? ' poster="' . esc_url( $poster ) . '"' : ''; ?>>
@@ -137,6 +151,20 @@ while ( have_posts() ) :
 					<?php endif; ?>
 				</div>
 			</header>
+			<?php if ( $video_embed ) : ?>
+				<section class="sh-section sh-watch" id="nm-watch">
+					<h2 class="sh-section__title"><?php esc_html_e( 'Watch', 'ner-michoel-child' ); ?></h2>
+					<?php if ( 'alumni' === $video_embed ) : ?>
+						<p class="sh-empty"><?php esc_html_e( 'The video of this shiur is for alumni. Log in on the Account page to watch it.', 'ner-michoel-child' ); ?></p>
+					<?php elseif ( 'vimeo' === $video_embed['type'] ) : ?>
+						<div class="sh-video-player sh-video-player--embed">
+							<iframe src="<?php echo esc_url( $video_embed['src'] ); ?>" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy" title="<?php echo esc_attr( wp_strip_all_tags( get_the_title() ) ); ?>"></iframe>
+						</div>
+					<?php else : ?>
+						<p><a class="sh-play-all" href="<?php echo esc_url( $video_embed['url'] ); ?>" target="_blank" rel="noopener"><?php echo ner_michoel_icon( 'play' ); ?> <?php esc_html_e( 'Watch the video', 'ner-michoel-child' ); ?></a></p>
+					<?php endif; ?>
+				</section>
+			<?php endif; ?>
 		<?php endif; ?>
 
 		<?php if ( get_the_content() ) : ?>

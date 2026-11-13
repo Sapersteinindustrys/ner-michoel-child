@@ -29,9 +29,20 @@ while ( have_posts() ) :
 			</p>
 		</header>
 
+		<?php
+		// The video (Vimeo, or a link such as a Zoom recording); an audio file shows under it as well.
+		$nm_embed = ( $nm_vimeo && function_exists( 'ner_michoel_shiur_video_embed' ) ) ? ner_michoel_shiur_video_embed( $nm_vimeo ) : ( $nm_vimeo ? array( 'type' => 'vimeo', 'src' => 'https://player.vimeo.com/video/' . rawurlencode( $nm_vimeo ) ) : null );
+		?>
 		<div class="nm-alumni__player">
-			<?php if ( $nm_vimeo ) : ?>
-				<div class="nm-alumni__video"><iframe src="<?php echo esc_url( 'https://player.vimeo.com/video/' . rawurlencode( $nm_vimeo ) ); ?>" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="<?php echo esc_attr( get_the_title() ); ?>"></iframe></div>
+			<?php if ( $nm_embed ) : ?>
+				<?php if ( 'vimeo' === $nm_embed['type'] ) : ?>
+					<div class="nm-alumni__video"><iframe src="<?php echo esc_url( $nm_embed['src'] ); ?>" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="<?php echo esc_attr( get_the_title() ); ?>"></iframe></div>
+				<?php else : ?>
+					<p><a class="nm-contact-form__submit nm-alumni__button" href="<?php echo esc_url( $nm_embed['url'] ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Watch the video', 'ner-michoel-child' ); ?></a></p>
+				<?php endif; ?>
+				<?php if ( $nm_audio ) : ?>
+					<audio class="nm-alumni__audio" src="<?php echo esc_url( $nm_audio ); ?>" controls preload="metadata"></audio>
+				<?php endif; ?>
 			<?php elseif ( $nm_video ) : ?>
 				<video class="nm-alumni__video-file" src="<?php echo esc_url( $nm_video ); ?>" controls preload="metadata"></video>
 			<?php elseif ( $nm_audio ) : ?>

@@ -24,6 +24,14 @@ if ( ! in_array( $notice, array( 'sent', 'error', 'verify', 'slow' ), true ) ) {
 	$notice = '';
 }
 $choices = ner_michoel_mazal_share_choices();
+// A signed-in visitor (an alumnus with an account) gets his own name and email filled in.
+$me_name  = '';
+$me_email = '';
+if ( is_user_logged_in() ) {
+	$me       = wp_get_current_user();
+	$me_name  = (string) $me->display_name;
+	$me_email = is_email( $me->user_email ) ? (string) $me->user_email : '';
+}
 $types   = array();
 if ( ! $choices && taxonomy_exists( 'mazal_tov_type' ) ) {
 	$types = get_terms( array( 'taxonomy' => 'mazal_tov_type', 'hide_empty' => false ) );
@@ -36,13 +44,17 @@ if ( ! $choices && taxonomy_exists( 'mazal_tov_type' ) ) {
 		<h2 class="nm-mt-share__title" id="nm-mt-share-title"><?php esc_html_e( 'Share a Mazal Tov', 'ner-michoel-child' ); ?></h2>
 
 		<?php if ( 'sent' === $notice ) : ?>
-			<p class="nm-form-notice nm-form-notice--success nm-mt-share__thanks" role="status"><?php esc_html_e( 'Thank you! We have it. It will be looked over and posted soon.', 'ner-michoel-child' ); ?></p>
-			<p class="nm-mt-share__actions"><button type="button" class="nm-mt-share__submit" data-nm-mt-close><?php esc_html_e( 'Close', 'ner-michoel-child' ); ?></button></p>
-		<?php else : ?>
+			<?php // After Close, mazal-tov-share.js removes this and shows the empty form below, so the gold button starts a new one. ?>
+			<div class="nm-mt-share__done" data-nm-mt-done>
+				<p class="nm-form-notice nm-form-notice--success nm-mt-share__thanks" role="status"><?php esc_html_e( 'Thank you! We have it. It will be looked over and posted soon.', 'ner-michoel-child' ); ?></p>
+				<p class="nm-mt-share__actions"><button type="button" class="nm-mt-share__submit" data-nm-mt-close><?php esc_html_e( 'Close', 'ner-michoel-child' ); ?></button></p>
+			</div>
+		<?php endif; ?>
+		<div class="nm-mt-share__body" data-nm-mt-body<?php echo 'sent' === $notice ? ' hidden' : ''; ?>>
 			<p class="nm-mt-share__intro"><?php esc_html_e( 'Tell us about a simcha. We look it over before it goes on the site.', 'ner-michoel-child' ); ?></p>
 
 			<?php if ( 'error' === $notice ) : ?>
-				<p class="nm-form-notice nm-form-notice--error" role="alert"><?php esc_html_e( 'Something was missing, so it was not sent. Please fill in every box and try again.', 'ner-michoel-child' ); ?></p>
+				<p class="nm-form-notice nm-form-notice--error" role="alert"><?php esc_html_e( 'Something was missing, so it was not sent. Please fill in the name and the kind of simcha (and check the email, if you gave one) and try again.', 'ner-michoel-child' ); ?></p>
 			<?php elseif ( 'verify' === $notice ) : ?>
 				<p class="nm-form-notice nm-form-notice--error" role="alert"><?php esc_html_e( 'We couldn’t confirm this came from a person, so it wasn’t sent. Please try again.', 'ner-michoel-child' ); ?></p>
 			<?php elseif ( 'slow' === $notice ) : ?>
@@ -95,14 +107,14 @@ if ( ! $choices && taxonomy_exists( 'mazal_tov_type' ) ) {
 				<?php endif; ?>
 
 				<fieldset class="nm-mt-share__you">
-					<legend><?php esc_html_e( 'Your details (so we can reach you; they are not shown on the site)', 'ner-michoel-child' ); ?></legend>
+					<legend><?php esc_html_e( 'Your details (optional, so we can reach you; they are not shown on the site)', 'ner-michoel-child' ); ?></legend>
 					<label class="nm-mt-share__field">
-						<span><?php esc_html_e( 'Your name', 'ner-michoel-child' ); ?></span>
-						<input type="text" name="nm_mt_from_name" maxlength="120" autocomplete="name" required />
+						<span><?php esc_html_e( 'Your name (optional)', 'ner-michoel-child' ); ?></span>
+						<input type="text" name="nm_mt_from_name" maxlength="120" autocomplete="name" value="<?php echo esc_attr( $me_name ); ?>" />
 					</label>
 					<label class="nm-mt-share__field">
-						<span><?php esc_html_e( 'Your email', 'ner-michoel-child' ); ?></span>
-						<input type="email" name="nm_mt_from_email" maxlength="190" autocomplete="email" required />
+						<span><?php esc_html_e( 'Your email (optional)', 'ner-michoel-child' ); ?></span>
+						<input type="email" name="nm_mt_from_email" maxlength="190" autocomplete="email" value="<?php echo esc_attr( $me_email ); ?>" />
 					</label>
 				</fieldset>
 
@@ -116,6 +128,6 @@ if ( ! $choices && taxonomy_exists( 'mazal_tov_type' ) ) {
 					<button type="button" class="nm-mt-share__cancel" data-nm-mt-close><?php esc_html_e( 'Cancel', 'ner-michoel-child' ); ?></button>
 				</p>
 			</form>
-		<?php endif; ?>
+		</div>
 	</div>
 </dialog>

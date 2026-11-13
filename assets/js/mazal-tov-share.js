@@ -23,7 +23,8 @@
 		} else {
 			dlg.setAttribute( 'open', '' );
 		}
-		var first = dlg.querySelector( 'input[name="nm_mt_name"], .nm-mt-share__submit' );
+		var done  = dlg.querySelector( '[data-nm-mt-done]' );
+		var first = done ? done.querySelector( '.nm-mt-share__submit' ) : dlg.querySelector( 'input[name="nm_mt_name"], .nm-mt-share__submit' );
 		if ( first ) {
 			first.focus();
 		}
@@ -34,6 +35,7 @@
 			dlg.close();
 		} else {
 			dlg.removeAttribute( 'open' );
+			resetAfterThanks( dlg );
 		}
 	}
 
@@ -71,6 +73,34 @@
 		true
 	);
 
+	// The thank-you is said once: after it closes, the dialog holds an empty form again, so the
+	// gold button starts a new Mazal Tov instead of thanking again (R' Ariel Katz, 2026-11-08).
+	function resetAfterThanks( dlg ) {
+		var done = dlg.querySelector( '[data-nm-mt-done]' );
+		if ( ! done ) {
+			return; // an ordinary Cancel keeps what was typed
+		}
+		done.parentNode.removeChild( done );
+		var body = dlg.querySelector( '[data-nm-mt-body]' );
+		if ( body ) {
+			body.hidden = false;
+		}
+		var form = dlg.querySelector( 'form.nm-mt-share__form' );
+		if ( form ) {
+			var keep = {};
+			[ 'nm_mt_from_name', 'nm_mt_from_email' ].forEach( function ( n ) {
+				var el = form.elements[ n ];
+				keep[ n ] = el ? el.defaultValue : '';
+			} );
+			form.reset();
+			Object.keys( keep ).forEach( function ( n ) {
+				if ( form.elements[ n ] ) {
+					form.elements[ n ].value = keep[ n ];
+				}
+			} );
+		}
+	}
+
 	// Once closed, take the result word out of the address so a reload doesn't show it again.
 	document.addEventListener(
 		'close',
@@ -78,6 +108,7 @@
 			if ( ! e.target || e.target.id !== 'nm-mt-share' ) {
 				return;
 			}
+			resetAfterThanks( e.target );
 			try {
 				var url = new URL( window.location.href );
 				if ( url.searchParams.has( 'nm_mazal_tov' ) ) {

@@ -32,22 +32,49 @@ $lazy_queues     = function_exists( 'ner_michoel_queue_url' );
 $series_playable = $lazy_queues && $has_series && function_exists( 'ner_michoel_term_playable_counts' ) ? ner_michoel_term_playable_counts( 'series' ) : null;
 ?>
 
-<div class="sh-layout-with-sidebar">
-	<?php ner_michoel_render_shiurim_sidebar(); ?>
+<div class="shiurim-app st sh-recent-page">
+	<?php ner_michoel_render_back_button(); ?>
 
-	<div class="shiurim-app sh-main">
-			<?php ner_michoel_render_back_button(); ?>
-		<header class="sh-page-header">
-			<?php
-			if ( $is_foryou ) {
-				$page_heading = __( 'For you', 'ner-michoel-child' );
-			} else {
-				$page_heading = __( 'New Shiurim', 'ner-michoel-child' );
-			}
-			?>
-			<h1><?php echo esc_html( $page_heading ); ?></h1>
-		</header>
+	<?php
+	// The same navy hero as the Shiurim Library (template-parts/shiurim-studio.php), with
+	// the other ways into the library on its right, where the old sidebar's links were.
+	$shiurim_url = get_post_type_archive_link( 'shiur' );
+	if ( $is_foryou ) {
+		$page_heading = __( 'For you', 'ner-michoel-child' );
+		$page_lede    = __( 'New shiurim from the speakers and series you follow, and what you were listening to.', 'ner-michoel-child' );
+	} else {
+		$page_heading = __( 'New Shiurim', 'ner-michoel-child' );
+		$page_lede    = __( 'Every shiur, newest first. Search them, or narrow them by speaker, series, topic or year.', 'ner-michoel-child' );
+	}
+	$hero_links = array(
+		array( __( 'The Shiurim Library', 'ner-michoel-child' ), __( 'Browse all shiurim', 'ner-michoel-child' ), $shiurim_url ),
+	);
+	if ( $is_foryou ) {
+		$hero_links[] = array( __( 'Latest', 'ner-michoel-child' ), __( 'New shiurim', 'ner-michoel-child' ), add_query_arg( 'sh_view', 'recent', $shiurim_url ) );
+	}
+	if ( post_type_exists( 'written_shiur' ) ) {
+		$hero_links[] = array( __( 'To read', 'ner-michoel-child' ), __( 'Written shiurim', 'ner-michoel-child' ), get_post_type_archive_link( 'written_shiur' ) );
+	}
+	$hero_links[] = array( __( 'Every shiur in rows', 'ner-michoel-child' ), __( 'Shiur table', 'ner-michoel-child' ), add_query_arg( array( 'post_type' => 'shiur', 's' => '', 'vw' => 'table' ), home_url( '/' ) ) );
+	?>
+	<section class="st-hero" aria-labelledby="st-hero-title">
+		<div class="st-hero__copy">
+			<?php /* translators: %s: the site's name */ ?>
+			<p class="st-eyebrow"><?php echo esc_html( sprintf( __( '%s · Shiurim', 'ner-michoel-child' ), ner_michoel_site_name() ) ); ?></p>
+			<h1 class="st-hero__title" id="st-hero-title"><?php echo esc_html( $page_heading ); ?></h1>
+			<p class="st-hero__lede"><?php echo esc_html( $page_lede ); ?></p>
+		</div>
+		<div class="st-hero__side sh-recent-page__links">
+			<?php foreach ( $hero_links as $hero_link ) : ?>
+				<a class="st-feature st-feature--quiet st-feature--link" href="<?php echo esc_url( $hero_link[2] ); ?>">
+					<p class="st-feature__label"><?php echo esc_html( $hero_link[0] ); ?></p>
+					<span class="st-feature__title"><?php echo esc_html( $hero_link[1] ); ?></span>
+				</a>
+			<?php endforeach; ?>
+		</div>
+	</section>
 
+	<div class="sh-recent-page__body">
 		<?php if ( $is_foryou ) : ?>
 			<?php ner_michoel_render_for_you_page( false ); ?>
 		<?php else : ?>

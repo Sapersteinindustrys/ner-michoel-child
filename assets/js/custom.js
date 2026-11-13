@@ -620,6 +620,19 @@ function nerMichoelRecordHistory( postId ) {
 		return state.queue[ state.index ] || null;
 	}
 
+	// Titles from the queue endpoint (and queues saved by an older version) can still carry
+	// WordPress's entities, such as "Esav&#8217;s". Shown as text they read "&#8217;", so they are
+	// turned into the characters first. Plain text in, plain text out: nothing is run as HTML.
+	var entityBox = document.createElement( 'textarea' );
+	function plainText( text ) {
+		text = text == null ? '' : String( text );
+		if ( text.indexOf( '&' ) === -1 ) {
+			return text;
+		}
+		entityBox.innerHTML = text;
+		return entityBox.value;
+	}
+
 	function updateActiveRowHighlight() {
 		var track = currentTrack();
 		document.querySelectorAll( '.sh-track.is-active' ).forEach( function ( row ) {
@@ -642,9 +655,9 @@ function nerMichoelRecordHistory( postId ) {
 		if ( ! track ) {
 			return;
 		}
-		elTitle.textContent   = track.title || '';
+		elTitle.textContent   = plainText( track.title );
 		elTitle.href          = track.url || '#';
-		elSpeaker.textContent = track.speaker || '';
+		elSpeaker.textContent = plainText( track.speaker );
 		if ( track.cover ) {
 			elCover.innerHTML = '<img src="' + track.cover + '" alt="" />';
 		} else {
@@ -1010,10 +1023,10 @@ function nerMichoelRecordHistory( postId ) {
 	function renderSheet() {
 		var track = currentTrack();
 		if ( elSheetTitle ) {
-			elSheetTitle.textContent = track ? ( track.title || '' ) : '';
+			elSheetTitle.textContent = track ? plainText( track.title ) : '';
 		}
 		if ( elSheetSpeaker ) {
-			elSheetSpeaker.textContent = track ? ( track.speaker || '' ) : '';
+			elSheetSpeaker.textContent = track ? plainText( track.speaker ) : '';
 		}
 		if ( elSheetCover ) {
 			elSheetCover.textContent = '';
@@ -1047,10 +1060,10 @@ function nerMichoelRecordHistory( postId ) {
 			text.className = 'sh-sheet__text';
 			var itemTitle = document.createElement( 'span' );
 			itemTitle.className   = 'sh-sheet__item-title';
-			itemTitle.textContent = item.title || '';
+			itemTitle.textContent = plainText( item.title );
 			var itemSpeaker = document.createElement( 'span' );
 			itemSpeaker.className   = 'sh-sheet__item-speaker';
-			itemSpeaker.textContent = item.speaker || '';
+			itemSpeaker.textContent = plainText( item.speaker );
 			text.appendChild( itemTitle );
 			text.appendChild( itemSpeaker );
 

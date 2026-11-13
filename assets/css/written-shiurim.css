@@ -1657,3 +1657,10 @@ html.nm-reader-open body {
 		animation: none;
 	}
 }
+
+/* A Hebrew opening line reads right to left, with its "…" at its end (on the left),
+   not after it on the right as in an English line (R' Ariel Katz, 2026-11-10). */
+.nm-doc__lede,
+.nm-sheet__summary {
+	unicode-bidi: plaintext;
+}

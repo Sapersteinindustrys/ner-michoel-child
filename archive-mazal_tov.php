@@ -8,14 +8,18 @@
 get_header();
 ?>
 
-<div class="nm-app">
-	<header class="sh-page-header">
-		<h1><?php esc_html_e( 'Mazal Tov', 'ner-michoel-child' ); ?></h1>
+<div class="nm-app rv-page">
+	<?php // The navy hero the homepage and the Shiurim Library open with (revamp.css section 10). ?>
+	<header class="rv-ph">
+		<div class="rv-ph__copy">
+			<p class="rv-ph__eyebrow"><?php esc_html_e( 'Simchas', 'ner-michoel-child' ); ?></p>
+			<h1 class="rv-ph__title"><?php esc_html_e( 'Mazal Tov', 'ner-michoel-child' ); ?></h1>
+			<p class="rv-ph__lede"><?php esc_html_e( 'Engagements, weddings and births in the Toras Moshe family. Share your own simcha and we will post it here.', 'ner-michoel-child' ); ?></p>
+		</div>
+		<p class="rv-ph__actions"><?php ner_michoel_mazal_share_button( 'rv-ph__btn' ); ?></p>
 	</header>
 
-	<section class="sh-section">
-		<p class="sh-mazal-tov-section__actions"><?php ner_michoel_mazal_share_button( 'sh-mazal-tov-share-btn' ); ?></p>
-
+	<section class="sh-section rv-card">
 		<?php if ( ! have_posts() ) : ?>
 			<p class="sh-empty"><?php esc_html_e( 'No Mazal Tovs posted yet.', 'ner-michoel-child' ); ?></p>
 		<?php else : ?>
