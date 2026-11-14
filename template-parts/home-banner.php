@@ -23,5 +23,9 @@ if ( ! function_exists( 'ner_michoel_home_banner_public' ) ) {
 
 $nm_notices = ner_michoel_home_notices();
 
-echo ner_michoel_zoom_line_html( $nm_notices['zoom'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built.
+// The Zoom line shows here only when it is set to go under the welcome; otherwise it is the
+// strip under the header (inc/revamp.php).
+if ( 'home' === ner_michoel_zoom_place( $nm_notices['zoom'] ) ) {
+	echo ner_michoel_zoom_line_html( $nm_notices['zoom'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built.
+}
 echo ner_michoel_notices_html( 'home' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built.

@@ -669,6 +669,39 @@ function nerMichoelRecordHistory( postId ) {
 		return !! ( track && id && String( track.id ) === id && audio.getAttribute( 'src' ) );
 	}
 
+	// Opens a page through the page router (the bar keeps playing), or as a normal page load.
+	function goToPage( url ) {
+		if ( ! url ) {
+			return false;
+		}
+		var here = window.location.href.split( '#' )[ 0 ].replace( /\/$/, '' );
+		if ( url.split( '#' )[ 0 ].replace( /\/$/, '' ) === here ) {
+			return false;
+		}
+		if ( 'function' === typeof window.nmRouterNavigate ) {
+			window.nmRouterNavigate( url );
+		} else {
+			window.location.href = url;
+		}
+		return true;
+	}
+
+	// A press on the shiur that is already in the bar (Yoni, 2026-11-14). Its picture and its
+	// Play / Listen buttons play and pause it. Anywhere else on it, while it is playing, opens
+	// its page and the shiur carries on; while it is paused, it carries on playing.
+	function pressOnCurrent( e ) {
+		var track      = currentTrack();
+		var toggleOnly = e.target.closest( '.hn-row__art, .sh-track__art, .sh-hero__art-play, .sh-play-all, .nm-act--a, .hn-now__play, [data-toggle-play]' );
+		if ( ! toggleOnly && ! audio.paused && track && goToPage( track.url ) ) {
+			return;
+		}
+		if ( audio.paused ) {
+			audio.play();
+		} else {
+			audio.pause();
+		}
+	}
+
 	// A shiur page's Play button and the play button on its picture show Pause while that
 	// shiur plays, and work like the bar's own button (Yoni, 2026-11-14).
 	function syncPagePlayButtons() {
@@ -818,6 +851,11 @@ function nerMichoelRecordHistory( postId ) {
 		if ( inner && trigger && inner !== trigger && trigger.contains( inner ) ) {
 			return;
 		}
+		// The speaker / series line only leads to the speaker or the series: a press beside
+		// its links does nothing, so it never starts a shiur by mistake.
+		if ( trigger && e.target.closest( '.nm-by' ) && trigger.contains( e.target.closest( '.nm-by' ) ) ) {
+			return;
+		}
 		if ( ! trigger ) {
 			// A homepage video row opens its page (it has nothing to play here).
 			var row = e.target.closest( '.hn-row__link[data-href]' );
@@ -831,14 +869,10 @@ function nerMichoelRecordHistory( postId ) {
 			return;
 		}
 		e.preventDefault();
-		// The shiur already in the bar: pause or carry on, like the bar's own button, instead of
+		// The shiur already in the bar: its page, or pause / carry on (pressOnCurrent), never
 		// starting it again from the beginning.
 		if ( isCurrentTrigger( trigger ) ) {
-			if ( audio.paused ) {
-				audio.play();
-			} else {
-				audio.pause();
-			}
+			pressOnCurrent( e );
 			return;
 		}
 		var index   = parseInt( trigger.getAttribute( 'data-play-index' ), 10 ) || 0;
@@ -932,7 +966,13 @@ function nerMichoelRecordHistory( postId ) {
 			return;
 		}
 		var row = e.target.closest( '.sh-track' );
-		if ( ! row ) {
+		if ( ! row || e.target.closest( '.nm-by' ) ) {
+			return;
+		}
+		// The shiur already in the bar: its page, or pause / carry on (pressOnCurrent).
+		var playing = currentTrack();
+		if ( playing && audio.getAttribute( 'src' ) && String( playing.id ) === row.getAttribute( 'data-id' ) ) {
+			pressOnCurrent( e );
 			return;
 		}
 		// A video row isn't in the audio queue: pressing it opens its page.

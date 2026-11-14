@@ -618,13 +618,27 @@ function ner_michoel_notices_html( $place ) {
 	return '<div class="hn-notices' . ( ( '' !== $banner && '' !== $alumni ) ? ' hn-notices--both' : '' ) . '">' . $banner . $alumni . '</div>';
 }
 
-/** The small Zoom line under the welcome: a live dot, the schedule, the meeting ID and a button. */
+/**
+ * Where the Zoom line goes (Control Panel > Announcements > Homepage Banner): 'header' (every
+ * page, right under the header), 'home_header' (the homepage only, under the header) or
+ * 'home' (the homepage, under the welcome). An older plugin has no place: under the welcome.
+ */
+function ner_michoel_zoom_place( $zoom ) {
+	return ( $zoom && ! empty( $zoom['place'] ) ) ? (string) $zoom['place'] : 'home';
+}
+
+/**
+ * The Zoom line: a live dot, the schedule, the meeting ID and a button. Its space above and
+ * below (normal, small or none) comes as classes, which revamp.css reads.
+ */
 function ner_michoel_zoom_line_html( $zoom ) {
 	if ( ! $zoom ) {
 		return '';
 	}
+	$space    = ' hn-zoom--top-' . sanitize_html_class( isset( $zoom['space_top'] ) ? $zoom['space_top'] : 'normal' )
+		. ' hn-zoom--bot-' . sanitize_html_class( isset( $zoom['space_bot'] ) ? $zoom['space_bot'] : 'normal' );
 	$schedule = trim( preg_replace( '/\s*\n\s*/', ' · ', (string) $zoom['schedule'] ) );
-	$html     = '<div class="hn-zoom" role="region" aria-label="' . esc_attr__( 'Live Shiur on Zoom', 'ner-michoel-child' ) . '">';
+	$html     = '<div class="hn-zoom' . $space . '" role="region" aria-label="' . esc_attr__( 'Live Shiur on Zoom', 'ner-michoel-child' ) . '">';
 	$html    .= '<span class="hn-zoom__live" aria-hidden="true"></span>';
 	$html    .= '<p class="hn-zoom__words"><strong>' . esc_html__( 'Live Shiur on Zoom', 'ner-michoel-child' ) . '</strong>';
 	if ( '' !== $schedule ) {
@@ -639,6 +653,21 @@ function ner_michoel_zoom_line_html( $zoom ) {
 	}
 	return $html . '</div>';
 }
+
+/**
+ * The Zoom line as a strip right under the header: on every page, or on the homepage only.
+ * Printed outside #content, so it stays put while the page router changes the page below it.
+ */
+function ner_michoel_print_zoom_strip() {
+	$notices = ner_michoel_home_notices();
+	$zoom    = $notices['zoom'];
+	$place   = ner_michoel_zoom_place( $zoom );
+	if ( ! $zoom || ( 'header' !== $place && 'home_header' !== $place ) || ( 'home_header' === $place && ! is_front_page() ) ) {
+		return;
+	}
+	echo '<div class="nm-zoom-strip nm-zoom-strip--top-' . esc_attr( sanitize_html_class( $zoom['space_top'] ) ) . ' nm-zoom-strip--bot-' . esc_attr( sanitize_html_class( $zoom['space_bot'] ) ) . '">' . ner_michoel_zoom_line_html( $zoom ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built.
+}
+add_action( 'astra_header_after', 'ner_michoel_print_zoom_strip', 20 );
 
 /** Above the footer, on every page, just before the site footer. */
 function ner_michoel_print_notices_above_footer() {

@@ -1431,8 +1431,8 @@ body.sh-layout-studio .shiurim-app .sh-page-header > .sh-hero__meta a:focus {
 
 /* 8. The Zoom line, and the banner and alumni box away from the homepage ------- */
 
-/* The small Zoom line under the welcome. */
-.hn .hn-zoom {
+/* The Zoom line: under the welcome on the homepage, or a strip under the header (.nm-zoom-strip). */
+.hn .hn-zoom, .nm-zoom-strip .hn-zoom {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -1448,7 +1448,7 @@ body.sh-layout-studio .shiurim-app .sh-page-header > .sh-hero__meta a:focus {
 	font-size: 0.95rem;
 }
 
-.hn .hn-zoom__live {
+.hn .hn-zoom__live, .nm-zoom-strip .hn-zoom__live {
 	flex: none;
 	width: 10px;
 	height: 10px;
@@ -1457,28 +1457,28 @@ body.sh-layout-studio .shiurim-app .sh-page-header > .sh-hero__meta a:focus {
 	box-shadow: 0 0 0 4px rgba(229, 72, 77, 0.16);
 }
 
-.hn .hn-zoom__words {
+.hn .hn-zoom__words, .nm-zoom-strip .hn-zoom__words {
 	flex: 1 1 260px;
 	min-width: 0;
 	margin: 0;
 	line-height: 1.45;
 }
 
-.hn .hn-zoom__words strong {
+.hn .hn-zoom__words strong, .nm-zoom-strip .hn-zoom__words strong {
 	color: var(--rv-ink);
 	font-weight: 700;
 }
 
-.hn .hn-zoom__sep {
+.hn .hn-zoom__sep, .nm-zoom-strip .hn-zoom__sep {
 	margin: 0 8px;
 	color: var(--rv-muted);
 }
 
-.hn .hn-zoom__id {
+.hn .hn-zoom__id, .nm-zoom-strip .hn-zoom__id {
 	white-space: nowrap;
 }
 
-.hn .hn-zoom__join {
+.hn .hn-zoom__join, .nm-zoom-strip .hn-zoom__join {
 	flex: none;
 	display: inline-flex;
 	align-items: center;
@@ -1493,28 +1493,93 @@ body.sh-layout-studio .shiurim-app .sh-page-header > .sh-hero__meta a:focus {
 	transition: background-color 0.2s var(--rv-ease), transform 0.2s var(--rv-ease);
 }
 
-.hn .hn-zoom__join:hover,
-.hn .hn-zoom__join:focus-visible {
+.hn .hn-zoom__join:hover, .nm-zoom-strip .hn-zoom__join:hover,
+.hn .hn-zoom__join:focus-visible, .nm-zoom-strip .hn-zoom__join:focus-visible {
 	background: #1a73e8;
 	color: #fff;
 	transform: translateY(-1px);
 }
 
-.hn .hn-zoom__join svg {
+.hn .hn-zoom__join svg, .nm-zoom-strip .hn-zoom__join svg {
 	width: 14px;
 	height: 14px;
 }
 
 @media (max-width: 640px) {
-	.hn .hn-zoom {
+	.hn .hn-zoom, .nm-zoom-strip .hn-zoom {
 		border-radius: var(--rv-radius-lg);
 		padding: 14px 16px;
 	}
 
-	.hn .hn-zoom__join {
+	.hn .hn-zoom__join, .nm-zoom-strip .hn-zoom__join {
+		box-sizing: border-box;
 		width: 100%;
 		justify-content: center;
 	}
+}
+
+/* The space above and below the Zoom line (Control Panel: Normal, Less, None). On the homepage
+   the cards sit in a grid with a gap (home.css), so less space pulls the strip into that gap. */
+body .hn {
+	--hn-zoom-gap: clamp(28px, 4vw, 52px);
+}
+
+@media (max-width: 640px) {
+	body .hn {
+		--hn-zoom-gap: 22px;
+	}
+}
+
+.hn .hn-zoom.hn-zoom--top-small {
+	margin-top: calc(12px - var(--hn-zoom-gap));
+}
+
+.hn .hn-zoom.hn-zoom--top-none {
+	margin-top: calc(0px - var(--hn-zoom-gap));
+}
+
+.hn .hn-zoom.hn-zoom--bot-small + * {
+	margin-top: calc(12px - var(--hn-zoom-gap)) !important;
+}
+
+.hn .hn-zoom.hn-zoom--bot-none + * {
+	margin-top: calc(0px - var(--hn-zoom-gap)) !important;
+}
+
+/* The strip under the header, on every page (or the homepage only). */
+.nm-zoom-strip {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 1240px;
+	margin: 0 auto;
+	padding: 16px 20px 4px;
+}
+
+.nm-zoom-strip .hn-zoom {
+	box-sizing: border-box;
+	margin: 0;
+}
+
+.nm-zoom-strip--top-small {
+	padding-top: 6px;
+}
+
+.nm-zoom-strip--top-none {
+	padding-top: 0;
+}
+
+.nm-zoom-strip--bot-small {
+	margin-bottom: -12px;
+}
+
+.nm-zoom-strip--bot-none {
+	margin-bottom: -24px;
+}
+
+.nm-zoom-strip--bot-small,
+.nm-zoom-strip--bot-none {
+	position: relative;
+	z-index: 2;
 }
 
 /* Above the footer, on every page. */
