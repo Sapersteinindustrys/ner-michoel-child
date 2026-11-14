@@ -634,6 +634,7 @@ function nerMichoelRecordHistory( postId ) {
 	}
 
 	function updateActiveRowHighlight() {
+		syncPagePlayButtons();
 		var track = currentTrack();
 		document.querySelectorAll( '.sh-track.is-active' ).forEach( function ( row ) {
 			row.classList.remove( 'is-active', 'is-playing' );
@@ -647,6 +648,39 @@ function nerMichoelRecordHistory( postId ) {
 			// only make sense while actually playing — a paused-but-
 			// selected row shows the plain track number instead.
 			row.classList.toggle( 'is-playing', ! audio.paused );
+		} );
+	}
+
+	// The shiur's track that a play button starts: its data-track-id, or the track at its
+	// data-play-index in its own queue.
+	function triggerTrackId( trigger ) {
+		if ( trigger.hasAttribute( 'data-track-id' ) ) {
+			return trigger.getAttribute( 'data-track-id' );
+		}
+		var head  = trigger.hasAttribute( 'data-play-queue' ) ? parseQueue( trigger ) : null;
+		var index = parseInt( trigger.getAttribute( 'data-play-index' ), 10 ) || 0;
+		return head && head[ index ] ? String( head[ index ].id ) : '';
+	}
+
+	// True when the trigger's shiur is the one in the bar (playing or paused).
+	function isCurrentTrigger( trigger ) {
+		var track = currentTrack();
+		var id    = triggerTrackId( trigger );
+		return !! ( track && id && String( track.id ) === id && audio.getAttribute( 'src' ) );
+	}
+
+	// A shiur page's Play button and the play button on its picture show Pause while that
+	// shiur plays, and work like the bar's own button (Yoni, 2026-11-14).
+	function syncPagePlayButtons() {
+		document.querySelectorAll( '.sh-play-all[data-play-queue], .sh-play-all[data-track-id], .sh-hero__art-play' ).forEach( function ( btn ) {
+			var playing = isCurrentTrigger( btn ) && ! audio.paused;
+			btn.classList.toggle( 'is-playing', playing );
+			btn.setAttribute( 'aria-label', playing ? 'Pause' : 'Play' );
+			if ( btn.classList.contains( 'sh-hero__art-play' ) ) {
+				btn.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
+			} else if ( 'BUTTON' === btn.tagName ) {
+				btn.innerHTML = ( playing ? ICON_PAUSE : ICON_PLAY ) + ' <span>' + ( playing ? 'Pause' : ( isCurrentTrigger( btn ) ? 'Resume' : 'Play' ) ) + '</span>';
+			}
 		} );
 	}
 
@@ -797,6 +831,16 @@ function nerMichoelRecordHistory( postId ) {
 			return;
 		}
 		e.preventDefault();
+		// The shiur already in the bar: pause or carry on, like the bar's own button, instead of
+		// starting it again from the beginning.
+		if ( isCurrentTrigger( trigger ) ) {
+			if ( audio.paused ) {
+				audio.play();
+			} else {
+				audio.pause();
+			}
+			return;
+		}
 		var index   = parseInt( trigger.getAttribute( 'data-play-index' ), 10 ) || 0;
 		var url     = trigger.getAttribute( 'data-queue-url' );
 		var head    = trigger.hasAttribute( 'data-play-queue' ) ? parseQueue( trigger ) : null;
@@ -962,6 +1006,9 @@ function nerMichoelRecordHistory( postId ) {
 	audio.addEventListener( 'playing', function () {
 		setLoading( false );
 	} );
+
+	// A page opened without a full reload (nm-router.js) gets its Play buttons and rows marked too.
+	document.addEventListener( 'nm:content-swapped', updateActiveRowHighlight );
 
 	audio.addEventListener( 'canplay', function () {
 		setLoading( false );

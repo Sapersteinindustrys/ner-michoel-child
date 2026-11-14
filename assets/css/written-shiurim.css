@@ -1664,3 +1664,232 @@ html.nm-reader-open body {
 .nm-sheet__summary {
 	unicode-bidi: plaintext;
 }
+
+/* ===========================================================================
+   Written shiurim in the site's own look (Yoni, 2026-11-14): the same banner,
+   white cards, lines, gold buttons and page colour as the Shiurim pages, in
+   place of the paper-and-desk look. Only colours and shapes change here; the
+   markup, the reader and the filters work as before.
+   =========================================================================== */
+
+body .nm-reading-room {
+	--rr-canvas: var(--rv-page, #f5f7fb);
+	--rr-paper: #fff;
+	--rr-ink: var(--rv-ink, #0f172a);
+	--rr-ink-soft: var(--rv-ink-2, #334155);
+	--rr-muted: var(--rv-muted, #5b6678);
+	--rr-rule: var(--rv-line, #e3e8f0);
+	--rr-shadow: var(--rv-shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.05));
+	--rr-shadow-lift: var(--rv-shadow, 0 12px 32px -14px rgba(15, 23, 42, 0.18));
+	--sh-surface-hover: var(--rv-soft, #f6f8fb);
+	background: var(--rr-canvas);
+}
+
+/* The banner: as wide as the rest of the page (its padding was added on top). */
+body .nm-reading-room .nm-masthead {
+	box-sizing: border-box;
+	max-width: 100%;
+}
+
+/* "Latest" and each week: a white card, like "New shiurim" on the Shiurim page. */
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature {
+	border: 1px solid var(--rv-line, #e3e8f0);
+	border-radius: var(--rv-radius-lg, 20px);
+	background: #fff;
+	box-shadow: var(--rv-shadow, 0 12px 32px -14px rgba(15, 23, 42, 0.18));
+	color: var(--rv-ink, #0f172a);
+}
+
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature::before,
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature::after {
+	display: none;
+}
+
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature .nm-week__title,
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature .nm-week__sefer,
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature .nm-week__dates,
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature .nm-week__year {
+	color: inherit;
+}
+
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature .nm-week__sefer,
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature .nm-week__dates {
+	color: var(--rv-muted, #5b6678);
+}
+
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature .nm-week__head {
+	border-left-color: var(--rv-gold-bright, #e4be6c);
+}
+
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature .nm-week__eyebrow {
+	background: var(--rv-gold-soft, #fbf3e0);
+	color: var(--rv-gold, #a87a26);
+}
+
+/* Each written shiur: a flat white card with a thin line, no pile of pages. */
+body .nm-reading-room .nm-sheet::before,
+body .nm-reading-room .nm-sheet::after {
+	display: none;
+}
+
+body .nm-reading-room .nm-sheet__paper {
+	border: 1px solid var(--rv-line, #e3e8f0);
+	border-top: 1px solid var(--rv-line, #e3e8f0);
+	border-radius: 16px;
+	background: #fff;
+	box-shadow: var(--rv-shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.05));
+	overflow: hidden;
+}
+
+body .nm-reading-room .nm-sheet:hover .nm-sheet__paper,
+body .nm-reading-room .nm-sheet:focus-within .nm-sheet__paper {
+	box-shadow: var(--rv-shadow, 0 12px 32px -14px rgba(15, 23, 42, 0.18));
+	transform: translateY(-3px);
+}
+
+body .nm-reading-room .nm-sheet__band {
+	border-bottom: 1px solid var(--rv-line-soft, #eef2f7);
+	background: var(--rv-soft, #f6f8fb);
+}
+
+/* A written shiur's page: the dark banner of a shiur's page. */
+body .nm-reading-room .nm-doc {
+	position: relative;
+	isolation: isolate;
+	box-sizing: border-box;
+	max-width: none;
+	margin: 0 0 28px;
+	padding: clamp(28px, 4vw, 48px) clamp(22px, 4.5vw, 56px);
+	border-radius: var(--rv-radius-xl, 28px);
+	background: var(--rv-hero-bg, linear-gradient(140deg, #1d3358 0%, #132443 55%, #0e1b33 100%));
+	box-shadow: var(--rv-shadow-lg, 0 32px 64px -28px rgba(15, 23, 42, 0.42));
+	color: #fff;
+	text-align: left;
+}
+
+body .nm-reading-room .nm-doc__kicker {
+	color: var(--rv-gold-bright, #e4be6c);
+}
+
+body .nm-reading-room .nm-doc__title {
+	color: #fff;
+}
+
+body .nm-reading-room .nm-doc__lede {
+	margin-left: 0;
+	margin-right: 0;
+	color: rgba(255, 255, 255, 0.82);
+}
+
+body .nm-reading-room .nm-doc__byline {
+	justify-content: flex-start;
+	color: rgba(255, 255, 255, 0.72);
+}
+
+body .nm-reading-room .nm-doc__byline a,
+body .nm-reading-room .nm-doc__byline a:visited {
+	border-bottom-color: rgba(255, 255, 255, 0.45);
+	color: #fff;
+}
+
+body .nm-reading-room .nm-doc__byline a:hover,
+body .nm-reading-room .nm-doc__byline a:focus-visible {
+	border-bottom-color: var(--rv-gold-bright, #e4be6c);
+	color: #fff;
+}
+
+body .nm-reading-room .nm-doc__actions {
+	justify-content: flex-start;
+}
+
+body .nm-reading-room .nm-doc__actions .nm-btn,
+body .nm-reading-room .nm-doc__actions .sh-save {
+	border: 1px solid rgba(255, 255, 255, 0.28);
+	background: rgba(255, 255, 255, 0.08);
+	color: #fff;
+}
+
+body .nm-reading-room .nm-doc__actions .nm-btn:hover,
+body .nm-reading-room .nm-doc__actions .nm-btn:focus-visible,
+body .nm-reading-room .nm-doc__actions .sh-save:hover,
+body .nm-reading-room .nm-doc__actions .sh-save:focus-visible {
+	background: rgba(255, 255, 255, 0.16);
+	color: #fff;
+}
+
+/* The main button: gold, like Play on a shiur's page. */
+body .nm-reading-room .nm-doc__actions .nm-btn--primary,
+body .nm-reading-room .nm-doc__actions .nm-btn--primary:visited {
+	border: 0;
+	background: linear-gradient(145deg, var(--nm-look-gold-1, #d9ab4f), var(--nm-look-gold-2, #b4842c));
+	box-shadow: 0 10px 20px -12px var(--nm-look-gold-shadow, rgba(168, 122, 38, 0.9));
+	color: #fff;
+}
+
+body .nm-reading-room .nm-doc__actions .nm-btn--primary:hover,
+body .nm-reading-room .nm-doc__actions .nm-btn--primary:focus-visible {
+	background: linear-gradient(145deg, var(--nm-look-gold-1-hover, #e0b45a), var(--nm-look-gold-2-hover, #bb8b31));
+	color: #fff;
+}
+
+/* The PDF: on a white card in place of the wooden desk. */
+body .nm-reading-room .nm-desk:not(.is-focus) {
+	border: 1px solid var(--rv-line, #e3e8f0);
+	border-radius: var(--rv-radius-lg, 20px);
+	background: var(--rv-soft, #f6f8fb);
+	box-shadow: var(--rv-shadow, 0 12px 32px -14px rgba(15, 23, 42, 0.18));
+}
+
+body .nm-reading-room .nm-desk:not(.is-focus) .nm-desk__paper {
+	border: 1px solid var(--rv-line, #e3e8f0);
+	border-radius: 12px;
+	box-shadow: var(--rv-shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.05));
+}
+
+body .nm-reading-room .nm-desk:not(.is-focus) .nm-desk__paper::before,
+body .nm-reading-room .nm-desk:not(.is-focus) .nm-desk__paper::after {
+	display: none;
+}
+
+/* Newer / older: white cards with the site's line. */
+body .nm-reading-room .nm-pager a,
+body .nm-reading-room .nm-related__title {
+	color: var(--rv-ink, #0f172a);
+}
+
+/* No tilted pages in "Latest" either; the cards sit straight, like everywhere else. */
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature .nm-sheet .nm-sheet__paper {
+	transform: none;
+}
+
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature .nm-sheet:hover .nm-sheet__paper,
+body .nm-reading-room .nm-library:not(.is-filtering) .nm-week--feature .nm-sheet:focus-within .nm-sheet__paper {
+	transform: translateY(-3px);
+}
+
+/* A phone's "tap to open" cover: a straight white card. */
+body .nm-reading-room .nm-cover {
+	border: 1px solid var(--rv-line, #e3e8f0);
+	border-radius: 16px;
+	box-shadow: var(--rv-shadow, 0 12px 32px -14px rgba(15, 23, 42, 0.18));
+	box-sizing: border-box;
+	max-width: 100%;
+	transform: none;
+}
+
+/* Full screen reading: the site's dark navy around the page. */
+body .nm-reading-room .nm-desk.is-focus {
+	background: var(--nm-look-hero-3, #0e1b33);
+}
+
+body .nm-reading-room .nm-cover:hover,
+body .nm-reading-room .nm-cover:focus-visible {
+	transform: translateY(-3px);
+}
+
+/* A phone: the banner a little tighter. */
+@media (max-width: 640px) {
+	body .nm-reading-room .nm-doc {
+		border-radius: var(--rv-radius-lg, 20px);
+	}
+}

@@ -118,6 +118,17 @@ while ( have_posts() ) :
 					<?php else : ?>
 						<?php echo ner_michoel_placeholder_art( get_the_title() ); ?>
 					<?php endif; ?>
+					<?php if ( $queue || $queue_url ) : // Plays and pauses the shiur, like the Play button (custom.js). ?>
+						<button
+							type="button"
+							class="sh-hero__art-play"
+							aria-label="<?php esc_attr_e( 'Play', 'ner-michoel-child' ); ?>"
+							data-track-id="<?php echo esc_attr( get_the_ID() ); ?>"
+							<?php if ( $queue ) : ?>data-play-queue="<?php echo esc_attr( wp_json_encode( $queue ) ); ?>"<?php endif; ?>
+							<?php if ( $queue_url ) : ?>data-queue-url="<?php echo esc_url( $queue_url ); ?>"<?php endif; ?>
+							data-play-index="0"
+						><?php echo ner_michoel_icon( 'play' ); ?></button>
+					<?php endif; ?>
 				</div>
 				<div class="sh-hero__info">
 					<span class="sh-hero__kicker"><?php esc_html_e( 'Shiur', 'ner-michoel-child' ); ?></span>
@@ -137,6 +148,7 @@ while ( have_posts() ) :
 							<button
 								type="button"
 								class="sh-play-all"
+								data-track-id="<?php echo esc_attr( get_the_ID() ); ?>"
 								<?php if ( $queue ) : ?>data-play-queue="<?php echo esc_attr( wp_json_encode( $queue ) ); ?>"<?php endif; ?>
 								<?php if ( $queue_url ) : ?>data-queue-url="<?php echo esc_url( $queue_url ); ?>"<?php endif; ?>
 								data-play-index="0"
