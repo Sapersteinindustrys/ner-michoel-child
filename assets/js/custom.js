@@ -657,6 +657,7 @@ function nerMichoelRecordHistory( postId ) {
 		}
 		elTitle.textContent   = plainText( track.title );
 		elTitle.href          = track.url || '#';
+		setShiurLinks( track );
 		elSpeaker.textContent = plainText( track.speaker );
 		if ( track.cover ) {
 			elCover.innerHTML = '<img src="' + track.cover + '" alt="" />';
@@ -665,6 +666,32 @@ function nerMichoelRecordHistory( postId ) {
 		}
 		updateActiveRowHighlight();
 		renderSheet();
+	}
+
+	// The download and "open its page" links on the bar and in the sheet (2026-11-13). Download
+	// is the site's own ?nm_download=1 address on the shiur's page (inc downloads.php in core).
+	var shiurLinks = {
+		download: [ document.getElementById( 'sh-player-download' ), document.getElementById( 'sh-sheet-download' ) ],
+		page:     [ document.getElementById( 'sh-player-page' ), document.getElementById( 'sh-sheet-page' ) ]
+	};
+	function setShiurLinks( track ) {
+		var page = track && track.url ? track.url : '';
+		var down = '';
+		if ( page && track.src ) {
+			down = page + ( page.indexOf( '?' ) === -1 ? '?' : '&' ) + 'nm_download=1';
+		}
+		shiurLinks.page.forEach( function ( el ) {
+			if ( el ) {
+				el.href   = page || '#';
+				el.hidden = ! page;
+			}
+		} );
+		shiurLinks.download.forEach( function ( el ) {
+			if ( el ) {
+				el.href   = down || '#';
+				el.hidden = ! down;
+			}
+		} );
 	}
 
 	function persist( playing ) {
@@ -752,11 +779,21 @@ function nerMichoelRecordHistory( postId ) {
 	var queueRequest = 0;
 	document.addEventListener( 'click', function ( e ) {
 		var trigger = e.target.closest( '[data-play-queue], [data-queue-url]' );
-		if ( ! trigger ) {
+		var inner   = e.target.closest( 'a[href]' );
+		// A link inside a row that plays (its speaker, series, Watch, Read, the arrow) goes where it leads.
+		if ( inner && trigger && inner !== trigger && trigger.contains( inner ) ) {
 			return;
 		}
-		// A homepage shiur plays where it is; its title opens its page instead (the link goes ahead, nothing plays).
-		if ( e.target.closest( '[data-open-page]' ) && trigger.contains( e.target.closest( '[data-open-page]' ) ) ) {
+		if ( ! trigger ) {
+			// A homepage video row opens its page (it has nothing to play here).
+			var row = e.target.closest( '.hn-row__link[data-href]' );
+			if ( row && ! inner && ! e.target.closest( 'button' ) ) {
+				if ( 'function' === typeof window.nmRouterNavigate ) {
+					window.nmRouterNavigate( row.getAttribute( 'data-href' ) );
+				} else {
+					window.location.href = row.getAttribute( 'data-href' );
+				}
+			}
 			return;
 		}
 		e.preventDefault();
@@ -845,17 +882,25 @@ function nerMichoelRecordHistory( postId ) {
 		if ( e.target.closest( '.sh-track__download, .sh-save' ) ) {
 			return;
 		}
-		// The title and the picture open the shiur's page, without playing it.
-		if ( e.target.closest( '.sh-track__open' ) ) {
+		// The row's links (speaker, series, Watch, Read, the arrow to the page) go where they
+		// lead, and a Listen that carries its own track is played by the card handler above.
+		if ( e.target.closest( 'a[href], [data-play-queue]' ) ) {
 			return;
 		}
 		var row = e.target.closest( '.sh-track' );
 		if ( ! row ) {
 			return;
 		}
-		// Video rows are links to the shiur's own page, not audio rows, so
-		// they have no queue index. Let the link work and don't play anything.
+		// A video row isn't in the audio queue: pressing it opens its page.
 		if ( row.classList.contains( 'sh-track--video' ) ) {
+			var href = row.getAttribute( 'data-href' );
+			if ( href ) {
+				if ( 'function' === typeof window.nmRouterNavigate ) {
+					window.nmRouterNavigate( href );
+				} else {
+					window.location.href = href;
+				}
+			}
 			return;
 		}
 		var list = row.closest( '.sh-tracklist' );

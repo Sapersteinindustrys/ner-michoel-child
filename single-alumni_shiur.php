@@ -20,7 +20,7 @@ while ( have_posts() ) :
 	$nm_pdf    = $nm_pdf_id ? wp_get_attachment_url( $nm_pdf_id ) : '';
 	?>
 	<div class="shiurim-app nm-alumni nm-alumni--single">
-		<p class="nm-alumni__back"><a href="<?php echo esc_url( function_exists( 'ner_michoel_alumni_url' ) ? ner_michoel_alumni_url() : home_url( '/alumni/' ) ); ?>">&larr; <?php esc_html_e( 'Alumni', 'ner-michoel-child' ); ?></a></p>
+		<p class="nm-alumni__back"><a href="<?php echo esc_url( function_exists( 'ner_michoel_alumni_url' ) ? ner_michoel_alumni_url() : home_url( '/alumni/' ) ); ?>" data-nm-back data-nm-home="<?php echo esc_url( home_url( '/' ) ); ?>">&larr; <?php esc_html_e( 'Alumni', 'ner-michoel-child' ); ?></a></p>
 		<header class="sh-page-header">
 			<h1 dir="auto"><?php the_title(); ?></h1>
 			<p class="nm-alumni__meta">

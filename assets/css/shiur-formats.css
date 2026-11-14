@@ -155,3 +155,158 @@
 		padding: 0 10px;
 	}
 }
+
+/* ---------- the same row everywhere (2026-11-13) ----------
+   Under a row's title: its speaker and series as links (.nm-by), then its
+   buttons (.nm-acts): Listen / Watch / Read, each doing it right there, and
+   an arrow to the shiur's page (.nm-go). In currentColor, like the label. */
+
+.nm-by {
+	display: inline;
+	min-width: 0;
+}
+
+.nm-by a {
+	color: inherit;
+	text-decoration: none;
+	border-bottom: 1px solid transparent;
+}
+
+.nm-by a:hover,
+.nm-by a:focus-visible {
+	border-bottom-color: currentColor;
+}
+
+.nm-acts {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-self: start;
+	align-self: start;
+	gap: 6px;
+	margin-top: 6px;
+	line-height: 1;
+}
+
+.nm-acts .nm-act,
+.nm-acts .nm-act:visited {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	margin: 0;
+	padding: 5px 11px 5px 9px !important;
+	border: 1px solid rgba(128, 128, 128, 0.45);
+	border-radius: 999px;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	font-size: 0.78rem;
+	font-weight: 600;
+	line-height: 1;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+	box-shadow: none;
+}
+
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+	.nm-acts .nm-act {
+		border-color: color-mix(in srgb, currentColor 35%, transparent);
+	}
+}
+
+.nm-acts .nm-act:hover,
+.nm-acts .nm-act:focus-visible {
+	background: rgba(128, 128, 128, 0.14);
+	color: inherit;
+}
+
+.nm-acts .nm-act .nm-fmt__icon {
+	width: 13px;
+	height: 13px;
+}
+
+.nm-acts .nm-go,
+.nm-acts .nm-go:visited {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	margin-left: 2px;
+	border-radius: 50%;
+	color: inherit;
+	text-decoration: none;
+}
+
+.nm-acts .nm-go:hover,
+.nm-acts .nm-go:focus-visible {
+	background: rgba(128, 128, 128, 0.14);
+}
+
+/* The homepage rows were links; now the row plays and its links do their own jobs. */
+.hn-row__link {
+	cursor: pointer;
+}
+
+/* The search results: the title plays (a button that looks like the title link). */
+.nm-live-search .nm-live-play {
+	display: inline;
+	margin: 0;
+	padding: 0 !important;
+	border: 0;
+	background: none;
+	color: var(--sh-text, inherit);
+	font: inherit;
+	font-weight: 600;
+	text-align: inherit;
+	cursor: pointer;
+	box-shadow: none;
+}
+
+.nm-live-search .nm-live-play:hover,
+.nm-live-search .nm-live-play:focus-visible {
+	color: var(--sh-accent, #1d4ed8);
+	background: none;
+}
+
+.nm-live-results__item .nm-by {
+	display: block;
+	margin-top: 2px;
+	font-size: 0.88rem;
+}
+
+.nm-live-search .nm-live-table__title .nm-by__series {
+	display: block;
+	color: var(--sh-text-muted, #5b6470);
+	font-weight: 400;
+	text-decoration: none;
+}
+
+.nm-live-search .nm-live-table__title .nm-by__series:hover,
+.nm-live-search .nm-live-table__title .nm-by__series:focus-visible {
+	text-decoration: underline;
+}
+
+.nm-live-table__speaker a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.nm-live-table__speaker a:hover,
+.nm-live-table__speaker a:focus-visible {
+	text-decoration: underline;
+}
+
+.nm-live-table__kinds .nm-acts {
+	margin: 0 0 4px;
+}
+
+/* A track-list row's title is plain text now (the row plays); a video row's is a link. */
+.sh-track__title-link {
+	color: inherit;
+	text-decoration: none;
+}
+.sh-track--video {
+	cursor: pointer;
+}

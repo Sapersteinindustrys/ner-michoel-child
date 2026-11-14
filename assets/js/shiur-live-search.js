@@ -115,6 +115,12 @@
 	function resultsList( data, list, moreBtn, countEl, table ) {
 		var KIND = { a: t( 'audio', 'Audio' ), v: t( 'video', 'Video' ), w: t( 'written', 'Written' ) };
 		var VERB = { a: t( 'listen', 'Listen' ), v: t( 'watch', 'Watch' ), w: t( 'read', 'Read' ) };
+		// The same outline icons as the server's buttons (ner_michoel_format_icon(), Lucide, ISC License).
+		var ICON = {
+			a: '<svg class="nm-fmt__icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>',
+			v: '<svg class="nm-fmt__icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>',
+			w: '<svg class="nm-fmt__icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>'
+		};
 		// table: { body: <tbody>, wrap: its box, on: function () { true while the table shows } }.
 		var asTable = function () {
 			return !! ( table && table.on() );
@@ -122,93 +128,169 @@
 		var found = { matches: [], exact: 0, close: 0 };
 		var shown = 0;
 
-		// "Audio", or "Audio + Written" for a shiur that comes in more than one format (the index's f key).
-		function kindLabel( it ) {
-			if ( it.f && it.f.length > 1 ) {
-				return it.f.split( '' ).map( function ( kind ) {
-					return KIND[ kind ] || '';
-				} ).filter( Boolean ).join( ' + ' );
+		/*
+		 * The same row as everywhere else (2026-11-13): the title plays the shiur in the bar
+		 * when it has audio (else it opens its page), the speaker and series are links, and the
+		 * row's buttons do each format right here (Listen plays, Watch opens the video, Read the
+		 * written shiur) with an arrow to the shiur's own page. inc/shiur-formats.php prints the
+		 * same buttons on the server's lists. Playing goes through the card handler in custom.js
+		 * (data-queue-url), which fetches the shiur's queue.
+		 */
+		var HOME = text.home || '/';
+		function postUrl( it, id ) {
+			if ( id === it.i ) {
+				return it.u;
 			}
-			return KIND[ it.c ] || '';
+			return HOME + ( HOME.indexOf( '?' ) === -1 ? '?' : '&' ) + 'p=' + id;
+		}
+		function formatsOf( it ) {
+			if ( it.o ) {
+				return it.o;
+			}
+			var own = {};
+			own[ it.c ] = it.i;
+			return own;
+		}
+		function queueUrl( id ) {
+			return text.queue ? text.queue + ( text.queue.indexOf( '?' ) === -1 ? '?' : '&' ) + 'shiur=' + id : '';
+		}
+		function el( tag, cls, txt ) {
+			var node = document.createElement( tag );
+			if ( cls ) {
+				node.className = cls;
+			}
+			if ( undefined !== txt ) {
+				node.textContent = txt;
+			}
+			return node;
+		}
+		function termLink( kind, id ) {
+			var names = 'speaker' === kind ? data.speakers : data.series;
+			var links = 'speaker' === kind ? ( data.speakerLinks || {} ) : ( data.seriesLinks || {} );
+			if ( ! names[ id ] ) {
+				return null;
+			}
+			if ( ! links[ id ] ) {
+				return el( 'span', 'nm-by__' + kind, names[ id ] );
+			}
+			var a  = el( 'a', 'nm-by__' + kind, names[ id ] );
+			a.href = links[ id ];
+			return a;
+		}
+		function titleEl( it, cls ) {
+			var formats = formatsOf( it );
+			var url     = formats.a ? queueUrl( formats.a ) : '';
+			var node;
+			if ( url ) {
+				node = el( 'button', cls + ' nm-live-play', it.m );
+				node.type = 'button';
+				node.setAttribute( 'data-queue-url', url );
+				node.setAttribute( 'data-play-index', '0' );
+				node.title = VERB.a;
+			} else {
+				node      = el( 'a', cls, it.m );
+				node.href = it.u;
+			}
+			return node;
+		}
+		function byline( it ) {
+			var box   = el( 'span', 'nm-by' );
+			var parts = [ termLink( 'speaker', it.a ), termLink( 'series', it.s ) ].filter( Boolean );
+			parts.forEach( function ( part, n ) {
+				if ( n ) {
+					var sep = el( 'span', 'nm-by__sep', ' · ' );
+					sep.setAttribute( 'aria-hidden', 'true' );
+					box.appendChild( sep );
+				}
+				box.appendChild( part );
+			} );
+			return box;
+		}
+		function actions( it ) {
+			var box     = el( 'span', 'nm-acts' );
+			var formats = formatsOf( it );
+			[ 'a', 'v', 'w' ].forEach( function ( kind ) {
+				if ( ! formats[ kind ] ) {
+					return;
+				}
+				var node;
+				if ( 'a' === kind ) {
+					var url = queueUrl( formats.a );
+					if ( ! url ) {
+						return;
+					}
+					node      = el( 'button', 'nm-act nm-act--a' );
+					node.type = 'button';
+					node.setAttribute( 'data-queue-url', url );
+					node.setAttribute( 'data-play-index', '0' );
+				} else {
+					node      = el( 'a', 'nm-act nm-act--' + kind );
+					// A shiur's Vimeo video on its audio's own post is on that page, at its Watch section.
+					node.href = postUrl( it, formats[ kind ] ) + ( 'v' === kind && formats.a === formats.v ? '#nm-watch' : '' );
+				}
+				node.title = VERB[ kind ];
+				node.innerHTML = ICON[ kind ] || '';
+				node.appendChild( el( 'span', '', VERB[ kind ] ) );
+				box.appendChild( node );
+			} );
+			var go = el( 'a', 'nm-go' );
+			go.href = it.u;
+			go.title = t( 'open', 'Open the shiur’s page' );
+			go.setAttribute( 'aria-label', go.title );
+			go.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+			box.appendChild( go );
+			return box;
 		}
 
 		function row( it ) {
-			var li       = document.createElement( 'li' );
-			li.className = 'nm-live-results__item';
+			var li = el( 'li', 'nm-live-results__item' );
+			li.appendChild( titleEl( it, 'nm-live-results__title' ) );
+			li.appendChild( byline( it ) );
 
-			var link         = document.createElement( 'a' );
-			link.className   = 'nm-live-results__title';
-			link.href        = it.u;
-			link.textContent = it.m;
-			li.appendChild( link );
-
-			var meta         = document.createElement( 'span' );
-			meta.className   = 'nm-live-results__meta';
+			var meta         = el( 'span', 'nm-live-results__meta' );
 			meta.textContent = [
-				data.speakers[ it.a ] || '',
-				data.series[ it.s ] || '',
 				formatDate( it.t ),
 				formatHebrewDate( it.t ),
-				kindLabel( it ),
 				it.d || ''
 			].filter( Boolean ).join( ' · ' );
 			li.appendChild( meta );
+			li.appendChild( actions( it ) );
 
 			return li;
 		}
 
-		// One table row: the title (with its series under it), the speaker, the date
-		// (English, Hebrew under it) and the kinds it comes in, each with its icon.
+		// One table row: the title (it plays) with its series link under it, the speaker's link, the
+		// date (English, Hebrew under it), and the row's buttons with the length.
 		function tableRow( it ) {
 			var tr = document.createElement( 'tr' );
 
-			var title         = document.createElement( 'td' );
-			title.className   = 'nm-live-table__title';
-			var link          = document.createElement( 'a' );
-			link.href         = it.u;
-			link.textContent  = it.m;
-			title.appendChild( link );
-			if ( data.series[ it.s ] ) {
-				var series         = document.createElement( 'span' );
-				series.className   = 'nm-live-table__sub';
-				series.textContent = data.series[ it.s ];
+			var title = el( 'td', 'nm-live-table__title' );
+			title.appendChild( titleEl( it, 'nm-live-table__name' ) );
+			var series = termLink( 'series', it.s );
+			if ( series ) {
+				series.className += ' nm-live-table__sub';
 				title.appendChild( series );
 			}
 			tr.appendChild( title );
 
-			var speaker         = document.createElement( 'td' );
-			speaker.textContent = data.speakers[ it.a ] || '';
+			var speaker = el( 'td', 'nm-live-table__speaker' );
+			var who     = termLink( 'speaker', it.a );
+			if ( who ) {
+				speaker.appendChild( who );
+			}
 			tr.appendChild( speaker );
 
-			var date         = document.createElement( 'td' );
-			date.className   = 'nm-live-table__date';
-			date.textContent = formatDate( it.t );
-			var hebrew       = formatHebrewDate( it.t );
+			var date   = el( 'td', 'nm-live-table__date', formatDate( it.t ) );
+			var hebrew = formatHebrewDate( it.t );
 			if ( hebrew ) {
-				var heb         = document.createElement( 'span' );
-				heb.className   = 'nm-live-table__sub';
-				heb.textContent = hebrew;
-				date.appendChild( heb );
+				date.appendChild( el( 'span', 'nm-live-table__sub', hebrew ) );
 			}
 			tr.appendChild( date );
 
-			var kinds       = document.createElement( 'td' );
-			kinds.className = 'nm-live-table__kinds';
-			( it.f && it.f.length > 1 ? it.f : it.c ).split( '' ).forEach( function ( kind ) {
-				if ( ! VERB[ kind ] ) {
-					return;
-				}
-				var tag         = document.createElement( 'span' );
-				tag.className   = 'nm-live-table__kind nm-live-table__kind--' + kind;
-				tag.textContent = VERB[ kind ];
-				tag.title       = KIND[ kind ];
-				kinds.appendChild( tag );
-			} );
+			var kinds = el( 'td', 'nm-live-table__kinds' );
+			kinds.appendChild( actions( it ) );
 			if ( it.d ) {
-				var length         = document.createElement( 'span' );
-				length.className   = 'nm-live-table__length';
-				length.textContent = it.d;
-				kinds.appendChild( length );
+				kinds.appendChild( el( 'span', 'nm-live-table__length', it.d ) );
 			}
 			tr.appendChild( kinds );
 

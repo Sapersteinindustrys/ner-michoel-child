@@ -328,15 +328,13 @@
 	 *     this one, history.back() takes it, so the history and the scroll position come
 	 *     back as they were; with no entry behind (a tab opened from that page) it's
 	 *     loaded in this entry's place.
-	 *     Not for data-nm-up-first (a shiur) when that page was the home page: a shiur
-	 *     opened straight from the home page backs out through its series first.
 	 *  2. PARENT, the link's own href (the shiur's series, or the home page): loaded in
 	 *     this entry's place, not added after it, so Back never leaves a trail it would
 	 *     walk back into. If PARENT is the entry right behind, history.back() takes it.
 	 *
-	 * Opened from the home page, a shiur goes: Back -> its series, Back -> the home page.
-	 * After home -> Shiurim -> a series -> a shiur: Back -> the series, the Shiurim page,
-	 * the home page. From a shared link: the series, then the home page. A modified click
+	 * Opened from the home page, a shiur goes Back to the home page, the same as the
+	 * browser's Back (2026-11-13; it used to go to its series first). From a shared link
+	 * (nothing behind it): the series, then the home page. A modified click
 	 * (new tab and so on) opens PARENT the way a browser does, and without JavaScript
 	 * it's just that link.
 	 */
@@ -400,9 +398,8 @@
 				usable = false;
 			}
 		}
-		if ( usable && upFirst && ( entry.prevHome || isHomeUrl( prev, home ) ) ) {
-			usable = false;
-		}
+		// upFirst (a shiur backing out through its series before the home page) is no longer
+		// used: Back goes to the page the visitor was on, like the browser's Back (2026-11-13).
 
 		if ( usable ) {
 			return { url: prev, pop: canPop };

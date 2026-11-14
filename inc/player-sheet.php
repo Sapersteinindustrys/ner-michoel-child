@@ -34,6 +34,11 @@ function ner_michoel_render_player_sheet( $layout = '' ) {
 					<div class="sh-sheet__eyebrow" id="sh-sheet-heading"><?php esc_html_e( 'Now playing', 'ner-michoel-child' ); ?></div>
 					<div class="sh-sheet__now-title" id="sh-sheet-now-title"></div>
 					<div class="sh-sheet__now-speaker" id="sh-sheet-now-speaker"></div>
+					<?php // Download and the shiur's page, for phones (the bar has no room for them there). ?>
+					<div class="sh-sheet__links">
+						<a class="sh-sheet__link" id="sh-sheet-download" href="#" download data-no-pjax hidden><?php echo ner_michoel_icon( 'download' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?> <?php esc_html_e( 'Download', 'ner-michoel-child' ); ?></a>
+						<a class="sh-sheet__link" id="sh-sheet-page" href="#" hidden><?php esc_html_e( 'Shiur page', 'ner-michoel-child' ); ?> <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+					</div>
 				</div>
 			</div>
 			<button type="button" class="sh-sheet__close" id="sh-sheet-close" aria-label="<?php esc_attr_e( 'Close', 'ner-michoel-child' ); ?>">

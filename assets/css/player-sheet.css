@@ -412,3 +412,75 @@
 .sh-player.sh-player--studio .sh-player__title {
 	color: var(--sh-text, #fff);
 }
+
+/* Download and "open the shiur's page" on the bar (2026-11-13). Sized and pinned like the
+   arrow above. On a phone they live in the sheet instead (.sh-sheet__links). */
+.sh-player .sh-player__link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	color: var(--sh-text, #fff);
+	text-decoration: none;
+}
+
+.sh-player .sh-player__link[hidden] {
+	display: none;
+}
+
+.sh-player .sh-player__link svg {
+	width: 18px;
+	height: 18px;
+	flex: none;
+}
+
+.sh-player .sh-player__link:hover,
+.sh-player .sh-player__link:focus-visible {
+	background: rgba(255, 255, 255, 0.08);
+	color: var(--sh-text, #fff);
+}
+
+@media (max-width: 860px) {
+	.sh-player .sh-player__link {
+		display: none;
+	}
+}
+
+.sh-sheet__links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.sh-sheet__link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 5px 12px;
+	border: 1px solid rgba(255, 255, 255, 0.25);
+	border-radius: 999px;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--sh-text, #fff);
+	text-decoration: none;
+}
+
+.sh-sheet__link[hidden] {
+	display: none;
+}
+
+.sh-sheet__link svg {
+	width: 14px;
+	height: 14px;
+	flex: none;
+}
+
+.sh-sheet__link:hover,
+.sh-sheet__link:focus-visible {
+	background: rgba(255, 255, 255, 0.08);
+	color: var(--sh-text, #fff);
+}

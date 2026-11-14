@@ -338,10 +338,8 @@ function ner_michoel_back_parent_url() {
  * "Back" at the top of a Shiurim-section page, in every layout. It's a link to
  * the page's parent (ner_michoel_back_parent_url()), so it always works, and
  * nm-router.js decides where a click really goes: back to the page the visitor
- * came from, when that was a page of this site, and otherwise up to the parent.
- * A shiur is the exception to "back to where you came from": opened straight
- * from the home page, it backs out through its series first, then to the home
- * page (data-nm-up-first). There's no Home link here. Home is in the header
+ * came from, when that was a page of this site (like the browser's Back), and
+ * otherwise up to the parent. There's no Home link here. Home is in the header
  * menu (inc/navigation.php).
  *
  * @param string $label  Link text. Default "Back".
@@ -355,10 +353,9 @@ function ner_michoel_render_back_button( $label = '', $parent = '' ) {
 	if ( '' === $parent ) {
 		$parent = ner_michoel_back_parent_url();
 	}
-	$up_first = is_singular( array( 'shiur', 'written_shiur' ) );
 	?>
 	<nav class="sh-back-row" aria-label="<?php esc_attr_e( 'Page navigation', 'ner-michoel-child' ); ?>">
-		<a class="sh-back" href="<?php echo esc_url( $parent ); ?>" data-nm-back data-nm-home="<?php echo esc_url( home_url( '/' ) ); ?>"<?php echo $up_first ? ' data-nm-up-first' : ''; ?>>
+		<a class="sh-back" href="<?php echo esc_url( $parent ); ?>" data-nm-back data-nm-home="<?php echo esc_url( home_url( '/' ) ); ?>">
 			<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
 			<span><?php echo esc_html( $label ); ?></span>
 		</a>
@@ -436,6 +433,14 @@ function ner_michoel_get_shiur_badges( $post_id ) {
 		$badges[] = array(
 			'key'   => 'new',
 			'label' => __( 'New', 'ner-michoel-child' ),
+		);
+	}
+
+	// A shiur for alumni only, shown to a signed-in alumnus among the others (2026-11-13).
+	if ( 'alumni_shiur' === get_post_type( $post_id ) ) {
+		$badges[] = array(
+			'key'   => 'alumni',
+			'label' => __( 'Alumni only', 'ner-michoel-child' ),
 		);
 	}
 
@@ -796,79 +801,67 @@ function ner_michoel_shiur_is_video( $post_id ) {
 }
 
 /**
- * One row inside a tracklist. A video shiur renders as a plain link
- * to its single page instead — it isn't part of the audio queue
- * (see ner_michoel_render_tracklist()), so there's no `data-index`
- * for the player JS to act on; native navigation handles it. Silently
- * skips a shiur with neither audio nor video — nothing to play.
+ * One row inside a tracklist, the same everywhere (2026-11-13): the picture, the title (with
+ * its speaker and series as links under it), and the row's buttons (Listen / Watch / Read and
+ * the arrow to the shiur's page, inc/shiur-formats.php). An audio row plays in the bar when it
+ * is pressed anywhere but a link or a button (custom.js). A video row isn't in the audio
+ * queue, so it has no data-index: pressing it opens its page (data-href, custom.js).
+ * Silently skips a shiur with neither audio nor video, as before (ner_michoel_render_tracklist()).
  */
 function ner_michoel_render_track_row( $shiur, $index, $show_speaker = true ) {
-	$speaker_terms = get_the_terms( $shiur, 'speaker' );
-	$speaker_name  = ( $speaker_terms && ! is_wp_error( $speaker_terms ) ) ? $speaker_terms[0]->name : '';
-	$cover         = ner_michoel_shiur_art( $shiur, 'thumbnail' );
-	$dates_html    = ner_michoel_get_shiur_dates_html( $shiur );
-
-	if ( ner_michoel_shiur_is_video( $shiur->ID ) ) {
-		?>
-		<a class="sh-track sh-track--video" href="<?php echo esc_url( get_permalink( $shiur ) ); ?>" data-id="<?php echo esc_attr( $shiur->ID ); ?>">
-			<div class="sh-track__num"><?php echo ner_michoel_icon( 'video' ); ?></div>
-			<div class="sh-track__art">
-				<?php if ( $cover ) : ?>
-					<img src="<?php echo esc_url( $cover ); ?>" alt="" loading="lazy" />
-				<?php else : ?>
-					<?php echo ner_michoel_placeholder_art( get_the_title( $shiur ) ); ?>
-				<?php endif; ?>
-			</div>
-			<div class="sh-track__info">
-				<div class="sh-track__title"><?php echo esc_html( get_the_title( $shiur ) ); ?><?php ner_michoel_render_shiur_badges( $shiur->ID ); ?></div>
-				<?php if ( $show_speaker && $speaker_name ) : ?>
-					<div class="sh-track__speaker"><?php echo esc_html( $speaker_name ); ?></div>
-				<?php endif; ?>
-				<?php if ( $dates_html ) : ?>
-					<div class="sh-track__when"><?php echo $dates_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in ner_michoel_get_shiur_dates_html(). ?></div>
-				<?php endif; ?>
-				<?php ner_michoel_render_format_chips( $shiur->ID ); ?>
-			</div>
-			<div class="sh-track__duration"><?php esc_html_e( 'Watch', 'ner-michoel-child' ); ?></div>
-		</a>
-		<?php
-		return;
-	}
+	$cover      = ner_michoel_shiur_art( $shiur, 'thumbnail' );
+	$dates_html = ner_michoel_get_shiur_dates_html( $shiur );
+	$is_video   = ner_michoel_shiur_is_video( $shiur->ID );
+	$link       = get_permalink( $shiur );
+	// Every row names the speaker and the series, as links (Yoni, 2026-11-13).
+	$byline     = function_exists( 'ner_michoel_row_byline_markup' ) ? ner_michoel_row_byline_markup( $shiur->ID ) : '';
+	$actions    = function_exists( 'ner_michoel_row_actions_markup' ) ? ner_michoel_row_actions_markup( $shiur->ID, 'row' ) : '';
 	?>
+	<?php if ( $is_video ) : ?>
+	<div class="sh-track sh-track--video" data-id="<?php echo esc_attr( $shiur->ID ); ?>" data-href="<?php echo esc_url( $link ); ?>">
+		<div class="sh-track__num"><?php echo ner_michoel_icon( 'video' ); ?></div>
+	<?php else : ?>
 	<div class="sh-track" data-id="<?php echo esc_attr( $shiur->ID ); ?>" data-index="<?php echo esc_attr( $index ); ?>">
 		<div class="sh-track__num">
 			<span class="sh-track__index"><?php echo esc_html( $index + 1 ); ?></span>
 			<span class="sh-track__eq" aria-hidden="true"><span></span><span></span><span></span></span>
 			<button type="button" class="sh-track__play" aria-label="<?php esc_attr_e( 'Play', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'play' ); ?></button>
 		</div>
-		<?php // The picture and the title open the shiur's page without playing; the rest of the row plays it here (custom.js). ?>
-		<a class="sh-track__art sh-track__open" href="<?php echo esc_url( get_permalink( $shiur ) ); ?>" tabindex="-1" aria-hidden="true">
+	<?php endif; ?>
+		<div class="sh-track__art">
 			<?php if ( $cover ) : ?>
 				<img src="<?php echo esc_url( $cover ); ?>" alt="" loading="lazy" />
 			<?php else : ?>
 				<?php echo ner_michoel_placeholder_art( get_the_title( $shiur ) ); ?>
 			<?php endif; ?>
-		</a>
+		</div>
 		<div class="sh-track__info">
-			<div class="sh-track__title"><a class="sh-track__open sh-track__title-link" href="<?php echo esc_url( get_permalink( $shiur ) ); ?>"><?php echo esc_html( get_the_title( $shiur ) ); ?></a><?php ner_michoel_render_shiur_badges( $shiur->ID ); ?></div>
-			<?php if ( $show_speaker && $speaker_name ) : ?>
-				<div class="sh-track__speaker"><?php echo esc_html( $speaker_name ); ?></div>
+			<?php // The title plays the shiur in the bar (a video's opens its page); the arrow at the end opens the page. ?>
+			<div class="sh-track__title"><?php if ( $is_video ) : ?><a class="sh-track__title-link" href="<?php echo esc_url( $link ); ?>"><?php echo esc_html( get_the_title( $shiur ) ); ?></a><?php else : ?><span class="sh-track__title-text"><?php echo esc_html( get_the_title( $shiur ) ); ?></span><?php endif; ?><?php ner_michoel_render_shiur_badges( $shiur->ID ); ?></div>
+			<?php if ( $byline ) : ?>
+				<div class="sh-track__speaker"><?php echo $byline; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in ner_michoel_row_byline_markup(). ?></div>
 			<?php endif; ?>
 			<?php if ( $dates_html ) : ?>
 				<div class="sh-track__when"><?php echo $dates_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in ner_michoel_get_shiur_dates_html(). ?></div>
 			<?php endif; ?>
-			<?php ner_michoel_render_format_chips( $shiur->ID ); ?>
+			<?php
+			if ( $actions ) {
+				echo $actions; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in ner_michoel_row_actions_markup().
+			} else {
+				ner_michoel_render_format_chips( $shiur->ID );
+			}
+			?>
 		</div>
-		<div class="sh-track__duration"><?php echo esc_html( ner_michoel_get_shiur_duration( $shiur->ID ) ); ?><?php
+		<div class="sh-track__duration"><?php echo $is_video ? esc_html__( 'Video', 'ner-michoel-child' ) : esc_html( ner_michoel_get_shiur_duration( $shiur->ID ) ); ?><?php
 			// Like this shiur from its row. The heart sits in the duration cell so the
 			// row's grid stays as it is. Logged-in visitors only, like every heart.
-			if ( is_user_logged_in() && function_exists( 'ner_michoel_is_post_saved_by_user' ) ) :
+			if ( ! $is_video && is_user_logged_in() && function_exists( 'ner_michoel_is_post_saved_by_user' ) ) :
 				$row_saved = ner_michoel_is_post_saved_by_user( $shiur->ID );
 				?>
 				<button type="button" class="sh-save sh-track__save<?php echo $row_saved ? ' is-saved' : ''; ?>" data-save-id="<?php echo esc_attr( $shiur->ID ); ?>" aria-pressed="<?php echo $row_saved ? 'true' : 'false'; ?>" aria-label="<?php esc_attr_e( 'Like', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'heart' ); ?></button>
 			<?php endif; ?></div>
 		<?php
-		$download_url = function_exists( 'ner_michoel_get_shiur_download_url' ) ? ner_michoel_get_shiur_download_url( $shiur->ID ) : '';
+		$download_url = ( ! $is_video && function_exists( 'ner_michoel_get_shiur_download_url' ) ) ? ner_michoel_get_shiur_download_url( $shiur->ID ) : '';
 		if ( $download_url ) :
 			?>
 			<a class="sh-track__download" href="<?php echo esc_url( $download_url ); ?>" download data-no-pjax aria-label="<?php esc_attr_e( 'Download', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'download' ); ?></a>
@@ -962,6 +955,9 @@ function ner_michoel_render_player_bar() {
 			</div>
 
 			<div class="sh-player__end">
+				<?php // Download this shiur, and open its page (custom.js fills in both for the shiur playing). ?>
+				<a class="sh-player__link sh-player__download" id="sh-player-download" href="#" download data-no-pjax hidden aria-label="<?php esc_attr_e( 'Download', 'ner-michoel-child' ); ?>" title="<?php esc_attr_e( 'Download', 'ner-michoel-child' ); ?>"><?php echo ner_michoel_icon( 'download' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></a>
+				<a class="sh-player__link sh-player__page" id="sh-player-page" href="#" hidden aria-label="<?php esc_attr_e( 'Open the shiur\'s page', 'ner-michoel-child' ); ?>" title="<?php esc_attr_e( 'Open the shiur\'s page', 'ner-michoel-child' ); ?>"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 				<button type="button" class="sh-player__open" id="sh-player-open" aria-expanded="false" aria-controls="sh-sheet" aria-label="<?php esc_attr_e( 'Autoplay and queue', 'ner-michoel-child' ); ?>">
 					<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
 				</button>

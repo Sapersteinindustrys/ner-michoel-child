@@ -85,7 +85,7 @@ $site_name  = ner_michoel_site_name();
 					<span class="hn-now__play" aria-hidden="true"><?php echo ner_michoel_icon( $newest['is_video'] ? 'video' : 'play' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 					<span class="hn-now__text">
 						<span class="hn-now__label"><?php esc_html_e( 'Newest shiur', 'ner-michoel-child' ); ?></span>
-						<span class="hn-now__title" data-open-page><?php echo esc_html( $newest['title'] ); ?></span>
+						<span class="hn-now__title"><?php echo esc_html( $newest['title'] ); ?></span>
 						<?php if ( $newest['speaker'] ) : ?>
 							<span class="hn-now__meta"><?php echo esc_html( $newest['speaker'] ); ?></span>
 						<?php endif; ?>
@@ -150,7 +150,8 @@ $site_name  = ner_michoel_site_name();
 				<ol class="hn-list" id="hn-list-listen"<?php echo $home['written'] ? ' role="tabpanel" aria-labelledby="hn-tab-listen"' : ''; ?>>
 					<?php foreach ( $home['shiurim'] as $row ) : ?>
 						<li class="hn-row">
-							<a class="hn-row__link" href="<?php echo esc_url( $row['link'] ); ?>"<?php echo ner_michoel_home_play_attrs( $row ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built. ?>>
+							<?php // The row plays in the bar (a video's opens its page); its links and buttons do their own jobs (custom.js, 2026-11-13). ?>
+							<div class="hn-row__link"<?php echo ner_michoel_home_play_attrs( $row ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped where it is built. ?><?php echo $row['is_video'] ? ' data-href="' . esc_url( $row['link'] ) . '"' : ''; ?>>
 								<span class="hn-row__art"<?php echo $row['photo'] ? '' : ' style="--hue: ' . (int) $row['hue'] . '"'; ?>>
 									<?php if ( $row['photo'] ) : ?>
 										<img src="<?php echo esc_url( $row['photo'] ); ?>" alt="" loading="lazy" decoding="async" width="56" height="56" />
@@ -160,16 +161,11 @@ $site_name  = ner_michoel_site_name();
 									<span class="hn-row__play" aria-hidden="true"><?php echo ner_michoel_icon( $row['is_video'] ? 'video' : 'play' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 								</span>
 								<span class="hn-row__body">
-									<span class="hn-row__title" data-open-page><?php echo esc_html( $row['title'] ); ?></span>
-									<span class="hn-row__meta">
-										<?php if ( $row['speaker'] ) : ?>
-											<span><?php echo esc_html( $row['speaker'] ); ?></span>
-										<?php endif; ?>
-										<?php if ( $row['series'] ) : ?>
-											<span><?php echo esc_html( $row['series'] ); ?></span>
-										<?php endif; ?>
-									</span>
-									<?php ner_michoel_render_format_chips( $row['id'] ); ?>
+									<span class="hn-row__title"><?php echo esc_html( $row['title'] ); ?></span>
+									<?php if ( function_exists( 'ner_michoel_row_byline_markup' ) ) : ?>
+										<span class="hn-row__meta"><?php echo ner_michoel_row_byline_markup( $row['id'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped there. ?></span>
+										<?php echo ner_michoel_row_actions_markup( $row['id'], 'queue' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped there. ?>
+									<?php endif; ?>
 								</span>
 								<span class="hn-row__side">
 									<?php if ( $row['is_new'] ) : ?>
@@ -186,7 +182,7 @@ $site_name  = ner_michoel_site_name();
 										<?php endif; ?>
 									</span>
 								</span>
-							</a>
+							</div>
 						</li>
 					<?php endforeach; ?>
 				</ol>

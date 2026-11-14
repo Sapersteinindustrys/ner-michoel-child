@@ -67,6 +67,10 @@ function ner_michoel_enqueue_shiur_live_search() {
 			'listen'    => __( 'Listen', 'ner-michoel-child' ),
 			'watch'     => __( 'Watch', 'ner-michoel-child' ),
 			'read'      => __( 'Read', 'ner-michoel-child' ),
+			// A row's arrow, and where its buttons go (2026-11-13): the home page (for ?p=ID) and the queue route.
+			'open'      => __( 'Open the shiur’s page', 'ner-michoel-child' ),
+			'home'      => home_url( '/' ),
+			'queue'     => function_exists( 'ner_michoel_queue_url' ) ? ner_michoel_queue_url( array() ) : '',
 			// The heading above the results that match with a letter or two off or swapped.
 			'closeOne'  => __( '1 close match · spelled a little differently', 'ner-michoel-child' ),
 			/* translators: %s: number of close matches */

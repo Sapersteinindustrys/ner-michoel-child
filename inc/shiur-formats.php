@@ -173,3 +173,89 @@ function ner_michoel_enqueue_format_styles() {
 	);
 }
 add_action( 'wp_enqueue_scripts', 'ner_michoel_enqueue_format_styles', 21 );
+
+/* ------------------------------------------------------------------
+ * The same row everywhere (Yoni, 2026-11-13): every shiur row in a list
+ * (series, speaker and topic pages, the homepage, the search table) shows
+ * its speaker and series as links, the buttons that do each format right
+ * there (Listen plays in the bar, Watch opens the video, Read opens the
+ * written shiur) in place of the Audio / Video / Written chips, and an
+ * arrow to the shiur's own page. The search table builds the same markup
+ * in the browser (assets/js/shiur-live-search.js).
+ * ------------------------------------------------------------------ */
+
+/**
+ * The formats a row offers: array( kind => post ID ), at least the shiur itself.
+ */
+function ner_michoel_row_formats( $post_id ) {
+	$formats = ner_michoel_get_shiur_formats( $post_id );
+	if ( ! $formats ) {
+		$formats = array( ner_michoel_format_kind_of( $post_id ) => (int) $post_id );
+	}
+	return $formats;
+}
+
+/**
+ * The speaker and series of a shiur as links: "Rabbi X · Gemara / Bava Kamma". Escaped.
+ *
+ * @param int  $post_id      The shiur.
+ * @param bool $show_speaker False on a list where every row is the same speaker's.
+ */
+function ner_michoel_row_byline_markup( $post_id, $show_speaker = true ) {
+	$parts = array();
+	foreach ( $show_speaker ? array( 'speaker', 'series' ) : array( 'series' ) as $taxonomy ) {
+		$terms = get_the_terms( $post_id, $taxonomy );
+		if ( ! $terms || is_wp_error( $terms ) ) {
+			continue;
+		}
+		$term = $terms[0];
+		$url  = get_term_link( $term );
+		if ( is_wp_error( $url ) ) {
+			continue;
+		}
+		$name    = 'series' === $taxonomy && function_exists( 'ner_michoel_series_full_name' ) ? ner_michoel_series_full_name( $term ) : html_entity_decode( $term->name, ENT_QUOTES, 'UTF-8' );
+		$parts[] = '<a class="nm-by__' . esc_attr( $taxonomy ) . '" href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>';
+	}
+	return $parts ? '<span class="nm-by">' . implode( '<span class="nm-by__sep" aria-hidden="true"> · </span>', $parts ) . '</span>' : '';
+}
+
+/**
+ * The row's buttons: one per format (Listen / Watch / Read) and the arrow to the shiur's page. Escaped.
+ *
+ * @param int    $post_id The shiur the row is.
+ * @param string $listen  How Listen plays: 'row' when the row itself plays (a track list: the row's
+ *                        click handler in custom.js takes it), 'queue' to carry its own track
+ *                        (data-play-queue, played by the card handler in custom.js).
+ */
+function ner_michoel_row_actions_markup( $post_id, $listen = 'queue' ) {
+	$info    = ner_michoel_format_kinds();
+	$formats = ner_michoel_row_formats( $post_id );
+	$html    = '<span class="nm-acts">';
+	foreach ( array( 'a', 'v', 'w' ) as $kind ) {
+		if ( empty( $formats[ $kind ] ) ) {
+			continue;
+		}
+		$id    = (int) $formats[ $kind ];
+		$label = ner_michoel_format_icon( $kind ) . '<span>' . esc_html( $info[ $kind ]['verb'] ) . '</span>';
+		$title = ' title="' . esc_attr( $info[ $kind ]['title'] ) . '"';
+		if ( 'a' === $kind ) {
+			$attrs = '';
+			if ( 'row' !== $listen || $id !== (int) $post_id ) {
+				$post  = get_post( $id );
+				$track = ( $post && function_exists( 'ner_michoel_build_track_queue' ) ) ? ner_michoel_build_track_queue( array( $post ) ) : array();
+				if ( ! $track ) {
+					continue;
+				}
+				$attrs = ' data-play-queue="' . esc_attr( wp_json_encode( $track ) ) . '" data-play-index="0"';
+			}
+			$html .= '<button type="button" class="nm-act nm-act--a"' . $title . $attrs . '>' . $label . '</button>';
+		} else {
+			// The video of an audio shiur that has its Vimeo link on the same post is on that post's page.
+			$url   = get_permalink( $id ) . ( ( 'v' === $kind && ! empty( $formats['a'] ) && (int) $formats['a'] === $id ) ? '#nm-watch' : '' );
+			$html .= '<a class="nm-act nm-act--' . esc_attr( $kind ) . '" href="' . esc_url( $url ) . '"' . $title . '>' . $label . '</a>';
+		}
+	}
+	$html .= '<a class="nm-go" href="' . esc_url( get_permalink( $post_id ) ) . '" aria-label="' . esc_attr__( 'Open the shiur\'s page', 'ner-michoel-child' ) . '" title="' . esc_attr__( 'Open the shiur\'s page', 'ner-michoel-child' ) . '">';
+	$html .= '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>';
+	return $html . '</span>';
+}

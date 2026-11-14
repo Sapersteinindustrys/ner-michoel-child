@@ -1,7 +1,8 @@
 <?php
 /**
- * A speaker's page: the speaker's series as swipeable rows of cards, then
- * the shiurim that are in no series as a track list.
+ * A speaker's page: all the speaker's shiurim as a list, newest first, 40 at a
+ * time with a "Load more" button (list-more.js reads the next-page link), then
+ * the speaker's series as swipeable rows of cards (Yoni, 2026-11-13).
  *
  * The series come in two groups (ner_michoel_get_speaker_series_groups(),
  * inc/speaker-series.php), each in the old site's category order: the series
@@ -14,7 +15,25 @@ get_header();
 $term = get_queried_object();
 
 $groups      = ner_michoel_get_speaker_series_groups( $term->term_id );
-$standalone  = ner_michoel_get_speaker_standalone_shiurim( $term->term_id );
+// The shiurim list: page ?sp=N of this speaker's shiurim (alumni also see the alumni-only ones).
+$sp_page     = isset( $_GET['sp'] ) ? max( 1, absint( wp_unslash( $_GET['sp'] ) ) ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$sp_args     = array(
+	'post_type'      => 'shiur',
+	'post_status'    => 'publish',
+	'posts_per_page' => 40,
+	'paged'          => $sp_page,
+	'orderby'        => 'date',
+	'order'          => 'DESC',
+	'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_query_tax_query
+		array(
+			'taxonomy' => 'speaker',
+			'field'    => 'term_id',
+			'terms'    => $term->term_id,
+		),
+	),
+);
+$sp_query    = new WP_Query( function_exists( 'ner_michoel_shiur_list_args' ) ? ner_michoel_shiur_list_args( $sp_args ) : $sp_args );
+$standalone  = $sp_query->posts;
 $image       = ner_michoel_get_speaker_photo_url( $term->term_id );
 // Swipeable rows of series cards.
 $is_carousel = true;
@@ -74,6 +93,21 @@ $series_playable  = $lazy_queues && $all_series && function_exists( 'ner_michoel
 	}
 	?>
 
+	<?php if ( $standalone ) : ?>
+	<section class="sh-section" data-scope-browse data-speaker-shiurim>
+		<h2 class="sh-section__title"><?php esc_html_e( 'Shiurim', 'ner-michoel-child' ); ?></h2>
+		<?php ner_michoel_render_tracklist( $standalone, false ); ?>
+		<?php if ( $sp_page < $sp_query->max_num_pages ) : // The next page: list-more.js turns this into "Load more". ?>
+			<nav class="sh-classic-pagination" aria-label="<?php esc_attr_e( 'More shiurim', 'ner-michoel-child' ); ?>">
+				<?php if ( $sp_page > 1 ) : ?>
+					<a class="prev" href="<?php echo esc_url( add_query_arg( 'sp', $sp_page - 1 ) ); ?>"><?php esc_html_e( 'Newer', 'ner-michoel-child' ); ?></a>
+				<?php endif; ?>
+				<a class="next" href="<?php echo esc_url( add_query_arg( 'sp', $sp_page + 1 ) ); ?>"><?php esc_html_e( 'Older shiurim', 'ner-michoel-child' ); ?></a>
+			</nav>
+		<?php endif; ?>
+	</section>
+	<?php endif; ?>
+
 	<?php foreach ( $series_groups as $series_group ) : ?>
 	<?php if ( $series_group['entries'] ) : ?>
 	<section class="sh-section" data-scope-browse data-series-group="<?php echo esc_attr( $series_group['key'] ); ?>">
@@ -110,13 +144,6 @@ $series_playable  = $lazy_queues && $all_series && function_exists( 'ner_michoel
 	</section>
 	<?php endif; ?>
 	<?php endforeach; ?>
-
-	<?php if ( $standalone ) : ?>
-	<section class="sh-section" data-scope-browse>
-		<h2 class="sh-section__title"><?php esc_html_e( 'Shiurim', 'ner-michoel-child' ); ?></h2>
-		<?php ner_michoel_render_tracklist( $standalone, false ); ?>
-	</section>
-	<?php endif; ?>
 
 	<?php if ( ! $all_series && ! $standalone ) : ?>
 		<p class="sh-empty" data-scope-browse><?php esc_html_e( 'No shiurim from this speaker yet.', 'ner-michoel-child' ); ?></p>
