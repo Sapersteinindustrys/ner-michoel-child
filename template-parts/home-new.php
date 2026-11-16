@@ -100,6 +100,7 @@ $site_name  = ner_michoel_site_name();
 
 	<?php
 	// A signed-in listener's own shelf (inc/for-you.php) and this week's parsha and the Yom Tov in season
+	// (built here, printed under New Shiurim and Mazal Tov)
 	// (inc/week.php) share one row: side by side on a computer when both have something to show, and each takes
 	// the whole row when only one does. Each prints nothing of its own accord, so the row is built from what they print.
 	ob_start();
@@ -112,12 +113,6 @@ $site_name  = ner_michoel_site_name();
 	get_template_part( 'template-parts/home-week' );
 	$week_box = trim( ob_get_clean() );
 	?>
-	<?php if ( '' !== $for_you || '' !== $week_box ) : ?>
-		<div class="hn-duo<?php echo ( '' !== $for_you && '' !== $week_box ) ? ' hn-duo--both' : ''; ?>">
-			<?php echo $for_you . $week_box; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup the two renderers already escaped. ?>
-		</div>
-	<?php endif; ?>
-
 	<div class="hn-main">
 
 		<section class="hn-panel hn-feed" aria-labelledby="hn-feed-title">
@@ -299,6 +294,13 @@ $site_name  = ner_michoel_site_name();
 		</aside>
 
 	</div>
+
+	<?php // Below New Shiurim and Mazal Tov (Yoni, 2026-11-15): the signed-in shelf and the week's parsha / Yom Tov. ?>
+	<?php if ( '' !== $for_you || '' !== $week_box ) : ?>
+		<div class="hn-duo<?php echo ( '' !== $for_you && '' !== $week_box ) ? ' hn-duo--both' : ''; ?>">
+			<?php echo $for_you . $week_box; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup the two renderers already escaped. ?>
+		</div>
+	<?php endif; ?>
 
 	<?php if ( $home['galleries'] ) : ?>
 		<section class="hn-gallery" aria-labelledby="hn-gallery-title">
