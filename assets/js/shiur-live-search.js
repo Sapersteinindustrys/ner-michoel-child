@@ -1238,6 +1238,35 @@
 			setOpen( ! ( window.matchMedia && window.matchMedia( '(max-width: 700px)' ).matches ) );
 		}
 
+		// Topic buttons under the box (a series page, inc/revamp.php): a press sets the topic
+		// filter and shows those shiurim; pressing it again shows all of them again.
+		var chipsBox = topicEl && root.parentNode ? root.parentNode.querySelector( '[data-topic-chips]' ) : null;
+		function markChips() {
+			if ( chipsBox ) {
+				chipsBox.querySelectorAll( '[data-topic-chip]' ).forEach( function ( chip ) {
+					chip.setAttribute( 'aria-pressed', chip.getAttribute( 'data-topic-chip' ) === topicEl.value ? 'true' : 'false' );
+				} );
+			}
+		}
+		if ( chipsBox ) {
+			chipsBox.addEventListener( 'click', function ( e ) {
+				var chip = e.target.closest( '[data-topic-chip]' );
+				if ( ! chip ) {
+					return;
+				}
+				var id = chip.getAttribute( 'data-topic-chip' );
+				start().then( function () {
+					topicEl.value = topicEl.value === id ? '' : id;
+					if ( topicEl.selectedIndex < 0 ) {
+						topicEl.value = '';
+					}
+					run();
+					markChips();
+				} );
+			} );
+			topicEl.addEventListener( 'change', markChips );
+		}
+
 		root.hidden = false;
 
 		var first = saved();

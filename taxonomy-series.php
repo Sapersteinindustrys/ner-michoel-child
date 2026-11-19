@@ -84,6 +84,10 @@ usort(
 	if ( function_exists( 'ner_michoel_render_scoped_search' ) ) {
 		/* translators: %s: series name */
 		ner_michoel_render_scoped_search( array( 'scope' => 'series', 'term' => $term, 'label' => sprintf( __( 'Search within %s…', 'ner-michoel-child' ), html_entity_decode( $term->name, ENT_QUOTES, 'UTF-8' ) ) ) );
+		// The topics in this series as buttons: one press shows only those shiurim (inc/revamp.php).
+		if ( function_exists( 'ner_michoel_render_series_topic_chips' ) ) {
+			ner_michoel_render_series_topic_chips( $term );
+		}
 	}
 	?>
 

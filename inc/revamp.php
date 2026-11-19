@@ -795,3 +795,52 @@ function ner_michoel_rv_light_body_class( $classes ) {
 	return $classes;
 }
 add_filter( 'body_class', 'ner_michoel_rv_light_body_class' );
+
+/**
+ * The topics of a series' shiurim (and the series inside it), most used first, as buttons under
+ * its search box (Yoni, 2026-11-19: "search by topics within the series"). A press sets the
+ * search's topic filter (assets/js/shiur-live-search.js), so Rabbi Klein / Gemara shows only
+ * "Bava Kamma". Nothing when the series has fewer than two topics.
+ *
+ * @param WP_Term $term The series.
+ */
+function ner_michoel_render_series_topic_chips( $term ) {
+	global $wpdb;
+	$ids = array_merge( array( (int) $term->term_id ), array_map( 'intval', (array) get_term_children( (int) $term->term_id, 'series' ) ) );
+	$in  = implode( ',', array_filter( $ids ) );
+	if ( '' === $in ) {
+		return;
+	}
+	$key  = 'nm_series_topics_' . (int) $term->term_id . '_' . wp_cache_get_last_changed( 'terms' ) . wp_cache_get_last_changed( 'posts' );
+	$rows = wp_cache_get( $key, 'ner_michoel' );
+	if ( false === $rows ) {
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			"SELECT tt2.term_id, COUNT(DISTINCT p.ID) AS n
+			FROM {$wpdb->term_taxonomy} tt
+			INNER JOIN {$wpdb->term_relationships} tr ON tr.term_taxonomy_id = tt.term_taxonomy_id
+			INNER JOIN {$wpdb->posts} p ON p.ID = tr.object_id AND p.post_status = 'publish'
+			INNER JOIN {$wpdb->term_relationships} tr2 ON tr2.object_id = p.ID
+			INNER JOIN {$wpdb->term_taxonomy} tt2 ON tt2.term_taxonomy_id = tr2.term_taxonomy_id AND tt2.taxonomy = 'topic'
+			WHERE tt.taxonomy = 'series' AND tt.term_id IN ({$in})
+			GROUP BY tt2.term_id ORDER BY n DESC LIMIT 40" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- integers only.
+		);
+		wp_cache_set( $key, $rows, 'ner_michoel', HOUR_IN_SECONDS );
+	}
+	if ( count( (array) $rows ) < 2 ) {
+		return;
+	}
+	?>
+	<div class="nm-topic-chips" data-topic-chips>
+		<span class="nm-topic-chips__label"><?php esc_html_e( 'Topics in this series:', 'ner-michoel-child' ); ?></span>
+		<?php
+		foreach ( $rows as $row ) :
+			$topic = get_term( (int) $row->term_id, 'topic' );
+			if ( ! $topic || is_wp_error( $topic ) ) {
+				continue;
+			}
+			?>
+			<button type="button" class="nm-topic-chip" data-topic-chip="<?php echo esc_attr( $topic->term_id ); ?>" aria-pressed="false"><?php echo esc_html( html_entity_decode( $topic->name, ENT_QUOTES, 'UTF-8' ) ); ?> <span><?php echo esc_html( number_format_i18n( (int) $row->n ) ); ?></span></button>
+		<?php endforeach; ?>
+	</div>
+	<?php
+}

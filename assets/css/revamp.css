@@ -2108,3 +2108,16 @@ body.is-rv-light .nm-reading-room .nm-masthead--compact {
 		padding-left: 16px;
 	}
 }
+
+/* Topic buttons on a series page (inc/revamp.php, ner_michoel_render_series_topic_chips). */
+.nm-topic-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 20px; }
+.nm-topic-chips__label { font-size: 0.9rem; color: var(--rv-muted, #5b6472); margin-right: 4px; }
+.nm-topic-chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--rv-line, #d9dde3); background: #fff; color: inherit; border-radius: 999px; padding: 6px 12px; font-size: 0.9rem; line-height: 1.2; cursor: pointer; }
+.nm-topic-chip span { font-size: 0.78rem; opacity: 0.65; }
+.nm-topic-chip:hover { border-color: var(--rv-gold-bright, #b8913a); }
+.nm-topic-chip[aria-pressed="true"] { background: var(--rv-navy, #14243d); border-color: var(--rv-navy, #14243d); color: #fff; }
+.nm-topic-chip:focus-visible { outline: 2px solid var(--rv-gold-bright, #b8913a); outline-offset: 2px; }
+@media (max-width: 600px) {
+	.nm-topic-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+	.nm-topic-chip { flex: 0 0 auto; }
+}
