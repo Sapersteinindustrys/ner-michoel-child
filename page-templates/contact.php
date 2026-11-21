@@ -38,18 +38,31 @@ $notice = isset( $_GET['nm_contact'] ) ? sanitize_key( wp_unslash( $_GET['nm_con
 
 // "Email a Magid Shiur" — moved here from its own page. Same handler
 // (forms.php, nm_email_magid_submit), so its redirect and notices are unchanged.
-$magid_notice = isset( $_GET['nm_magid'] ) ? sanitize_key( wp_unslash( $_GET['nm_magid'] ) ) : '';
-$speakers     = get_terms( array( 'taxonomy' => 'speaker', 'hide_empty' => false ) );
-$has_speakers = ! is_wp_error( $speakers ) && $speakers;
-$all_shiurim  = get_posts(
-	array(
-		'post_type'      => 'shiur',
-		'post_status'    => 'publish',
-		'posts_per_page' => -1,
-		'orderby'        => 'title',
-		'order'          => 'ASC',
+//
+// Alumni only (Yoni, 2026-11-21): the whole card shows only to a logged-in
+// alumnus (or a site editor), see ner_michoel_magid_form_open() in core
+// forms.php; everyone else sees no trace of it. To open it to everyone again:
+// add_filter( 'ner_michoel_magid_form_open', '__return_true' );
+//
+// "Which shiur is this about?" picker: hidden for now (Yoni, 2026-11-21). The
+// markup and the handler's support are kept; to bring it back:
+// add_filter( 'ner_michoel_magid_shiur_picker', '__return_true' );
+$magid_open         = function_exists( 'ner_michoel_magid_form_open' ) && ner_michoel_magid_form_open();
+$magid_shiur_picker = $magid_open && function_exists( 'ner_michoel_magid_shiur_picker_on' ) && ner_michoel_magid_shiur_picker_on();
+$magid_notice       = isset( $_GET['nm_magid'] ) ? sanitize_key( wp_unslash( $_GET['nm_magid'] ) ) : '';
+$speakers           = $magid_open ? get_terms( array( 'taxonomy' => 'speaker', 'hide_empty' => false ) ) : array();
+$has_speakers       = ! is_wp_error( $speakers ) && $speakers;
+$all_shiurim        = $magid_shiur_picker
+	? get_posts(
+		array(
+			'post_type'      => 'shiur',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'orderby'        => 'title',
+			'order'          => 'ASC',
+		)
 	)
-);
+	: array();
 ?>
 
 <div class="nm-page nm-page--contact">
@@ -133,6 +146,7 @@ $all_shiurim  = get_posts(
 			</div>
 		</div>
 
+		<?php if ( $magid_open ) : ?>
 		<div class="nm-contact-card nm-contact-card--magid" id="email-magid-shiur">
 			<div class="nm-contact-card__head">
 				<span class="nm-contact-card__badge" aria-hidden="true"><?php echo ner_michoel_line_icon( 'headphones' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
@@ -165,7 +179,7 @@ $all_shiurim  = get_posts(
 						<input type="text" id="nm_magid_hp" name="nm_magid_hp" tabindex="-1" autocomplete="off" value="" />
 					</div>
 
-					<label class="nm-contact-form__field">
+					<label class="nm-contact-form__field<?php echo $magid_shiur_picker ? '' : ' nm-contact-form__field--full'; ?>">
 						<?php esc_html_e( 'Magid Shiur', 'ner-michoel-child' ); ?>
 						<select name="nm_speaker_id" required>
 							<option value=""><?php esc_html_e( 'Choose a speaker…', 'ner-michoel-child' ); ?></option>
@@ -174,6 +188,7 @@ $all_shiurim  = get_posts(
 							<?php endforeach; ?>
 						</select>
 					</label>
+					<?php if ( $magid_shiur_picker ) : // hidden for now, see the top of this file ?>
 					<label class="nm-contact-form__field">
 						<?php esc_html_e( 'Which shiur is this about? (optional)', 'ner-michoel-child' ); ?>
 						<select name="nm_shiur_id">
@@ -183,6 +198,7 @@ $all_shiurim  = get_posts(
 							<?php endforeach; ?>
 						</select>
 					</label>
+					<?php endif; ?>
 					<label class="nm-contact-form__field">
 						<?php esc_html_e( 'Name', 'ner-michoel-child' ); ?>
 						<input type="text" name="nm_name" autocomplete="name" required />
@@ -204,6 +220,7 @@ $all_shiurim  = get_posts(
 				</form>
 			<?php endif; ?>
 		</div>
+		<?php endif; // $magid_open ?>
 		<?php
 	endwhile;
 	?>
